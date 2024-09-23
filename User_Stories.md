@@ -18,12 +18,3 @@ The following design diagrams provide a graphical depiction of the **QuickShift*
 
 - **Boxes/Figures**: Represent modules, components, or data stores within the system.
 - **Lines/Arrows**: Indicate the flow of data or interactions between modules.
-
-### Design D0: High-Level System Overview
-![image](https://github.com/user-attachments/assets/0662f787-7341-4ae9-8ada-9199f6b3a3d8)
-
-### Design D1: Medium-Level System Overview
-![image](https://github.com/user-attachments/assets/28a83d37-3a78-49f5-8bdf-7b53b90272ef)
-
-### Design D2: Low-Level System Overview
-![image](https://github.com/user-attachments/assets/439997e9-20e2-4efe-85a6-aeba5d2e77ff)
