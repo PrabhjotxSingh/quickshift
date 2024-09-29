@@ -14,7 +14,7 @@
 
 7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies. (Jacob, Prabhjot)
 
-8. **Develop** RESTful APIs to enable communication between the frontend and backend systems, ensuring smooth data flow and functionality.
+8. **Develop** RESTful APIs to enable communication between the frontend and backend systems, ensuring smooth data flow and functionality (Ibrahim).
 
 9. **Implement** user authentication and authorization mechanisms using OAuth 2.0 and JWT to ensure secure access for all users. (Russell)
 
@@ -22,17 +22,17 @@
 
 11. **Develop** real-time notification systems using WebSockets to inform users about shift availability and application statuses instantly. (Prabhjot)
 
-12. **Implement** data encryption and security protocols to safeguard personal and financial information of all users, ensuring compliance with relevant regulations.
+12. **Implement** data encryption and security protocols to safeguard personal and financial information of all users, ensuring compliance with relevant regulations (Ibrahim).
 
 13. **Set up** continuous integration and continuous deployment (CI/CD) pipelines using Jenkins or GitHub Actions to automate testing and deployment processes. (Russell)
 
-14. **Conduct** comprehensive unit and integration testing using Jest and Mocha to identify and fix bugs, ensuring a smooth user experience upon full deployment.
+14. **Conduct** comprehensive unit and integration testing using Jest and Mocha to identify and fix bugs, ensuring a smooth user experience upon full deployment (Ibrahim).
 
 15. **Optimize** the matching algorithm by incorporating machine learning models to enhance accuracy and speed in connecting employers with suitable workers. (Jacob)
 
 16. **Develop** a feedback system that allows users to rate and review shifts and employers, using technologies like React and Node.js to integrate it seamlessly into the platform.
 
-17. **Implement** analytics dashboards using tools like Tableau or Power BI to monitor platform performance metrics and user engagement.
+17. **Implement** analytics dashboards using tools like Tableau or Power BI to monitor platform performance metrics and user engagement (Ibrahim).
 
 18. **Create** automated scripts for data backup and recovery to ensure data integrity and availability in case of system failures.
 
