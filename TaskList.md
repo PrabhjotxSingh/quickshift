@@ -1,18 +1,18 @@
 # QuickShift Project-Specific Tasks
 
-1. **Design** the user interface (UI) and user experience (UX) for both the web and mobile applications to ensure intuitive navigation for employers and workers.
+1. **Design** the user interface (UI) and user experience (UX) for both the web and mobile applications to ensure intuitive navigation for employers and workers. (Prabhjot)
 
-2. **Develop** the frontend of the web application using React.js to create a responsive and dynamic user interface.
+2. **Develop** the frontend of the web application using React.js to create a responsive and dynamic user interface. (Prabhjot)
 
 3. **Build** the mobile application for iOS and Android platforms using Flutter to provide cross-platform compatibility and a seamless user experience.
 
-4. **Implement** the backend architecture using Node.js and Express.js to handle API requests and manage server-side operations efficiently. (Jacob)
+4. **Implement** the backend architecture using Node.js and Express.js to handle API requests and manage server-side operations efficiently. (Jacob, Prabhjot)
 
 5. **Set up** a scalable cloud infrastructure on AWS or Microsoft Azure (to be discussed) to support real-time data processing and ensure high availability of the QuickShift platform.
 
 6. **Integrate** secure payment gateways such as Stripe or PayPal (simulate for now) to facilitate instant and reliable financial transactions between businesses and freelancers.
 
-7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies. (Jacob)
+7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies. (Jacob, Prabhjot)
 
 8. **Develop** RESTful APIs to enable communication between the frontend and backend systems, ensuring smooth data flow and functionality.
 
@@ -20,7 +20,7 @@
 
 10. **Design** and **deploy** a relational database schema using PostgreSQL to manage user data, shift postings, and transaction records effectively.
 
-11. **Develop** real-time notification systems using WebSockets to inform users about shift availability and application statuses instantly.
+11. **Develop** real-time notification systems using WebSockets to inform users about shift availability and application statuses instantly. (Prabhjot)
 
 12. **Implement** data encryption and security protocols to safeguard personal and financial information of all users, ensuring compliance with relevant regulations.
 
@@ -40,7 +40,7 @@
 
 20. **Develop** a comprehensive testing framework to perform load testing and ensure the platform can handle high traffic during peak periods. (Jacob)
 
-21. **Set up** version control using Git and GitHub to manage codebase efficiently and facilitate collaboration among development team members.
+21. **Set up** version control using Git and GitHub to manage codebase efficiently and facilitate collaboration among development team members.  (Prabhjot)
 
 22. **Conduct** code reviews and implement best practices for code quality and maintainability, ensuring a robust and scalable codebase.
 
