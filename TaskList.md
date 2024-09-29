@@ -6,13 +6,13 @@
 
 3. **Build** the mobile application for iOS and Android platforms using Flutter to provide cross-platform compatibility and a seamless user experience.
 
-4. **Implement** the backend architecture using Node.js and Express.js to handle API requests and manage server-side operations efficiently.
+4. **Implement** the backend architecture using Node.js and Express.js to handle API requests and manage server-side operations efficiently. (Jacob)
 
 5. **Set up** a scalable cloud infrastructure on AWS or Microsoft Azure (to be discussed) to support real-time data processing and ensure high availability of the QuickShift platform.
 
 6. **Integrate** secure payment gateways such as Stripe or PayPal (simulate for now) to facilitate instant and reliable financial transactions between businesses and freelancers.
 
-7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies.
+7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies. (Jacob)
 
 8. **Develop** RESTful APIs to enable communication between the frontend and backend systems, ensuring smooth data flow and functionality.
 
@@ -28,7 +28,7 @@
 
 14. **Conduct** comprehensive unit and integration testing using Jest and Mocha to identify and fix bugs, ensuring a smooth user experience upon full deployment.
 
-15. **Optimize** the matching algorithm by incorporating machine learning models to enhance accuracy and speed in connecting employers with suitable workers.
+15. **Optimize** the matching algorithm by incorporating machine learning models to enhance accuracy and speed in connecting employers with suitable workers. (Jacob)
 
 16. **Develop** a feedback system that allows users to rate and review shifts and employers, using technologies like React and Node.js to integrate it seamlessly into the platform.
 
@@ -38,7 +38,7 @@
 
 19. **Integrate** third-party services such as Google Maps API to provide location-based shift listings and improve the matching process.
 
-20. **Develop** a comprehensive testing framework to perform load testing and ensure the platform can handle high traffic during peak periods.
+20. **Develop** a comprehensive testing framework to perform load testing and ensure the platform can handle high traffic during peak periods. (Jacob)
 
 21. **Set up** version control using Git and GitHub to manage codebase efficiently and facilitate collaboration among development team members.
 
