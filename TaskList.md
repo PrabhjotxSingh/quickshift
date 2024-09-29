@@ -8,15 +8,15 @@
 
 4. **Implement** the backend architecture using Node.js and Express.js to handle API requests and manage server-side operations efficiently. (Jacob, Prabhjot)
 
-5. **Set up** a scalable cloud infrastructure on AWS or Microsoft Azure (to be discussed) to support real-time data processing and ensure high availability of the QuickShift platform.
+5. **Set up** a scalable cloud infrastructure on AWS or Microsoft Azure (to be discussed) to support real-time data processing and ensure high availability of the QuickShift platform. (Russell)
 
-6. **Integrate** secure payment gateways such as Stripe or PayPal (simulate for now) to facilitate instant and reliable financial transactions between businesses and freelancers.
+6. **Integrate** secure payment gateways such as Stripe or PayPal (simulate for now) to facilitate instant and reliable financial transactions between businesses and freelancers. (Russell)
 
 7. **Create** a robust matching algorithm using Python and machine learning techniques to efficiently connect businesses with available workers based on location, availability, and required competencies. (Jacob, Prabhjot)
 
 8. **Develop** RESTful APIs to enable communication between the frontend and backend systems, ensuring smooth data flow and functionality.
 
-9. **Implement** user authentication and authorization mechanisms using OAuth 2.0 and JWT to ensure secure access for all users.
+9. **Implement** user authentication and authorization mechanisms using OAuth 2.0 and JWT to ensure secure access for all users. (Russell)
 
 10. **Design** and **deploy** a relational database schema using PostgreSQL to manage user data, shift postings, and transaction records effectively.
 
@@ -24,7 +24,7 @@
 
 12. **Implement** data encryption and security protocols to safeguard personal and financial information of all users, ensuring compliance with relevant regulations.
 
-13. **Set up** continuous integration and continuous deployment (CI/CD) pipelines using Jenkins or GitHub Actions to automate testing and deployment processes.
+13. **Set up** continuous integration and continuous deployment (CI/CD) pipelines using Jenkins or GitHub Actions to automate testing and deployment processes. (Russell)
 
 14. **Conduct** comprehensive unit and integration testing using Jest and Mocha to identify and fix bugs, ensuring a smooth user experience upon full deployment.
 
@@ -44,7 +44,7 @@
 
 22. **Conduct** code reviews and implement best practices for code quality and maintainability, ensuring a robust and scalable codebase.
 
-23. **Implement** push notification services using Firebase to keep users informed about shift updates and important platform announcements.
+23. **Implement** push notification services using Firebase to keep users informed about shift updates and important platform announcements. (Russell)
 
 24. **Develop** data analytics modules to track user behavior and platform usage, enabling data-driven decision-making for future enhancements.
 
