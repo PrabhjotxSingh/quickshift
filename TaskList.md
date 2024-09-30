@@ -34,7 +34,7 @@
 
 17. **Implement** analytics dashboards using tools like Tableau or Power BI to monitor platform performance metrics and user engagement (Ibrahim).
 
-18. **Create** automated scripts for data backup and recovery to ensure data integrity and availability in case of system failures.
+18. **Create** automated scripts for data backup and recovery to ensure data integrity and availability in case of system failures. (Asad)
 
 19. **Integrate** third-party services such as Google Maps API to provide location-based shift listings and improve the matching process.
 
@@ -42,11 +42,11 @@
 
 21. **Set up** version control using Git and GitHub to manage codebase efficiently and facilitate collaboration among development team members.  (Prabhjot)
 
-22. **Conduct** code reviews and implement best practices for code quality and maintainability, ensuring a robust and scalable codebase.
+22. **Conduct** code reviews and implement best practices for code quality and maintainability, ensuring a robust and scalable codebase. (Asad)
 
 23. **Implement** push notification services using Firebase to keep users informed about shift updates and important platform announcements. (Russell)
 
-24. **Develop** data analytics modules to track user behavior and platform usage, enabling data-driven decision-making for future enhancements.
+24. **Develop** data analytics modules to track user behavior and platform usage, enabling data-driven decision-making for future enhancements. (Asad)
 
-25. **Ensure** compliance with labor laws and regulations by implementing necessary features in the platform that handle worker classifications and payment processing accurately.
+25. **Ensure** compliance with labor laws and regulations by implementing necessary features in the platform that handle worker classifications and payment processing accurately. (Asad)
 
