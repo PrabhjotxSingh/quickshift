@@ -57,13 +57,25 @@ ABET Concerns Essay
 PPT Slideshow
 
 
+<img width="1036" alt="88f7f3855e16f672ffc148f9dd9bb29fb8181662b78766df654a2b1ecb843855" src="https://github.com/user-attachments/assets/af00918f-2363-47ff-b105-35ba0624aa09">
 
+<img width="1040" alt="f2ec21e993b7b06f3f96c1bb41794ea76e23315c440b99d344e7c7dbc69c66a2" src="https://github.com/user-attachments/assets/16387296-64e5-453e-a6c1-a9a7eb065c8e">
 
+<img width="1035" alt="87729972dbfaae2dde6016f2ee30a453f99178d31ef91eb2810faaa9b35d9c54" src="https://github.com/user-attachments/assets/d4655735-af9b-4da8-92bf-87ac3df6fd53">
 
+<img width="1039" alt="c061824a71a7c8a309e7c6d7e5d99c4ae87d968c2bbd85e270e22ea67492d5ed" src="https://github.com/user-attachments/assets/70a40231-be7b-4fe7-adcf-c0f71a0ef85d">
 
+<img width="1036" alt="443d7f7ad10c51aef4c4c0da75ea7b086bfdbd5021c0d25cbc021122beb01509" src="https://github.com/user-attachments/assets/63679174-ed82-4fcf-8e84-629087b10ff3">
 
+<img width="1037" alt="2f3a2bbf65b4da20f948548803a9a920fd7bdf80ac35eefa5ea8c70f7777e77a" src="https://github.com/user-attachments/assets/9a82d3f2-f7e7-40da-b999-8aca2246ca81">
 
+<img width="1037" alt="278ed69adbd64aaa950a6dd848803bc08c7be8335cf1a47a12ce306e602760ff" src="https://github.com/user-attachments/assets/cae37df7-3644-4d4e-b10e-046f6187a0d1">
 
+<img width="1035" alt="16ee75a17cfccf813f606e58af1320e66d93d8b80f5e1a0471b506ff80392413" src="https://github.com/user-attachments/assets/2b50b920-7e77-4046-8399-07b85900b055">
+
+<img width="1038" alt="7700fd0c6c6e8aa678872282109deafb21c620ee3e6a3ec15b25ceb9c2b2fb0e" src="https://github.com/user-attachments/assets/f10dd192-46d4-406b-b851-948296b1aafc">
+
+<img width="1035" alt="6f7dd13d8dc8f646a49975dafd7f3ad36677cd4e4d5ab2f2fec973c35ab2c360" src="https://github.com/user-attachments/assets/f8ef3c27-624a-41f6-90cd-bdd1c0761ee9">
 
 Self-Assessment Essays
 
