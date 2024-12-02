@@ -32,22 +32,22 @@
 
 ---
 
-Team Members
+## Team Members
 [Zaid Najar] - [najarzs@mail.uc.edu]
 [Russell Toney] - [toneyrl@mail.uc.edu]
 [Jacob Sayatovic] - [sayatojb@mail.uc.edu]
 [Prabhjot Singh] - [singh2pt@mail.uc.edu]
 [Asad Patel] - [patel5a4@mail.uc.edu]
 [Ibrahim Ahmed] - [ahmedik@mail.uc.edu]
-Abstract
+## Abstract
 
 QuickShift is a brand new, innovative way for restaurants and other businesses to quickly staff their work dynamically based on real time demands.   It allows restaurants to post shifts that workers can claim quickly, reducing staffing gaps that might impact service.   The app will include a shift management system, notifications for workers who are available, and a very flexible way to schedule.   QuickShift will finally address the needs for efficient, adaptable, and reliable staffing that restaurants have been struggling with forever.
 
-Project Description
+## Project Description
 
 	Across the globe, there are many many restaurants, stores, and other establishments that need constant staffing.   Unfortunately, many of these restaurants have dealt with lack of proper staffing, busy seasons, and other issues.   At the moment, these restaurants rely on unreliable methods like calling employees directly, or posting last minute ads which tends to fail to fill the available shifts.   Quickshift provides a much better solution - on demand work.   The application will allow businesses to post shifts in real-time, allowing workers to quickly fill the positions based on the establishments requirements. 
 
-User Stories
+## User Stories
 As an employee starting on QuickShift, I want to be able to easily pick up jobs in my location at various places, so I can make some extra money on the side easily.
 
 As an employer starting on QuickShift, I want to be able to quickly fill positions that require little training overhead in order to keep the business running smoothly.
@@ -56,13 +56,13 @@ As a returning employee on QuickShift, I want to be able to access better positi
 
 As a returning employer on QuickShift, I want to have high-quality workers at any moment of the day in case of cancellations and busy days by paying more, in order to generate more revenue and prohibit slowdowns.
 
-Design Diagrams
+## Design Diagrams
 <img width="640" alt="9a7d2fababea200ded6c666bb12cc9574d4945f02acc8fff706441dd9b972424" src="https://github.com/user-attachments/assets/e557bb14-3c8b-41f9-a262-266274c8cf5f">
 <img width="630" alt="b81fe45fea8c0d2f326bfb904d531326738d1f1bd160306ddaf287e91a2ab2e7" src="https://github.com/user-attachments/assets/a17cdf9b-5843-4224-9ecf-f7571502cf99">
 <img width="478" alt="3063cd7f721d22ddfed9c5a034ec76c3d9a53b6c53f56f54b8b391e0b4fddf9a" src="https://github.com/user-attachments/assets/eaeede30-5d1b-4c6b-9ac3-28e8044b2239">
 
 
-Project Tasks and Timeline
+## Project Tasks and Timeline
 Design the user interface (UI) and user experience (UX) for both the web and mobile applications to ensure intuitive navigation for employers and workers. (Prabhjot)
 Develop the frontend of the web application using React.js to create a responsive and dynamic user interface. (Prabhjot)
 Build the mobile application for iOS and Android platforms using Flutter to provide cross-platform compatibility and a seamless user experience.
@@ -89,11 +89,11 @@ Implement push notification services using Firebase to keep users informed about
 Develop data analytics modules to track user behavior and platform usage, enabling data-driven decision-making for future enhancements. (Asad)
 Ensure compliance with labor laws and regulations by implementing necessary features in the platform that handle worker classifications and payment processing accurately. (Asad)
 
-ABET Concerns Essay
+## ABET Concerns Essay
 
 Constraints When designing QuickShift, a lot of constraints arose. The first one is security since the platform handles very sensitive user data such as payment and personal information. There needs to be top tier encryption and authentication. There are also legal constraints such as data privacy like GDPR and CCPA, but also labor laws and how to handle them as independent contractors. There needs to be expert data handling practices and clear user consent protocols which impact how data is stored. There are also economic constraints such as budget limitations that constrict the choice of technologies. This may force us to use open-source frameworks or cloud services. This influences the entire infrastructure and pushes us to use affordable yet reliable cloud providers that ensure scalability. Lastly, there are ethical considerations such as fair labor practices and ensuring no one is exploited. There needs to be algorithms that promote equal shift distribution and prevent bias in worker selection. These constraints ensure that QuickShift is secure, cost-effective, and ethical.
 
-PPT Slideshow
+## PPT Slideshow
 
 
 <img width="1036" alt="88f7f3855e16f672ffc148f9dd9bb29fb8181662b78766df654a2b1ecb843855" src="https://github.com/user-attachments/assets/af00918f-2363-47ff-b105-35ba0624aa09">
@@ -116,7 +116,7 @@ PPT Slideshow
 
 <img width="1035" alt="6f7dd13d8dc8f646a49975dafd7f3ad36677cd4e4d5ab2f2fec973c35ab2c360" src="https://github.com/user-attachments/assets/f8ef3c27-624a-41f6-90cd-bdd1c0761ee9">
 
-Self-Assessment Essays
+## Self-Assessment Essays
 
 JACOB
 Our senior design idea, QuickShift, is aimed towards building an equivalent of gig platforms (Doordash) but for restaurant employees, and where restaurants can assign shifts for workers. From an academic point of view, being a senior computer science major this project would afford the practical application of software development, user interface design and data management skills I've learned thus far in my degree. QuickShift aims to solve a common problem in the restaurant sector: maintenance problems such as staff availability which hampers the normal running of activities. The operation of intelligent matching algorithms and convenient user interface that will be used in our platform will make the process of filling the open shifts fast. In this project we are actually able to blend or combine both the theoretical and practical aspects that we learn in class. It will be inspiring to apply this idea and observe it affect the given field. The college courses which I have taken have gone a long way in preparing me for the development of QuickShift. In the course CS 2028C Data Structures, I came across efficient algorithms that shall be helpful in sorting and pairing of shifts in the platform. CS-3003 Programming Languages exposed me to the entire functionality of software development process giving me the skills to plan, design, implement and test software systems. From CS-5156 Computer Networks (in progress), I understood databases, hence designing and managing the data structures required to store information about the users and shifts. The course CS 5064: Artificial Intelligence made me develop interest in adding intelligence to software, which we will deploy in our project to facilitate appropriate matching of the users. Apart from technical competencies, these courses also introduced me to analytical thinking and decision making which are what will enable us overcome some of the difficulties that may be encountered in the process of development. With the academic experiences I have made, I will be in a position to apply quick shift where I will be of utmost importance. My co-op experiences have also impacted overall strategy for QuickShift project too. During my course, I did three co-op terms at Siemens Digital Industries Software and was employed as Software Engineer Intern and I had practical experience in the development of software. I developed in C++ and Tcl/TK; the projects were to clean up, refactor, and improve the quality of existing code, which I personally will use for QuickShift. Moreover, while on my double rotation, I was privileged to mentor another intern and therefore I strengthened my leadership and communication skills apart from being able to learn the process of working within a team setting. The use of GitLab for version control and project management also helped me improve my organizational skills that will help me intended to coordinate the team’s working process in QuickShift. These five experiences above have taught me both technical and non-technical skills that I will use to help make our project well structured, efficient, and successful. QuickShift is exciting for me to work on as it aims to solve a real-life problem within the food sector especially the restaurants industry, which sometimes experience staff changes at the last minute. The opportunity to work on designing the solution that can has a real impact on business motivates me to the greatest extent of my ability as I have wanted to create a product that will impact restaurants by providing them with flexible staff options and employees would be glad to get job offers from the restaurants applying this solution. This project also resonates with my passion of building technology applications that address real life challenges in people’s lives. It is my hope that I will be able to assist in developing a tool that de-sweats the whole process of staffing and consequently make things easier for restaurants to run. Joining this project means that I can contribute to something that is valuable while continuing working on myself. As far as QuickShift evolution is concerned, our strategy is to create the initial version, which includes significant features, like shift postings and sign-up, and then generate a series of modifications according to the users’ feedback. We want to incorporate the best practices we will identify throughout the development process so that we can enhance the platform as we continue to gain insight into our users’ requirements. The anticipated result is a functional system that matches restaurants with employees on job boards and help relieve the pressure of last minute hiring. To self-assess my contributions, I will review my work with benchmarks that have been set in terms of progress and guarantee that the quality of the work is up to par. The fact that the platform is workable, easy to navigate, effectively obtained positive feedbacks from test users will be an indication that I have done a good job. Success, therefore, will be in terms of effectiveness and efficiency of the platform in terms of usability, reliability, and functionality of the platform to these key stakeholders: the restaurants, and the workers.  
@@ -173,7 +173,7 @@ After a lengthy discussion, the team and I concluded one idea that my team and I
 	This project will be something that brings together everything I have learned throughout my academic career from both my COOP and my classes. Creating this project won’t only be necessary from an assignment perspective about also as proof to myself that I have truly gained from my university experience. This project will be something I can show to employers and discuss interviews. I can even use this project as educational experience to create more complex future works. I am looking forward to creating a fully functional application with a team of individuals who are both passionate and talented. I hope to deliver a strong and robust project and learn along the way
 
 
-Professional Biographies
+## Professional Biographies
 
 JACOB
 # Professional Biography
@@ -286,11 +286,9 @@ I have several ideas in mind but am still assessing their feasibility and impact
 
 
 
-Budget
+## Budget
 We estimate that we will need $200. This may be an overestimation, but we have plans to launch our simulation on an app store. This will require some developer fees. 
-Appendix
-
-
+## Appendix
 Week 1: September 8–14, 2024
 Attendees: Zaid Najar, Russell Toney, Jacob Sayatovic, Prabhjot Singh, Asad Patel, Ibrahim Ahmed
 Topics Discussed:
