@@ -24,6 +24,10 @@ As a returning employee on QuickShift, I want to be able to access better positi
 As a returning employer on QuickShift, I want to have high-quality workers at any moment of the day in case of cancellations and busy days by paying more, in order to generate more revenue and prohibit slowdowns.
 
 Design Diagrams
+<img width="640" alt="9a7d2fababea200ded6c666bb12cc9574d4945f02acc8fff706441dd9b972424" src="https://github.com/user-attachments/assets/e557bb14-3c8b-41f9-a262-266274c8cf5f">
+<img width="630" alt="b81fe45fea8c0d2f326bfb904d531326738d1f1bd160306ddaf287e91a2ab2e7" src="https://github.com/user-attachments/assets/a17cdf9b-5843-4224-9ecf-f7571502cf99">
+<img width="478" alt="3063cd7f721d22ddfed9c5a034ec76c3d9a53b6c53f56f54b8b391e0b4fddf9a" src="https://github.com/user-attachments/assets/eaeede30-5d1b-4c6b-9ac3-28e8044b2239">
+
 
 Project Tasks and Timeline
 Design the user interface (UI) and user experience (UX) for both the web and mobile applications to ensure intuitive navigation for employers and workers. (Prabhjot)
