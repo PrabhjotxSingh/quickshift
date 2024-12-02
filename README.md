@@ -1,30 +1,3 @@
-Assignment #10 - Final Design Reports - Group Assignment
-Your Final Fall Design Report should be formatted as a professional looking repository with language that documents your project work with consistency and clarity. You may consider using the Github guide to help you construct your final design report: https://guides.github.com/features/wikis/
-Links to an external site.
-The contents of your report will come from the revisions of all your assignments. We expect that assignments will be updated since your original submission. Included in your report should be a Table of Contents, and your report should include a README.md page that lists these following section titles with links.
-Table of Contents for Fall Design Reports
-Team names (include Advisor) and Project Abstract (limit of 400 ascii chars)
-Project Description (Assignment #2)
-User Stories and Design Diagrams (Assignment #4)
-User Stories
-Design Diagrams: Level 0, Level 1 and Level 2 
-Description of the Diagrams: including conventions and a brief description of the purpose of each component.
-Project Tasks and Timeline (Assignment #5-6)
-Task List
-Timeline
-Effort Matrix
-ABET Concerns Essay (Assignment #7)
-PPT Slideshow (includes ABET Concerns) (Assignment #8)
-Self-Assessment Essays (Assignment #3)
-Professional Biographies  (Assignment #1)
-Budget
-expenses to date or statement that there have not been any.
-show monetary value of donated items and donation sources.
-Appendix
-include appropriate references, citations, links to code repositories, and meeting notes.
-there should be evidence justifying 45 hours of effort for each team member
-
-
 Team Members
 [Zaid Najar] - [najarzs@mail.uc.edu]
 [Russell Toney] - [toneyrl@mail.uc.edu]
