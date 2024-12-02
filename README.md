@@ -155,6 +155,73 @@ After a lengthy discussion, the team and I concluded one idea that my team and I
 	This project is something I am very excited and motivated about. Firstly, I get to work with modern web technologies which is something I really wanted more experience in as it is used everywhere. I also aspire to be a business owner someday and creating something that will help small businesses fix staffing issues is something I can see leaving a big impact. I plan on designing the app first in Figma and getting lots of input from my team and then some small business owners, then I plan on starting with the code. With this I plan on getting approvals from small businesses and people that would like to work quick jobs. Success for this project will be determined by the satisfaction data I collect on our small-scale demos and from the knowledge my team and I gain. In terms of my contribution, I will be measuring it by how the app looks and feels since my focus will be frontend.
 	This project will be something that brings together everything I have learned throughout my academic career from both my COOP and my classes. Creating this project won’t only be necessary from an assignment perspective about also as proof to myself that I have truly gained from my university experience. This project will be something I can show to employers and discuss interviews. I can even use this project as educational experience to create more complex future works. I am looking forward to creating a fully functional application with a team of individuals who are both passionate and talented. I hope to deliver a strong and robust project and learn along the way
 
+Ibrahim
+
+Senior Design Project Overview
+QuickShift, my senior design project, goes even further by solving the understaffing issue with
+the development of an operational on-demand staffing platform for small companies, namely
+restaurants in Cincinnati. From an academic point of view, the project is about creating an
+application that will perform an instant matching for employers and dependent contractors for
+short-term employment opportunities. All these elements will include job advertisement and
+hiring, job reservation with payments, as well as the functional design of the user and employer
+facets of the system. In this project, concepts learned in class, particularly the computer science
+course will be useful in application of design theories, research methods, software development
+processes and security planning. The aim for this project in future is to create functional,
+affordable and safe mobile and web application which restraint both businesses and freelance
+workers be it in the gig economy or the traditional market.
+College Curriculum Influence
+The knowledge acquired in the college courses taken at the University of Cincinnati is
+indispensable in the evolution of Quickshift. For instance, in EECE3093C Software Engineering,
+I understood concepts such as the software development lifecycle, version control systems and
+the different types of development approaches like the Agile approach, all of which are useful in
+the well structured growth of the project. The course also highlighted the processes of collecting
+client specifications, verifying the end product and adjusting it, which are all important for the
+creation of a viable and usable service such as QuickShift. Further, in CS 4071 Design and
+Analysis of Algorithms, I acquired more knowledge on designing efficient algorithms for
+applications used in real time. I saw how one can evaluate the time complexity and space
+complexity of algorithms which will help in improving the efficiency of the job matching
+process on Quickshift. These courses have instilled both technical skills like coding and
+debugging and soft skills like problem solving and teamwork which are very important as I
+embark on this project.
+Co-op Experiences Influence
+The co-op terms completed by me as a Full Stack Developer at ITI and as a Cybersecurity
+Consultant at CDW have made me rethink my way of going about this project. At ITI, I had the
+opportunity to learn practically both front-end and back-end development in the form of
+JavaScript, Python, and SQL databases. This role involved how to create applications that could
+accommodates a growing user base and improved my knowledge of user interface concepts,
+which will be very important when creating the easy to use QuickShift interface. While at CDW,
+my role was that of a Cybersecurity Consultant and my emphasis was on implementing security
+measures in computer systems used by clients. This career path gave me a deep understanding of
+data security, information encryption and secure e-commerce solutions – all of them essential for
+storing and protecting sensitive details of users in the QuickShift platform. These co-ops have
+not only polished my technical competence but also showed me first hand the value of
+collaboration, dealing with clients and managing projects. I expect to use these skills inasmuch
+as technically, the QuickShift project should be of high quality and likewise, meet its end users’
+expectations.
+Motivation and Project Approach
+I am particularly keen to engage myself in the project, QuickShift, since it is a practical solution
+for an issue that local businesses and gig workers are suffering. To build a platform that can be
+used to hire people on a flexible basis to assist small businesses perform the same more
+effectively is very compelling for me. I see the project development as sequential rather than
+continuous whereby my initial intention is to spend a significant amount of time on modularizing
+the problem: authentication, job posting, job matching, and making payments. I would like to
+follow the Agile approach, where I intend to be building each module then testing it in order to
+assess the usability as well as safety of the system. One of the main activities in my dissertation
+will be the development of a deep learning algorithm focused on the job-matching process which
+will solve this connector issue at a deeper level.
+Expected Outcomes and Self-Evaluation
+As far this project is concerned, by the end of it, I hope to have created an app which allows
+small business to provide real time staffing solutions. The effectiveness of this goal will most
+probably evaluated through the ease of use, security and the scalability of the system. I will also
+review my input through raising careful issues with respect to the platform operation and its
+enhancement through the target benchmarks of performance and user tests. Moreover, I will
+appraise myself in the basis that the platform observes the minimum requirements for the
+effective security of information systems such as the protection of sensitive information and
+secure transactions. My efforts towards making the application relevant and functional will be
+deemed a success when the application is able to store and process information in real time, does
+not compromise on the ease of use and security functionality, and does not hang or freeze up for
+an extensive period of time. This will be a demonstration that the theoretical knowledge and
+practical skills gained through the four years of college education has been put into practic
 
 ## Professional Biographies
 
@@ -265,6 +332,36 @@ I am looking for a project that would be impressive on my resume and potentially
 I have several ideas in mind but am still assessing their feasibility and impact. My ideal project would not only showcase my technical skills but also foster innovation and create tangible value for users.
 
 
+Ibrahim
+# Professional Biography
+# Ibrahim Ahmed
+# ahmedik@mail.uc.edu
+Ibrahim Ahmed is a technology professional with expertise in software development, network engineering, and cybersecurity consulting. He has contributed to innovative projects and secure solutions through roles at ITI and CDW
+
+## Skills
+
+### Front-End Developer (ITI)
+- HTML5, CSS3, JavaScript
+- Responsive Web Design
+- Cross-Browser Compatibility
+- Version Control (Git)
+
+### Back-End Developer (ITI)
+- Node.js, Python
+- RESTful API Design
+- Database Management (SQL, MongoDB)
+- Authentication & Authorization
+
+### Network Engineer Consultant (CDW)
+- Network Infrastructure Design
+- VPN Setup & Firewall Configuration
+- Network Security & Troubleshooting
+
+### Cybersecurity Consultant (CDW)
+- PAM Implementation (Delinea Secret Server)
+- IAM Solutions
+- Risk Assessment & Incident Response
+- Compliance & Policy Management
 
 
 
