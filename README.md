@@ -1,22 +1,36 @@
-# Quickshift
-Table of Contents for Fall Design Reports
+# QuickShift
+## Table of Contents
 
-Team names and Project Abstract
-Project Description (Assignment #2)
-User Stories and Design Diagrams (Assignment #4)
-User Stories
-Design Diagrams: Level 0, Level 1 and Level 2 
-Description of the Diagrams: including conventions and a brief description of the purpose of each component.
-Project Tasks and Timeline (Assignment #5-6)
-Task List
-Timeline
-Effort Matrix
-ABET Concerns Essay (Assignment #7)
-PPT Slideshow (includes ABET Concerns) (Assignment #8)
-Self-Assessment Essays (Assignment #3)
-Professional Biographies  (Assignment #1)
-Budget
-Appendix
+1. [Team Members](#team-members)
+2. [Abstract](#abstract)
+3. [Team Names and Project Abstract](#team-names-and-project-abstract)
+4. [Project Description (Assignment #2)](#project-description-assignment-2)
+5. [User Stories and Design Diagrams (Assignment #4)](#user-stories-and-design-diagrams-assignment-4)
+    - [User Stories](#user-stories)
+    - [Design Diagrams: Level 0, Level 1, and Level 2](#design-diagrams-level-0-level-1-and-level-2)
+    - [Description of the Diagrams](#description-of-the-diagrams)
+6. [Project Tasks and Timeline (Assignment #5-6)](#project-tasks-and-timeline-assignment-5-6)
+    - [Task List](#task-list)
+    - [Timeline](#timeline)
+    - [Effort Matrix](#effort-matrix)
+7. [ABET Concerns Essay (Assignment #7)](#abet-concerns-essay-assignment-7)
+8. [PPT Slideshow (includes ABET Concerns) (Assignment #8)](#ppt-slideshow-includes-abet-concerns-assignment-8)
+9. [Self-Assessment Essays (Assignment #3)](#self-assessment-essays-assignment-3)
+    - [Jacob Sayatovic](#jacob-sayatovic)
+    - [Zaid Najar](#zaid-najar)
+    - [Russell Toney](#russell-toney)
+    - [Prabhjot Singh](#prabhjot-singh)
+10. [Professional Biographies (Assignment #1)](#professional-biographies-assignment-1)
+    - [Jacob Sayatovic](#jacob-sayatovic-1)
+    - [Russell Toney](#russell-toney-1)
+    - [Prabhjot Singh](#prabhjot-singh-1)
+    - [Zaid Najar](#zaid-najar-1)
+11. [Budget](#budget)
+12. [Appendix](#appendix)
+    - [Weekly Meeting Notes](#weekly-meeting-notes)
+    - [Summary of Effort Hours](#summary-of-effort-hours)
+
+---
 
 Team Members
 [Zaid Najar] - [najarzs@mail.uc.edu]
