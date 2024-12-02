@@ -334,8 +334,8 @@ I have several ideas in mind but am still assessing their feasibility and impact
 
 Ibrahim
 # Professional Biography
-# Ibrahim Ahmed
-# ahmedik@mail.uc.edu
+- Ibrahim Ahmed
+- ahmedik@mail.uc.edu
 Ibrahim Ahmed is a technology professional with expertise in software development, network engineering, and cybersecurity consulting. He has contributed to innovative projects and secure solutions through roles at ITI and CDW
 
 ## Skills
