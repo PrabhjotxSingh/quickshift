@@ -223,6 +223,17 @@ not compromise on the ease of use and security functionality, and does not hang 
 an extensive period of time. This will be a demonstration that the theoretical knowledge and
 practical skills gained through the four years of college education has been put into practic
 
+Asad
+My senior design project centers on developing innovative software with a clear social purpose to address existing challenges. As a fifth-year computer science major, I am determined to leverage the skills and knowledge gained during my academic journey to design a solution that is impactful, efficient, and reliable. This project is an opportunity to synthesize classroom theories with hands-on experience, fostering critical thinking and collaboration within a team environment. It also provides a platform to contribute meaningfully to society through technology, ensuring that the final product has practical value and measurable impact.
+
+My coursework at the University of Cincinnati has laid a strong foundation for tackling complex software development projects. For instance, CS2028C: Data Structures and CS4071: Design and Analysis of Algorithms provided me with essential tools for building efficient and scalable systems by selecting optimal data structures and algorithms. Furthermore, CS4092: Database Design and Development will guide me in creating a robust and well-optimized database backend for the project, while IT2030C: Information Security and Assurance has instilled the importance of integrating security measures during the development lifecycle. Each of these courses has equipped me with the technical and theoretical expertise necessary to design a high-quality software system that adheres to best practices and industry standards.
+
+My co-op and internship experiences have significantly shaped my ability to approach the challenges of this senior design project. During my time at Kroger as a Software Engineer Co-Op, I analyzed large datasets in Excel to deliver actionable insights for the supply chain team and developed custom software solutions to automate data visualization processes. Collaborating with cross-functional teams, I honed my ability to design user-friendly wireframes and align software functionalities with business goals. Additionally, my exposure to AI implementation strategies with Kroger’s 84.51 team deepened my understanding of leveraging emerging technologies to solve practical problems.
+At ITI Wipro, I enhanced my technical skills by programming in Python and C++, creating MySQL databases, and improving accessibility for clients. These experiences improved my problem-solving abilities and taught me the importance of developing scalable, maintainable solutions for complex challenges. Similarly, my engineering internship at Wright Patterson Air Force Base allowed me to lead a team in designing autonomous robots and work with Raspberry Pi to program servo motors and live-stream video feeds. This role sharpened my project management skills, strengthened my knowledge of hardware-software integration, and emphasized the value of collaboration in multidisciplinary environments. Collectively, these experiences have equipped me with the technical proficiency and soft skills necessary for the successful execution of my senior design project.
+I am deeply motivated to participate in the senior design project because it offers a chance to address real-world problems and demonstrate my growth as a software engineer. Having worked in the gig economy and restaurant industries, I have firsthand experience with inefficiencies that software can resolve. This perspective drives my passion for developing solutions that not only meet technical requirements but also create tangible benefits for businesses and individuals. Moreover, the project aligns with my long-term goal of making meaningful contributions to society through technology, and I am excited to apply my skills to deliver a solution that reflects this commitment.
+My approach to the project will begin with thorough planning and requirement analysis, followed by designing an extensible and secure software architecture. I intend to employ Agile methodologies to maintain flexibility and incorporate continuous improvement throughout the development process. My goal is to deliver a user-friendly and efficient solution that meets all functional requirements. Self-evaluation will play a crucial role in assessing my contributions—success will be measured by the simplicity and efficiency of the code, system performance, and positive feedback from peers and instructors. I will consider the project successful when it functions reliably with minimal bugs and demonstrates clear value to its intended users. Ultimately, this project represents not just an academic milestone but a stepping stone toward my career aspirations as a socially responsible software engineer.
+
+
 ## Professional Biographies
 
 JACOB
@@ -362,6 +373,30 @@ Ibrahim Ahmed is a technology professional with expertise in software developmen
 - IAM Solutions
 - Risk Assessment & Incident Response
 - Compliance & Policy Management
+
+# Professional Biography - Asad Patel
+# Contact Info:
+Email: patel5a4@mail.uc.edu
+# Co-op Work Experience:
+# Kroger | Software Engineer Co-Op | Cincinnati, OH May 2024 – Aug 2024 
+- Analyzed large datasets in Excel to provide actionable insights for the supply chain business development team, assisting in strategic decision-making during monthly meetings. 
+- Developed a custom software solution that consolidated various Excel sheets used by the team, automating the generation of charts and graphs for quicker project analysis. 
+- Collaborated with supervisors and team members to design wireframes and ensure software functionality aligned with business needs. 
+- Researched and proposed AI implementation strategies in collaboration with 84.51, leading to the approval of AI-driven projects by senior leadership. 
+# ITI Wipro | Software Engineer Co-Op | Cincinnati, OH Aug 2022 – Aug 2023 
+- Reprogrammed a button using python for client friendly accessibility 
+- Created new SOP for company clients 
+- Used MySQL to create and store tables for team’s convenience 
+- Programmed old company software in C++ to open up more problem solving options for my team 
+# LEGACY Wright Patterson | Engineering Internship | Dayton, OH June 2019 – Aug 2021 
+- Led a group of co-op interns to create an autonomous insect-type robot that records surroundings and conversations 
+- Programmed Raspberry Pi to live-stream video, control servo motors, and wire a GPIO board, documenting the process with step-by-step guides. Programmed servo motors using Python with a Raspberry Pi and wired the Pi using a GeneralPurpose Input/Output board (GPIO)
+- Designed and developed an autonomous Nerf gun, including a 3D CAD model and a custom-built hopper using durable plastic sheets. Built a hopper for a Nerf gun with durable plastic sheets and connected the sheets with glue 
+- Used LabView to control electrical current for various projects, including aircraft systems testing. 
+- Assembled and disassembled a model aircraft wing to test the aerodynamics of a wing in a wind tunnel and analyzed data in excel.
+- Collaborated with a group of engineers and technicians on an aircraft fuel systems simulator and built a new system to test next-generation heat exchangers 
+# Project Sought: I am seeking a project that will have a real world impact along with will allow me to apply what I have learned throughout my past experiences and classes. I would also like the project to allow me to get experience with new softwares that I have not been able to get experience with. 
+
 
 
 
