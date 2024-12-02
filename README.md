@@ -1,7 +1,7 @@
 # Quickshift
 Table of Contents for Fall Design Reports
 
-Team names (include Advisor) and Project Abstract (limit of 400 ascii chars)
+Team names and Project Abstract
 Project Description (Assignment #2)
 User Stories and Design Diagrams (Assignment #4)
 User Stories
