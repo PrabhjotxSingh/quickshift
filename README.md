@@ -54,6 +54,8 @@ Ensure compliance with labor laws and regulations by implementing necessary feat
 
 ABET Concerns Essay
 
+Constraints When designing QuickShift, a lot of constraints arose. The first one is security since the platform handles very sensitive user data such as payment and personal information. There needs to be top tier encryption and authentication. There are also legal constraints such as data privacy like GDPR and CCPA, but also labor laws and how to handle them as independent contractors. There needs to be expert data handling practices and clear user consent protocols which impact how data is stored. There are also economic constraints such as budget limitations that constrict the choice of technologies. This may force us to use open-source frameworks or cloud services. This influences the entire infrastructure and pushes us to use affordable yet reliable cloud providers that ensure scalability. Lastly, there are ethical considerations such as fair labor practices and ensuring no one is exploited. There needs to be algorithms that promote equal shift distribution and prevent bias in worker selection. These constraints ensure that QuickShift is secure, cost-effective, and ethical.
+
 PPT Slideshow
 
 
