@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"target": "ES6",
+		"module": "commonjs",
+		"rootDir": ".",
+		"outDir": "./dist",
+		"strict": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"baseUrl": "./",
+		"paths": {
+			"*": ["src/*"]
+		}
+	},
+	"references": [{ "path": "../shared/" }],
+
+	"include": ["src/**/*.ts", "../shared/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
+}
