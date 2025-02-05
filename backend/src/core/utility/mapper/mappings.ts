@@ -1,4 +1,3 @@
-// mappings.ts
 import { createMap, forMember, mapFrom } from "@automapper/core";
 import { mapper } from "./automapper.config";
 import { RegisterRequest } from "../../../../../shared/src/dto/request/auth/register.request";
