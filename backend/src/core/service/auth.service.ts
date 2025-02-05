@@ -2,7 +2,7 @@ import { UserDto } from "../../../../shared/src/dto/models/user.dto";
 import { LoginRequest } from "../../../../shared/src/dto/request/auth/login.request";
 import { RegisterRequest } from "../../../../shared/src/dto/request/auth/register.request";
 import { LoginResponse } from "../../../../shared/src/dto/response/auth/login.response";
-import { UserModel } from "../models/user.model";
+import { UserModel, UserRole } from "../models/user.model";
 import { RefreshTokenDocument, RefreshTokenModel } from "../models/refresh-token.model";
 import { AlreadyExistsError } from "../errors/AlreadyExistsError";
 import { Repository } from "../repositories/repository";
@@ -20,7 +20,7 @@ export class AuthService {
 
 	constructor() {}
 
-	async Register(request: RegisterRequest): Promise<UserDto> {
+	async register(request: RegisterRequest, isAdmin: boolean = false): Promise<UserDto> {
 		try {
 			// Check for existing user with the same username or email
 			const existingUser = await this.userRepository.getByQuery({
@@ -37,6 +37,9 @@ export class AuthService {
 			// Map request to UserDto and replace password with hashed one
 			const userDto: UserDto = mapper.map(request, RegisterRequest, UserDto);
 			userDto.password = hashedPassword;
+			if (isAdmin) {
+				userDto.roles = [UserRole.ADMIN, UserRole.WORKER];
+			}
 
 			// Create the user in the database
 			const newUser = await this.userRepository.create(userDto);
@@ -47,7 +50,7 @@ export class AuthService {
 		}
 	}
 
-	async Login(request: LoginRequest): Promise<LoginResponse> {
+	async Login(request: LoginRequest, device: string): Promise<LoginResponse> {
 		try {
 			// Find user by username
 			const user = await this.userRepository.getByQuery({ username: request.username });
@@ -63,11 +66,11 @@ export class AuthService {
 
 			// Generate JWT access token
 			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET!, {
-				expiresIn: "15m",
+				expiresIn: "999m",
 			});
 
 			// Generate refresh token (assuming device is part of the request)
-			const refreshToken = await this.createRefreshToken(user.id, request.device);
+			const refreshToken = await this.createRefreshToken(user.id, device);
 
 			// Map user to DTO
 			const userDto = mapper.map(user, UserModel, UserDto);
@@ -82,7 +85,7 @@ export class AuthService {
 		}
 	}
 
-	async DeleteUser(username: string): Promise<void> {
+	async deleteUser(username: string): Promise<void> {
 		try {
 			const user = await this.userRepository.getByQuery({ userId: username });
 			if (user) {
@@ -95,7 +98,7 @@ export class AuthService {
 		}
 	}
 
-	async Refresh(refreshToken: string, device: string): Promise<LoginResponse> {
+	async refresh(refreshToken: string, device: string): Promise<LoginResponse> {
 		try {
 			// Validate the refresh token
 			const tokenData = await this.refreshTokenRepository.getByQuery({ token: refreshToken });

@@ -6,41 +6,55 @@ import { BaseController } from "./base.controller";
 import { AuthService } from "../core/service/auth.service";
 import { RegisterRequest } from "../../../shared/src/dto/request/auth/register.request";
 import { UserDto } from "../../../shared/src/dto/models/user.dto";
-import { AlreadyExistsError } from "../core/errors/AlreadyExistsError";
 
 @Route("Auth")
 @Tags("Auth")
-export class authController extends BaseController {
+export class AuthController extends BaseController {
 	// TODO:
 	// Change to be dependecy injection
 	private readonly authService: AuthService = new AuthService();
 	constructor() {
 		super();
 	}
+
 	@Post("Login")
-	public async Login(@Body() request: LoginRequest): Promise<LoginResponse | String> {
+	public async login(@Body() request: LoginRequest): Promise<LoginResponse | String> {
 		try {
-			const result = await this.authService.Login(request);
-			return this.Ok(result);
+			const result = await this.authService.Login(request, this.getDeviceName());
+
+			this.setTokenResponse(result);
+
+			return this.ok(result);
 		} catch (ex: any) {
 			return this.handleException(ex);
 		}
 	}
 
 	@Put("Refresh")
-	public async Refresh(@Body() request: RefreshRequest): Promise<LoginResponse> {
-		return this.InternalServerError({
+	public async refresh(@Body() request: RefreshRequest): Promise<LoginResponse> {
+		return this.internalServerError({
 			success: false,
 			refreshToken: "Not Implemented",
 		});
 	}
 
 	@Post("Register")
-	public async Register(@Body() request: RegisterRequest): Promise<UserDto | string> {
+	public async register(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
-			const result = await this.authService.Register(request);
+			const result = await this.authService.register(request, false);
 
-			return this.Ok(result);
+			return this.ok(result);
+		} catch (ex: any) {
+			return this.handleException(ex);
+		}
+	}
+
+	@Post("Register/Admin")
+	public async registerAdmin(@Body() request: RegisterRequest): Promise<UserDto | string> {
+		try {
+			const result = await this.authService.register(request, true);
+
+			return this.ok(result);
 		} catch (ex: any) {
 			return this.handleException(ex);
 		}

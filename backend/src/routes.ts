@@ -4,7 +4,7 @@
 import type { TsoaRoute } from '@tsoa/runtime';
 import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { authController } from './controller/auth.controller';
+import { AuthController } from './controller/auth.controller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -46,7 +46,6 @@ const models: TsoaRoute.Models = {
         "properties": {
             "username": {"dataType":"string","required":true},
             "password": {"dataType":"string","required":true},
-            "device": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -90,25 +89,25 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        const argsauthController_Login: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsAuthController_login: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"body","name":"request","required":true,"ref":"LoginRequest"},
         };
         app.post('/Auth/Login',
-            ...(fetchMiddlewares<RequestHandler>(authController)),
-            ...(fetchMiddlewares<RequestHandler>(authController.prototype.Login)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.login)),
 
-            async function authController_Login(request: ExRequest, response: ExResponse, next: any) {
+            async function AuthController_login(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsauthController_Login, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_login, request, response });
 
-                const controller = new authController();
+                const controller = new AuthController();
 
               await templateService.apiHandler({
-                methodName: 'Login',
+                methodName: 'login',
                 controller,
                 response,
                 next,
@@ -120,25 +119,25 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsauthController_Refresh: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsAuthController_refresh: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"body","name":"request","required":true,"ref":"RefreshRequest"},
         };
         app.put('/Auth/Refresh',
-            ...(fetchMiddlewares<RequestHandler>(authController)),
-            ...(fetchMiddlewares<RequestHandler>(authController.prototype.Refresh)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.refresh)),
 
-            async function authController_Refresh(request: ExRequest, response: ExResponse, next: any) {
+            async function AuthController_refresh(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsauthController_Refresh, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_refresh, request, response });
 
-                const controller = new authController();
+                const controller = new AuthController();
 
               await templateService.apiHandler({
-                methodName: 'Refresh',
+                methodName: 'refresh',
                 controller,
                 response,
                 next,
@@ -150,25 +149,55 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsauthController_Register: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsAuthController_register: Record<string, TsoaRoute.ParameterSchema> = {
                 request: {"in":"body","name":"request","required":true,"ref":"RegisterRequest"},
         };
         app.post('/Auth/Register',
-            ...(fetchMiddlewares<RequestHandler>(authController)),
-            ...(fetchMiddlewares<RequestHandler>(authController.prototype.Register)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.register)),
 
-            async function authController_Register(request: ExRequest, response: ExResponse, next: any) {
+            async function AuthController_register(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsauthController_Register, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_register, request, response });
 
-                const controller = new authController();
+                const controller = new AuthController();
 
               await templateService.apiHandler({
-                methodName: 'Register',
+                methodName: 'register',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAuthController_registerAdmin: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"body","name":"request","required":true,"ref":"RegisterRequest"},
+        };
+        app.post('/Auth/Register/Admin',
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.registerAdmin)),
+
+            async function AuthController_registerAdmin(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_registerAdmin, request, response });
+
+                const controller = new AuthController();
+
+              await templateService.apiHandler({
+                methodName: 'registerAdmin',
                 controller,
                 response,
                 next,
