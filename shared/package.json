@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "mongoose": "^8.9.7"
+    "@automapper/classes": "^8.8.1",
+    "@automapper/core": "^8.8.1",
+    "mongoose": "^8.9.7",
+    "reflect-metadata": "^0.1.14"
   }
 }

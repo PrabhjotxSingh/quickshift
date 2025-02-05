@@ -4,7 +4,7 @@
 import type { TsoaRoute } from '@tsoa/runtime';
 import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { authController } from './controller/authController';
+import { authController } from './controller/auth.controller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -12,16 +12,16 @@ import type { Request as ExRequest, Response as ExResponse, RequestHandler, Rout
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "loginResponse": {
+    "LoginResponse": {
         "dataType": "refObject",
         "properties": {
             "success": {"dataType":"boolean","required":true},
-            "refreshToken": {"dataType":"string","required":true},
+            "refreshToken": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "loginRequest": {
+    "LoginRequest": {
         "dataType": "refObject",
         "properties": {
             "username": {"dataType":"string","required":true},
@@ -30,11 +30,43 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "refreshRequest": {
+    "RefreshRequest": {
         "dataType": "refObject",
         "properties": {
             "token": {"dataType":"string","required":true},
             "refreshToken": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserRole": {
+        "dataType": "refEnum",
+        "enums": ["admin","worker","employer"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserDto": {
+        "dataType": "refObject",
+        "properties": {
+            "email": {"dataType":"string","required":true},
+            "username": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "roles": {"dataType":"array","array":{"dataType":"refEnum","ref":"UserRole"},"required":true},
+            "skills": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RegisterRequest": {
+        "dataType": "refObject",
+        "properties": {
+            "Username": {"dataType":"string","required":true},
+            "Password": {"dataType":"string","required":true},
+            "Email": {"dataType":"string","required":true},
+            "Birthday": {"dataType":"datetime","required":true},
+            "FirstName": {"dataType":"string","required":true},
+            "LastName": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -57,7 +89,7 @@ export function RegisterRoutes(app: Router) {
 
     
         const argsauthController_Login: Record<string, TsoaRoute.ParameterSchema> = {
-                request: {"in":"body","name":"request","required":true,"ref":"loginRequest"},
+                request: {"in":"body","name":"request","required":true,"ref":"LoginRequest"},
         };
         app.post('/Auth/Login',
             ...(fetchMiddlewares<RequestHandler>(authController)),
@@ -87,7 +119,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsauthController_Refresh: Record<string, TsoaRoute.ParameterSchema> = {
-                request: {"in":"body","name":"request","required":true,"ref":"refreshRequest"},
+                request: {"in":"body","name":"request","required":true,"ref":"RefreshRequest"},
         };
         app.put('/Auth/Refresh',
             ...(fetchMiddlewares<RequestHandler>(authController)),
@@ -117,6 +149,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsauthController_Register: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"body","name":"request","required":true,"ref":"RegisterRequest"},
         };
         app.post('/Auth/Register',
             ...(fetchMiddlewares<RequestHandler>(authController)),

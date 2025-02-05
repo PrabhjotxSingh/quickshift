@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "ES6",
+		"target": "ES2024",
 		"module": "commonjs",
 		"rootDir": ".",
 		"outDir": "./dist",
@@ -8,11 +8,7 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"baseUrl": "./",
-		"paths": {
-			"*": ["src/*"]
-		}
+		"emitDecoratorMetadata": true
 	},
 	"references": [{ "path": "../shared/" }],
 

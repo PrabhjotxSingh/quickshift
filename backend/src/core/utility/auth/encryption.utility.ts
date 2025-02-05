@@ -1,1 +1,1 @@
-export class encryptionUtility {}
+export class EncryptionUtility {}

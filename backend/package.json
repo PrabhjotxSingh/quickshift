@@ -11,11 +11,15 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@automapper/classes": "^8.8.1",
+		"@automapper/core": "^8.8.1",
+		"dotenv": "^16.4.7",
 		"ejs": "^3.1.9",
 		"express": "^4.19.2",
 		"joi": "^17.13.3",
 		"mongoose": "^8.9.7",
 		"prettier": "^3.3.2",
+		"reflect-metadata": "^0.1.14",
 		"serverless-http": "^3.2.0",
 		"swagger-ui-express": "^5.0.1"
 	},
