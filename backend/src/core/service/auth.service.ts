@@ -2,7 +2,7 @@ import { UserDto } from "../../../../shared/src/dto/models/user.dto";
 import { LoginRequest } from "../../../../shared/src/dto/request/auth/login.request";
 import { RegisterRequest } from "../../../../shared/src/dto/request/auth/register.request";
 import { LoginResponse } from "../../../../shared/src/dto/response/auth/login.response";
-import { UserModel } from "../../../../shared/src/models/user.model";
+import { UserModel } from "../models/user.model";
 import { AlreadyExistsError } from "../errors/AlreadyExistsError";
 import { Repository } from "../repositories/repository";
 import { mapper } from "../utility/mapper/automapper.config";

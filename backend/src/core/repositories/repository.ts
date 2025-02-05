@@ -1,7 +1,9 @@
 import { Model, Document, FilterQuery } from "mongoose";
 
 export class Repository<T extends Document> {
-	constructor(private model: Model<T>) {}
+	constructor(private model: Model<T>) {
+		console.log(this.model.db.name);
+	}
 
 	async getAll(): Promise<T[]> {
 		try {

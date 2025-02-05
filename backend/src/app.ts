@@ -1,10 +1,8 @@
-import { RegisterRoutes } from "./routes";
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "../dist/swagger.json";
 import mongoose, { ConnectOptions } from "mongoose";
-import { configureMappings } from "./core/utility/mapper/mappings";
 
 require("dotenv").config();
 
@@ -14,12 +12,19 @@ if (process.env.DB_CONNECTION_STRING === undefined) {
 
 const app = express();
 const conOptions: ConnectOptions = { autoCreate: true, autoIndex: false };
-configureMappings();
 
 mongoose
 	.connect(process.env.DB_CONNECTION_STRING, conOptions)
 	.then(async () => {
-		console.log("Connected to database");
+		// Second round of imports so that database models arente created before
+		// mongoose connection is established
+		const { configureMappings } = await import("./core/utility/mapper/mappings");
+		const { RegisterRoutes } = await import("./routes");
+
+		console.log(`Connected to database ${mongoose.connection.db?.databaseName}`);
+
+		configureMappings();
+
 		app.use(bodyParser.urlencoded({ extended: true }));
 		app.use(bodyParser.json());
 
