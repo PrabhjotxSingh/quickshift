@@ -22,8 +22,8 @@ export class authController extends BaseController {
 		try {
 			const result = await this.authService.Login(request);
 			return this.Ok(result);
-		} catch (msg: any) {
-			return this.InternalServerError(msg.toString());
+		} catch (ex: any) {
+			return this.handleException(ex);
 		}
 	}
 

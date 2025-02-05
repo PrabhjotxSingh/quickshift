@@ -1,4 +1,4 @@
-import { Model, Document, FilterQuery } from "mongoose";
+import { Model, Document, FilterQuery, ObjectId } from "mongoose";
 
 export class Repository<T extends Document> {
 	constructor(private model: Model<T>) {}
@@ -22,6 +22,17 @@ export class Repository<T extends Document> {
 	async getMultipleByQuery(query: FilterQuery<T>): Promise<T[]> {
 		try {
 			return await this.model.find(query).exec();
+		} catch (error: any) {
+			throw new Error(error.message);
+		}
+	}
+
+	async deleteManyByQuery(query: FilterQuery<T>): Promise<void> {
+		try {
+			const deletedDocument = await this.model.deleteMany(query);
+			if (!deletedDocument) {
+				throw new Error(`Document not found`);
+			}
 		} catch (error: any) {
 			throw new Error(error.message);
 		}
@@ -62,7 +73,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async get(id: string): Promise<T | null> {
+	async get(id: ObjectId): Promise<T | null> {
 		try {
 			return await this.model.findById(id);
 		} catch (error: any) {
@@ -70,7 +81,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async delete(id: string): Promise<T | null> {
+	async delete(id: ObjectId): Promise<T | null> {
 		try {
 			const deletedDocument = await this.model.findByIdAndDelete(id);
 			if (!deletedDocument) {
@@ -82,7 +93,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async update(id: string, newData: Partial<T>): Promise<T | null> {
+	async update(id: ObjectId, newData: Partial<T>): Promise<T | null> {
 		try {
 			const existingDocument = await this.model.findById(id);
 			if (!existingDocument) {

@@ -10,23 +10,23 @@ export function configureMappings() {
 		UserDto,
 		forMember(
 			(destination) => destination.email,
-			mapFrom((source) => source.Email),
+			mapFrom((source) => source.email),
 		),
 		forMember(
 			(destination) => destination.username,
-			mapFrom((source) => source.Username),
+			mapFrom((source) => source.username),
 		),
 		forMember(
 			(destination) => destination.password,
-			mapFrom((source) => source.Password),
+			mapFrom((source) => source.password),
 		),
 		forMember(
 			(destination) => destination.firstName,
-			mapFrom((source) => source.FirstName),
+			mapFrom((source) => source.firstName),
 		),
 		forMember(
 			(destination) => destination.lastName,
-			mapFrom((source) => source.LastName),
+			mapFrom((source) => source.lastName),
 		),
 	);
 }

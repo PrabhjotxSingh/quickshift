@@ -1,4 +1,7 @@
+import { UserDto } from "../../models/user.dto";
+
 export interface LoginResponse {
-  success: boolean;
   refreshToken?: string;
+  accessToken?: string;
+  user?: UserDto;
 }

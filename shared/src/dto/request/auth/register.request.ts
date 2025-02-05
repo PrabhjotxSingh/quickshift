@@ -2,20 +2,20 @@ import { AutoMap } from "@automapper/classes";
 
 export class RegisterRequest {
   @AutoMap()
-  Username!: string;
+  username!: string;
 
   @AutoMap()
-  Password!: string;
+  password!: string;
 
   @AutoMap()
-  Email!: string;
+  email!: string;
 
   @AutoMap()
-  Birthday!: Date;
+  birthday!: Date;
 
   @AutoMap()
-  FirstName!: string;
+  firstName!: string;
 
   @AutoMap()
-  LastName!: string;
+  lastName!: string;
 }

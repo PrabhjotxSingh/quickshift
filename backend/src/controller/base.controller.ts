@@ -54,6 +54,6 @@ export class BaseController extends Controller {
 			return this.AlreadyExists(ex.message);
 		}
 		// Default to internal server error for unexpected exceptions
-		return this.InternalServerError("An unexpected error occurred.");
+		return this.InternalServerError(ex.message);
 	}
 }
