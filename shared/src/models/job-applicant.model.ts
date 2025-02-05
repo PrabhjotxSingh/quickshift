@@ -1,4 +1,3 @@
-// models/JobApplicant.model.ts
 import mongoose, { Document, Schema } from "mongoose";
 import { UserDocument } from "./user.model";
 import { CompanyDocument } from "./company.model";
