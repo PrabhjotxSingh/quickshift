@@ -1,12 +1,12 @@
-import { createMap, forMember, mapFrom } from "@automapper/core";
-import { mapper } from "./automapper.config";
-import { RegisterRequest } from "../../../../../shared/src/dto/request/auth/register.request";
-import { UserDto } from "../../../../../shared/src/dto/models/user.dto";
+// userProfile.ts
+import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
+import { UserModel } from "../../../models/user.model";
+import { UserDto } from "../../../../../../shared/src/dto/models/user.dto";
 
-export function configureMappings() {
+export const userProfile: MappingProfile = (mapper) => {
 	createMap(
 		mapper,
-		RegisterRequest,
+		UserModel,
 		UserDto,
 		forMember(
 			(destination) => destination.email,
@@ -28,5 +28,13 @@ export function configureMappings() {
 			(destination) => destination.lastName,
 			mapFrom((source) => source.lastName),
 		),
+		forMember(
+			(destination) => destination.roles,
+			mapFrom((source) => source.roles),
+		),
+		forMember(
+			(destination) => destination.skills,
+			mapFrom((source) => source.skills),
+		),
 	);
-}
+};

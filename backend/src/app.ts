@@ -18,12 +18,9 @@ mongoose
 	.then(async () => {
 		// Second round of imports so that database models arente created before
 		// mongoose connection is established
-		const { configureMappings } = await import("./core/utility/mapper/mappings");
 		const { RegisterRoutes } = await import("./routes");
 
 		console.log(`Connected to database ${mongoose.connection.db?.databaseName}`);
-
-		configureMappings();
 
 		app.use(bodyParser.urlencoded({ extended: true }));
 		app.use(bodyParser.json());
