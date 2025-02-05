@@ -1,12 +1,10 @@
+import { RegisterRoutes } from "./routes";
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
-import { RegisterRoutes } from "./routes";
-
 import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "../dist/swagger.json";
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -21,6 +19,4 @@ app.use(function (err: unknown, req: Request, res: Response, next: NextFunction)
 	res.status(status).send({ message });
 });
 
-app.listen(port, () => {
-	console.log(`Server is running on http://localhost:${port}`);
-});
+export { app };

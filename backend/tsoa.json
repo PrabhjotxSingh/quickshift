@@ -1,5 +1,5 @@
 {
-	"entryFile": "src/server.ts",
+	"entryFile": "src/webApiServer.ts",
 	"noImplicitAdditionalProperties": "throw-on-extras",
 	"controllerPathGlobs": ["src/controller/**/*Controller.ts"],
 	"spec": {
