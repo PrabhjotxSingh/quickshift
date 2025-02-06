@@ -54,7 +54,7 @@ export function Authenticate(role: UserRole) {
 				}
 
 				// Check user roles
-				const user = await controller.getUserFromToken(decoded.userId);
+				const user = await controller.getUserFromUsername(decoded.username);
 				if (!user || user.roles.length < 1 || !user.roles.includes(role)) {
 					throw new ForbiddenError("Insufficient permissions");
 				}

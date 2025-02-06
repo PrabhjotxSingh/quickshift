@@ -103,9 +103,9 @@ export class BaseController extends Controller {
 		}
 	}
 
-	public async getUserFromToken(userId: string) {
+	public async getUserFromUsername(username: string) {
 		try {
-			return await this.userRepository.getByQuery({ id: userId });
+			return await this.userRepository.getByQuery({ username: username });
 		} catch (error) {
 			throw new UnauthorizedError("User not found");
 		}
