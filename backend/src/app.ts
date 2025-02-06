@@ -30,12 +30,16 @@ mongoose
 
 		// middleware
 		app.use(contextMiddleware);
-		// for debugging
-		app.use((req, res, next) => {
-			console.log("Request cookies:", req.cookies);
-			console.log("Request signed cookies:", req.signedCookies);
-			next();
-		});
+
+		// for debugging the auth
+		// probably not needed anymore
+		if (false) {
+			app.use((req, res, next) => {
+				console.log("Request cookies:", req.cookies);
+				console.log("Request signed cookies:", req.signedCookies);
+				next();
+			});
+		}
 
 		const port = process.env.PORT || 3000;
 		app.use(

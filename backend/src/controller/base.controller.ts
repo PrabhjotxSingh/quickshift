@@ -1,11 +1,3 @@
-/*
-------------------------------------------------------------------------
-DESCRIPTION
-
-Base controller class for streamlined status responses with automatic error handling
-------------------------------------------------------------------------
-*/
-
 import { Controller, Request } from "tsoa";
 import { AlreadyExistsError } from "../core/errors/AlreadyExistsError";
 import { ErrorHandler } from "../core/utility/misc/error-handler.utility";
