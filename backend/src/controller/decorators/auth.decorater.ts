@@ -1,8 +1,8 @@
-import { UserRole } from "../../core/models/user.model";
+import { UserRole } from "../../core/model/user.model";
 import { verify } from "jsonwebtoken";
 import { BaseController } from "../base.controller";
-import { UnauthorizedError } from "../../core/errors/UnauthorizedError";
-import { ForbiddenError } from "../../core/errors/ForbiddenError";
+import { UnauthorizedError } from "../../core/error/UnauthorizedError";
+import { ForbiddenError } from "../../core/error/ForbiddenError";
 import { getRequestContext } from "../middleware/context.middleware";
 
 /**

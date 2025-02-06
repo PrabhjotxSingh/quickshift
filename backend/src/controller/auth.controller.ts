@@ -7,7 +7,7 @@ import { AuthService } from "../core/service/auth.service";
 import { RegisterRequest } from "../../../shared/src/dto/request/auth/register.request";
 import { UserDto } from "../../../shared/src/dto/models/user.dto";
 import { Authenticate } from "./decorators/auth.decorater";
-import { UserRole } from "../core/models/user.model";
+import { UserRole } from "../core/model/user.model";
 import { Request as ExpressRequest } from "express";
 
 @Route("Auth")

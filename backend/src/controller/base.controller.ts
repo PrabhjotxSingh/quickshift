@@ -1,14 +1,14 @@
 import { Controller, Request } from "tsoa";
-import { AlreadyExistsError } from "../core/errors/AlreadyExistsError";
+import { AlreadyExistsError } from "../core/error/AlreadyExistsError";
 import { ErrorHandler } from "../core/utility/misc/error-handler.utility";
 import { LoginResponse } from "../../../shared/src/dto/response/auth/login.response";
-import { UnauthorizedError } from "../core/errors/UnauthorizedError";
-import { Repository } from "../core/repositories/repository";
-import { UserModel } from "../core/models/user.model";
+import { UnauthorizedError } from "../core/error/UnauthorizedError";
+import { Repository } from "../core/repository/repository";
+import { UserModel } from "../core/model/user.model";
 import mongoose, { ObjectId } from "mongoose";
 import { AuthService } from "../core/service/auth.service";
-import { NotFoundError } from "../core/errors/NotFoundError";
-import { ForbiddenError } from "../core/errors/ForbiddenError";
+import { NotFoundError } from "../core/error/NotFoundError";
+import { ForbiddenError } from "../core/error/ForbiddenError";
 import { sign } from "cookie-signature";
 import { getRequestContext, getResponseContext } from "./middleware/context.middleware";
 

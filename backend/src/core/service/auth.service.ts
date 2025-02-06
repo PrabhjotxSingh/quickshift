@@ -2,16 +2,16 @@ import { UserDto } from "../../../../shared/src/dto/models/user.dto";
 import { LoginRequest } from "../../../../shared/src/dto/request/auth/login.request";
 import { RegisterRequest } from "../../../../shared/src/dto/request/auth/register.request";
 import { LoginResponse } from "../../../../shared/src/dto/response/auth/login.response";
-import { UserModel, UserRole } from "../models/user.model";
-import { RefreshTokenDocument, RefreshTokenModel } from "../models/refresh-token.model";
-import { AlreadyExistsError } from "../errors/AlreadyExistsError";
-import { Repository } from "../repositories/repository";
+import { UserModel, UserRole } from "../model/user.model";
+import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
+import { AlreadyExistsError } from "../error/AlreadyExistsError";
+import { Repository } from "../repository/repository";
 import { mapper } from "../utility/mapper/automapper.config";
 import { ErrorHandler } from "../utility/misc/error-handler.utility";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
-import { NotFoundError } from "../errors/NotFoundError";
+import { NotFoundError } from "../error/NotFoundError";
 import { ObjectId } from "mongoose";
 
 export class AuthService {
