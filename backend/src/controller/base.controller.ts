@@ -18,6 +18,7 @@ import { AuthService } from "../core/service/auth.service";
 import { NotFoundError } from "../core/errors/NotFoundError";
 import { ForbiddenError } from "../core/errors/ForbiddenError";
 import { sign } from "cookie-signature";
+import { getRequestContext, getResponseContext } from "./middleware/context.middleware";
 
 require("dotenv").config();
 
@@ -123,31 +124,22 @@ export class BaseController extends Controller {
 		const refreshMaxAge = parseInt(process.env.REFRESH_LIFE!) || 2592000000; // 30d
 
 		// Access token cookie
-		this.setHeader("Set-Cookie", [
-			this.buildCookie(BaseController.ACCESS_TOKEN_COOKIE_HEADER, result.accessToken, accessMaxAge, true),
-			this.buildCookie(BaseController.REFRESH_TOKEN_COOKIE_HEADER, result.refreshToken, refreshMaxAge),
-		]);
-	}
-
-	private buildCookie(name: string, value: string, maxAge: number, signed: boolean = false): string {
-		// Sign the value if required
-		const cookieValue = signed
-			? sign(value, process.env.COOKIE_SECRET!) // Use the same secret as cookie-parser
-			: value;
-
-		const options = {
+		const res = getResponseContext();
+		if (!res) {
+			throw Error("Resposne context not found");
+		}
+		res.cookie(BaseController.ACCESS_TOKEN_COOKIE_HEADER, result.accessToken, {
+			maxAge: accessMaxAge,
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production", // Adjust based on your environment
-			sameSite: "strict" as const,
-			maxAge: maxAge,
-			signed: signed,
-		};
-
-		// Convert options to cookie string
-		const optionsStr = Object.entries(options)
-			.map(([key, val]) => `${key}=${val}`)
-			.join("; ");
-
-		return `${name}=${cookieValue}; ${optionsStr}`;
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			signed: true,
+		});
+		res.cookie(BaseController.REFRESH_TOKEN_COOKIE_HEADER, result.refreshToken, {
+			maxAge: refreshMaxAge,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+		});
 	}
 }

@@ -4,7 +4,7 @@ import { BaseController } from "../base.controller";
 import { UnauthorizedError } from "../../core/errors/UnauthorizedError";
 import { ForbiddenError } from "../../core/errors/ForbiddenError";
 import { Request as ExpressRequest } from "express";
-import { getCurrentRequest } from "../middleware/request-context.middleware";
+import { getRequestContext } from "../middleware/context.middleware";
 
 export function Authenticate(role: UserRole) {
 	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -15,7 +15,7 @@ export function Authenticate(role: UserRole) {
 
 			// Extract the Express request object from `context`
 			const context = args[1]; // TSOA passes the context as the second argument
-			const req = getCurrentRequest();
+			const req = getRequestContext();
 
 			if (!req) {
 				throw new UnauthorizedError("Request context is missing");
@@ -36,7 +36,7 @@ export function Authenticate(role: UserRole) {
 				// Verify/Refresh tokens
 				let decoded: any;
 				try {
-					decoded = verify(accessToken, process.env.JWT_SECRET!);
+					decoded = verify(accessToken, process.env.COOKIE_SECRET!);
 				} catch (error: any) {
 					if (error.name === "TokenExpiredError") {
 						const refreshResponse = await controller.refresh(refreshToken);
@@ -44,7 +44,7 @@ export function Authenticate(role: UserRole) {
 							throw new UnauthorizedError("Invalid access token");
 						}
 						try {
-							decoded = verify(refreshResponse.accessToken, process.env.JWT_SECRET!);
+							decoded = verify(refreshResponse.accessToken, process.env.COOKIE_SECRET!);
 						} catch {
 							throw new UnauthorizedError("Invalid access token");
 						}

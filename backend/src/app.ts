@@ -5,7 +5,7 @@ import * as swaggerDocument from "../dist/swagger.json";
 import cors from "cors";
 import mongoose, { ConnectOptions } from "mongoose";
 import cookieParser from "cookie-parser";
-import { requestMiddleware } from "./controller/middleware/request-context.middleware";
+import { contextMiddleware } from "./controller/middleware/context.middleware";
 require("dotenv").config();
 
 if (process.env.DB_CONNECTION_STRING === undefined) {
@@ -26,10 +26,10 @@ mongoose
 		app.use(bodyParser.urlencoded({ extended: true }));
 		app.use(bodyParser.json());
 		app.use(express.json());
-		app.use(cookieParser(process.env.JWT_SECRET));
+		app.use(cookieParser(process.env.COOKIE_SECRET));
 
 		// middleware
-		app.use(requestMiddleware);
+		app.use(contextMiddleware);
 		// for debugging
 		app.use((req, res, next) => {
 			console.log("Request cookies:", req.cookies);
