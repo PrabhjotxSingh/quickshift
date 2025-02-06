@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@automapper/classes": "^8.8.1",
+    "@automapper/core": "^8.8.1",
+    "dotenv": "^16.4.7",
+    "mongoose": "^8.9.7",
+    "reflect-metadata": "^0.1.14"
+  }
+}
