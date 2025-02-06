@@ -65,7 +65,7 @@ export class AuthService {
 			}
 
 			// Generate JWT access token
-			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET!, {
+			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.COOKIE_SECRET!, {
 				expiresIn: "999m",
 			});
 
@@ -113,7 +113,7 @@ export class AuthService {
 			}
 
 			// Generate new access token
-			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET!, {
+			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.COOKIE_SECRET!, {
 				expiresIn: "15m",
 			});
 

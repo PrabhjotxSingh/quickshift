@@ -1,4 +1,4 @@
-import { Route, Post, Tags, Put, Body } from "tsoa";
+import { Route, Post, Tags, Put, Body, Request } from "tsoa";
 import { LoginRequest } from "../../../shared/src/dto/request/auth/login.request";
 import { LoginResponse } from "../../../shared/src/dto/response/auth/login.response";
 import { RefreshRequest } from "../../../shared/src/dto/request/auth/refresh.request";
@@ -6,13 +6,13 @@ import { BaseController } from "./base.controller";
 import { AuthService } from "../core/service/auth.service";
 import { RegisterRequest } from "../../../shared/src/dto/request/auth/register.request";
 import { UserDto } from "../../../shared/src/dto/models/user.dto";
+import { Authenticate } from "./decorators/auth.decorater";
+import { UserRole } from "../core/models/user.model";
+import { Request as ExpressRequest } from "express";
 
 @Route("Auth")
 @Tags("Auth")
 export class AuthController extends BaseController {
-	// TODO:
-	// Change to be dependecy injection
-	private readonly authService: AuthService = new AuthService();
 	constructor() {
 		super();
 	}
@@ -26,12 +26,12 @@ export class AuthController extends BaseController {
 
 			return this.ok(result);
 		} catch (ex: any) {
-			return this.handleException(ex);
+			return this.handleError(ex);
 		}
 	}
 
 	@Put("Refresh")
-	public async refresh(@Body() request: RefreshRequest): Promise<LoginResponse> {
+	public async refreshTokens(@Body() request: RefreshRequest): Promise<LoginResponse> {
 		return this.internalServerError({
 			success: false,
 			refreshToken: "Not Implemented",
@@ -45,18 +45,19 @@ export class AuthController extends BaseController {
 
 			return this.ok(result);
 		} catch (ex: any) {
-			return this.handleException(ex);
+			return this.handleError(ex);
 		}
 	}
 
 	@Post("Register/Admin")
+	@Authenticate(UserRole.ADMIN)
 	public async registerAdmin(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
 			const result = await this.authService.register(request, true);
 
 			return this.ok(result);
 		} catch (ex: any) {
-			return this.handleException(ex);
+			return this.handleError(ex);
 		}
 	}
 }
