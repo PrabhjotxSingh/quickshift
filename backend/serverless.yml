@@ -29,9 +29,5 @@ custom:
           include:
                - DB_CONNECTION_STRING
                - SECRET
-               - REFRESH_LIFE
-               - TRAINER_LIFE
-               - COOKIE
-               - GROUPID
 
 useDotenv: true
