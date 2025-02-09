@@ -4,6 +4,8 @@
 	"description": "",
 	"main": "webApiServer.ts",
 	"scripts": {
+		"deploy": "npm run build && serverless deploy",
+		"build": "npx tsoa spec-and-routes && npx tsc -b",
 		"start": "nodemon --exec ts-node ./src/webApiServer.ts",
 		"dev": "nodemon --inspect --watch src --ext ts --ignore src/routes.ts --ignore dist/swagger.json --exec \"npx tsoa spec-and-routes && ts-node src/webApiServer.ts\""
 	},
@@ -39,6 +41,10 @@
 		"@types/node": "^20.10.0",
 		"@types/swagger-ui-express": "^4.1.6",
 		"nodemon": "^3.1.4",
+		"serverless": "^3.40.0",
+		"serverless-dotenv-plugin": "^3.12.2",
+		"serverless-offline": "^13.9.0",
+		"serverless-plugin-typescript": "^2.1.5",
 		"ts-node": "^10.9.1",
 		"tsoa": "^6.3.1",
 		"typescript": "^5.3.2"

@@ -4,10 +4,19 @@
 	"controllerPathGlobs": ["src/controller/**/*Controller.ts"],
 	"spec": {
 		"outputDirectory": "dist",
-		"specVersion": 3
+		"specVersion": 3,
+		"basePath": "/api",
+		"name": "My API"
 	},
 	"routes": {
 		"routesDir": "src"
 	},
-	"tsconfig": "tsconfig.json"
+	"tsconfig": "tsconfig.json",
+	"additionalProperties": {},
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@shared/*": ["../shared/src/*"]
+		}
+	}
 }

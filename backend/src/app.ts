@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
-import * as swaggerDocument from "../dist/swagger.json";
+import * as swaggerDocument from "../swagger/swagger.json";
 import cors from "cors";
 import mongoose, { ConnectOptions } from "mongoose";
 import cookieParser from "cookie-parser";
@@ -26,7 +26,7 @@ mongoose
 		app.use(bodyParser.urlencoded({ extended: true }));
 		app.use(bodyParser.json());
 		app.use(express.json());
-		app.use(cookieParser(process.env.COOKIE_SECRET));
+		app.use(cookieParser(process.env.SECRET));
 
 		// middleware
 		app.use(contextMiddleware);

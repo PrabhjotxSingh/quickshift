@@ -1,5 +1,5 @@
 "use strict";
-const app = require("app");
-const serverless = require("serverless-http");
+import { app } from "./app";
+import serverless from "serverless-http";
 
-module.exports.hello = serverless(app);
+export const quickshift = serverless(app);

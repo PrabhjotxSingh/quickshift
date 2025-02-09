@@ -1,5 +1,5 @@
 import { AutoMap } from "@automapper/classes";
-import { UserRole } from "../../../../backend/src/core/model/user.model";
+import { UserRole } from "../../enum/user-role.enum";
 
 export class UserDto {
   @AutoMap()
