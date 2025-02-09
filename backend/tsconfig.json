@@ -12,7 +12,7 @@
 		"composite": true,
 		"baseUrl": "..",
 		"paths": {
-			"@shared/*": ["../shared/src/*"]
+			"@shared/*": ["./shared/src/*"]
 		}
 	},
 	"references": [{ "path": "../shared/" }],
