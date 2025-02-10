@@ -37,7 +37,7 @@ mongoose
 
 		// for debugging the auth
 		// probably not needed anymore
-		if (false) {
+		if (true) {
 			app.use((req, res, next) => {
 				console.log("Request cookies:", req.cookies);
 				console.log("Request signed cookies:", req.signedCookies);
@@ -74,18 +74,6 @@ mongoose
 				},
 			}),
 		);
-
-		DebugUtil.log("Registering fallback error handler");
-		app.use(function (err: unknown, req: Request, res: Response, next: NextFunction) {
-			const status = (err as any).status || 500;
-			const message = (err as any).message || "An error occurred during the request.";
-
-			DebugUtil.log(`${status} - ${message}`);
-			res.status(status).send({ message });
-		});
-
-		DebugUtil.log("Server running");
-		console.log(app.routes);
 	})
 	.catch((err) => {
 		DebugUtil.error(new Error("Error occured connecting to database: " + err));
