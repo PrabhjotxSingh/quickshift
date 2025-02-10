@@ -1,4 +1,4 @@
-import { UserRole } from "@shared/enum/user-role.enum";
+import { UserRole } from "shared/src/enum/user-role.enum";
 import { verify } from "jsonwebtoken";
 import { BaseController } from "../base.controller";
 import { UnauthorizedError } from "../../core/error/UnauthorizedError";

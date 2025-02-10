@@ -1,7 +1,7 @@
 // userProfile.ts
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import { UserModel } from "../../../model/user.model";
-import { UserDto } from "@shared/dto/models/user.dto";
+import { UserDto } from "shared/src/dto/models/user.dto";
 
 export const userProfile: MappingProfile = (mapper) => {
 	createMap(

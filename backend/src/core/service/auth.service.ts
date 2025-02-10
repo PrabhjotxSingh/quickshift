@@ -1,9 +1,9 @@
-import { UserDto } from "@shared/dto/models/user.dto";
-import { LoginRequest } from "@shared/dto/request/auth/login.request";
-import { RegisterRequest } from "@shared/dto/request/auth/register.request";
-import { LoginResponse } from "@shared/dto/response/auth/login.response";
+import { UserDto } from "shared/src/dto/models/user.dto";
+import { LoginRequest } from "shared/src/dto/request/auth/login.request";
+import { RegisterRequest } from "shared/src/dto/request/auth/register.request";
+import { LoginResponse } from "shared/src/dto/response/auth/login.response";
 import { UserModel } from "../model/user.model";
-import { UserRole } from "@shared/enum/user-role.enum";
+import { UserRole } from "shared/src/enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
 import { Repository } from "../repository/repository";

@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"target": "ES2024",
 		"module": "commonjs",
-		"rootDir": "..",
+		"rootDir": ".",
 		"outDir": "./dist",
 		"strict": true,
 		"esModuleInterop": true,
@@ -10,13 +10,12 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"composite": true,
-		"baseUrl": "..",
+		"baseUrl": ".",
 		"paths": {
-			"@shared/*": ["./shared/src/*"]
+			//	"shared/src/*": ["./node_modules/shared/src/*"]
 		}
 	},
-	"references": [{ "path": "../shared/" }],
 
-	"include": ["src/**/*.ts", "../shared/**/*.ts", "swagger/**/*.json"],
+	"include": ["src/**/*.ts", "swagger/**/*.json"],
 	"exclude": ["node_modules", "dist"]
 }

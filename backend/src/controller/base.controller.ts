@@ -1,7 +1,7 @@
 import { Controller, Request } from "tsoa";
 import { AlreadyExistsError } from "../core/error/AlreadyExistsError";
 import { ErrorHandler } from "../core/utility/misc/error-handler.utility";
-import { LoginResponse } from "@shared/dto/response/auth/login.response";
+import { LoginResponse } from "shared/src/dto/response/auth/login.response";
 import { UnauthorizedError } from "../core/error/UnauthorizedError";
 import { Repository } from "../core/repository/repository";
 import { UserModel } from "../core/model/user.model";
