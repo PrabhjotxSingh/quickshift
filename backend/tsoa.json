@@ -5,7 +5,7 @@
 	"spec": {
 		"outputDirectory": "swagger",
 		"specVersion": 3,
-		"basePath": "/api",
+		"basePath": "/",
 		"name": "My API"
 	},
 	"routes": {
