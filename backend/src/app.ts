@@ -6,6 +6,7 @@ import cors from "cors";
 import mongoose, { ConnectOptions } from "mongoose";
 import cookieParser from "cookie-parser";
 import { contextMiddleware } from "./controller/middleware/context.middleware";
+import { DebugUtil } from "./core/utility/misc/debug.util";
 require("dotenv").config();
 
 if (process.env.DB_CONNECTION_STRING === undefined) {
@@ -16,6 +17,7 @@ const app = express();
 app.use(express.json());
 const conOptions: ConnectOptions = { autoCreate: true, autoIndex: false };
 
+DebugUtil.log("Connecting to database");
 mongoose
 	.connect(process.env.DB_CONNECTION_STRING, conOptions)
 	.then(async () => {
@@ -23,12 +25,14 @@ mongoose
 		// mongoose connection is established
 		const { RegisterRoutes } = await import("./routes");
 
+		DebugUtil.log("Registering parsers");
 		app.use(bodyParser.urlencoded({ extended: true }));
 		app.use(bodyParser.json());
 		app.use(express.json());
 		app.use(cookieParser(process.env.SECRET));
 
 		// middleware
+		DebugUtil.log("Registering context middleware");
 		app.use(contextMiddleware);
 
 		// for debugging the auth
@@ -41,7 +45,7 @@ mongoose
 			});
 		}
 
-		const port = process.env.PORT || 3000;
+		DebugUtil.log("Registering cors");
 		app.use(
 			cors({
 				origin: "*",
@@ -52,7 +56,10 @@ mongoose
 			}),
 		);
 
+		DebugUtil.log("Registering routes");
 		RegisterRoutes(app);
+
+		DebugUtil.log("Registering swagger");
 		app.use(
 			"/",
 			swaggerUi.serve,
@@ -67,13 +74,20 @@ mongoose
 				},
 			}),
 		);
-		// General error handler
+
+		DebugUtil.log("Registering fallback error handler");
 		app.use(function (err: unknown, req: Request, res: Response, next: NextFunction) {
 			const status = (err as any).status || 500;
 			const message = (err as any).message || "An error occurred during the request.";
 
+			DebugUtil.log(`${status} - ${message}`);
 			res.status(status).send({ message });
 		});
+
+		DebugUtil.log("Server running");
+		console.log(app.routes);
 	})
-	.catch((err) => console.log(err));
+	.catch((err) => {
+		DebugUtil.error(new Error("Error occured connecting to database: " + err));
+	});
 export { app };

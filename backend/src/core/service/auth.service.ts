@@ -8,7 +8,7 @@ import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
 import { Repository } from "../repository/repository";
 import { mapper } from "../utility/mapper/automapper.config";
-import { ErrorHandler } from "../utility/misc/error-handler.utility";
+import { DebugUtil } from "../utility/misc/debug.util";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
@@ -47,7 +47,7 @@ export class AuthService {
 
 			return mapper.map(newUser, UserModel, UserDto);
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -82,7 +82,7 @@ export class AuthService {
 				user: userDto,
 			};
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -95,7 +95,7 @@ export class AuthService {
 				await this.refreshTokenRepository.deleteManyByQuery({ userId: user.id });
 			}
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -131,7 +131,7 @@ export class AuthService {
 				user: userDto,
 			};
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
