@@ -1,9 +1,9 @@
 {
-	"entryFile": "src/webApiServer.ts",
+	"entryFile": "src/app.ts",
 	"noImplicitAdditionalProperties": "throw-on-extras",
 	"controllerPathGlobs": ["src/controller/**/*Controller.ts"],
 	"spec": {
-		"outputDirectory": "dist",
+		"outputDirectory": "swagger",
 		"specVersion": 3,
 		"basePath": "/api",
 		"name": "My API"
