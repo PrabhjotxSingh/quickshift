@@ -1,13 +1,12 @@
-# File: .github/workflows/deploy.yml
-name: Deploy Backend
+name: PR Build Check
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +18,7 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install dependencies and deploy
+      - name: Install dependencies and run build
         working-directory: ./backend
         run: |
-          npm run deploy
+          npm run build

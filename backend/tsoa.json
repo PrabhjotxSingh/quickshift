@@ -1,7 +1,7 @@
 {
 	"entryFile": "src/app.ts",
 	"noImplicitAdditionalProperties": "throw-on-extras",
-	"controllerPathGlobs": ["src/controller/**/*Controller.ts"],
+	"controllerPathGlobs": ["src/controller/**/*controller.ts"],
 	"spec": {
 		"outputDirectory": "swagger",
 		"specVersion": 3,

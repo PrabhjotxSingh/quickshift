@@ -1,13 +1,12 @@
-# File: .github/workflows/pr-build-check.yml
-name: PR Build Check
+name: Deploy Backend
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,10 +16,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14" # Adjust as needed
+          node-version: "18"
 
-      - name: Install dependencies and run build
+      - name: Install dependencies and deploy
         working-directory: ./backend
         run: |
-          npm install
-          npm run build
+          npm run deploy

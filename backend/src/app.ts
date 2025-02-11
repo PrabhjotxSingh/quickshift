@@ -29,14 +29,14 @@ mongoose
 // need to be registered after the connection is established
 import { RegisterRoutes } from "./routes";
 
-DebugUtil.log("Registering parsers");
+DebugUtil.log("registering parsers");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser(process.env.SECRET));
 
 // middleware
-DebugUtil.log("Registering context middleware");
+DebugUtil.log("registering context middleware");
 app.use(contextMiddleware);
 
 // for debugging
@@ -49,7 +49,7 @@ if (false) {
 	});
 }
 
-DebugUtil.log("Registering cors");
+DebugUtil.log("registering cors");
 app.use(
 	cors({
 		origin: "*",
@@ -60,10 +60,10 @@ app.use(
 	}),
 );
 
-DebugUtil.log("Registering routes");
+DebugUtil.log("registering routes");
 RegisterRoutes(app);
 
-DebugUtil.log("Registering swagger");
+DebugUtil.log("registering swagger");
 app.use(
 	"/docs",
 	swaggerUi.serve,
