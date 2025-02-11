@@ -9,10 +9,13 @@
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-		"composite": true
+		"composite": true,
+		"baseUrl": ".",
+		"paths": {
+			//	"shared/src/*": ["./node_modules/shared/src/*"]
+		}
 	},
-	"references": [{ "path": "../shared/" }],
 
-	"include": ["src/**/*.ts", "../shared/**/*.ts"],
+	"include": ["src/**/*.ts", "swagger/**/*.json", "webpack.config.js"],
 	"exclude": ["node_modules", "dist"]
 }

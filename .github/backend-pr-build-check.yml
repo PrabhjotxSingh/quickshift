@@ -1,0 +1,26 @@
+# File: .github/workflows/pr-build-check.yml
+name: PR Build Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14" # Adjust as needed
+
+      - name: Install dependencies and run build
+        working-directory: ./backend
+        run: |
+          npm install
+          npm run build

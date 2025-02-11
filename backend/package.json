@@ -4,8 +4,11 @@
 	"description": "",
 	"main": "webApiServer.ts",
 	"scripts": {
+		"deploy": "npm i && npm run build && serverless deploy",
+		"build": "npm i && npx tsoa spec-and-routes && npx tsc -b",
 		"start": "nodemon --exec ts-node ./src/webApiServer.ts",
-		"dev": "nodemon --inspect --watch src --ext ts --ignore src/routes.ts --ignore dist/swagger.json --exec \"npx tsoa spec-and-routes && ts-node src/webApiServer.ts\""
+		"dev": "npm run build && nodemon --inspect --watch src --ext ts --ignore src/routes.ts --ignore dist/swagger.json --exec \"npx tsoa spec-and-routes && ts-node src/webApiServer.ts\"",
+		"dev-serverless": "serverless offline"
 	},
 	"keywords": [],
 	"author": "",
@@ -13,11 +16,14 @@
 	"dependencies": {
 		"@automapper/classes": "^8.8.1",
 		"@automapper/core": "^8.8.1",
+		"@tsoa/runtime": "^6.6.0",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/cookie-parser": "^1.4.8",
 		"@types/cookie-signature": "^1.1.2",
 		"@types/cors": "^2.8.17",
 		"@types/jsonwebtoken": "^9.0.8",
+		"@types/serverless": "^3.12.27",
+		"@types/webpack-node-externals": "^3.0.4",
 		"async_hooks": "^1.0.0",
 		"bcryptjs": "^2.4.3",
 		"cookie-parser": "^1.4.7",
@@ -29,18 +35,32 @@
 		"joi": "^17.13.3",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.9.7",
+		"path": "^0.12.7",
 		"prettier": "^3.3.2",
 		"reflect-metadata": "^0.1.14",
 		"serverless-http": "^3.2.0",
-		"swagger-ui-express": "^5.0.1"
+		"shared": "file:../shared",
+		"swagger-ui-express": "^5.0.1",
+		"tsoa": "^6.3.1",
+		"workspaces": "^0.1.0"
 	},
 	"devDependencies": {
 		"@types/express": "^4.17.21",
-		"@types/node": "^20.10.0",
 		"@types/swagger-ui-express": "^4.1.6",
 		"nodemon": "^3.1.4",
-		"ts-node": "^10.9.1",
-		"tsoa": "^6.3.1",
-		"typescript": "^5.3.2"
-	}
+		"serverless": "^3.40.0",
+		"serverless-dotenv-plugin": "^3.12.2",
+		"serverless-offline": "^13.9.0",
+		"serverless-plugin-typescript": "^2.1.5",
+		"serverless-webpack": "^5.15.0",
+		"ts-loader": "^9.5.2",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.7.3",
+		"webpack": "^5.97.1",
+		"webpack-cli": "^6.0.1",
+		"webpack-node-externals": "^3.0.0"
+	},
+	"workspaces": [
+		"../shared"
+	]
 }

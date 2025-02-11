@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "rootDir": ".",
-    "outDir": "./dist",
+    "rootDir": "src",
+    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -13,9 +13,8 @@
     "paths": {
       "*": ["src/*"]
     },
-    "composite": true // required if another project has a reference to this one.
+    "composite": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../backend/" }]
+  "include": ["src/**/*.ts", "dist/**/*.json"],
+  "exclude": ["node_modules"]
 }

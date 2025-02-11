@@ -1,10 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-
-export enum UserRole {
-	ADMIN = "admin",
-	WORKER = "worker",
-	EMPLOYER = "employer",
-}
+import { UserRole } from "shared/src/enum/user-role.enum";
 
 export interface UserDocument extends Document {
 	email: string;

@@ -1,13 +1,14 @@
-import { UserDto } from "../../../../shared/src/dto/models/user.dto";
-import { LoginRequest } from "../../../../shared/src/dto/request/auth/login.request";
-import { RegisterRequest } from "../../../../shared/src/dto/request/auth/register.request";
-import { LoginResponse } from "../../../../shared/src/dto/response/auth/login.response";
-import { UserModel, UserRole } from "../model/user.model";
+import { UserDto } from "shared/src/dto/models/user.dto";
+import { LoginRequest } from "shared/src/dto/request/auth/login.request";
+import { RegisterRequest } from "shared/src/dto/request/auth/register.request";
+import { LoginResponse } from "shared/src/dto/response/auth/login.response";
+import { UserModel } from "../model/user.model";
+import { UserRole } from "shared/src/enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
 import { Repository } from "../repository/repository";
 import { mapper } from "../utility/mapper/automapper.config";
-import { ErrorHandler } from "../utility/misc/error-handler.utility";
+import { DebugUtil } from "../utility/misc/debug.util";
 import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
@@ -46,7 +47,7 @@ export class AuthService {
 
 			return mapper.map(newUser, UserModel, UserDto);
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -65,7 +66,7 @@ export class AuthService {
 			}
 
 			// Generate JWT access token
-			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.COOKIE_SECRET!, {
+			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.SECRET!, {
 				expiresIn: "999m",
 			});
 
@@ -81,7 +82,7 @@ export class AuthService {
 				user: userDto,
 			};
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -94,7 +95,7 @@ export class AuthService {
 				await this.refreshTokenRepository.deleteManyByQuery({ userId: user.id });
 			}
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 
@@ -113,7 +114,7 @@ export class AuthService {
 			}
 
 			// Generate new access token
-			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.COOKIE_SECRET!, {
+			const accessToken = jwt.sign({ userId: user.id, username: user.username }, process.env.SECRET!, {
 				expiresIn: "15m",
 			});
 
@@ -130,7 +131,7 @@ export class AuthService {
 				user: userDto,
 			};
 		} catch (ex: any) {
-			ErrorHandler.ThrowError(ex);
+			DebugUtil.error(ex);
 		}
 	}
 

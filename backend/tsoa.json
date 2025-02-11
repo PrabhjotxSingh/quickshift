@@ -1,13 +1,22 @@
 {
-	"entryFile": "src/webApiServer.ts",
+	"entryFile": "src/app.ts",
 	"noImplicitAdditionalProperties": "throw-on-extras",
 	"controllerPathGlobs": ["src/controller/**/*Controller.ts"],
 	"spec": {
-		"outputDirectory": "dist",
-		"specVersion": 3
+		"outputDirectory": "swagger",
+		"specVersion": 3,
+		"basePath": "/",
+		"name": "My API"
 	},
 	"routes": {
 		"routesDir": "src"
 	},
-	"tsconfig": "tsconfig.json"
+	"tsconfig": "tsconfig.json",
+	"additionalProperties": {},
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"shared/src/*": ["../shared/src/*"]
+		}
+	}
 }

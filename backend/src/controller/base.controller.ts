@@ -1,7 +1,7 @@
 import { Controller, Request } from "tsoa";
 import { AlreadyExistsError } from "../core/error/AlreadyExistsError";
-import { ErrorHandler } from "../core/utility/misc/error-handler.utility";
-import { LoginResponse } from "../../../shared/src/dto/response/auth/login.response";
+import { DebugUtil } from "../core/utility/misc/debug.util";
+import { LoginResponse } from "shared/src/dto/response/auth/login.response";
 import { UnauthorizedError } from "../core/error/UnauthorizedError";
 import { Repository } from "../core/repository/repository";
 import { UserModel } from "../core/model/user.model";
@@ -64,6 +64,7 @@ export class BaseController extends Controller {
 	 * @param ex - The caught exception
 	 */
 	public handleError<T>(ex: any): T | string {
+		DebugUtil.log(ex.message);
 		if (ex instanceof AlreadyExistsError) {
 			return this.alreadyExists(ex.message);
 		}
@@ -91,7 +92,7 @@ export class BaseController extends Controller {
 
 			return tokens;
 		} catch (error) {
-			ErrorHandler.ThrowError(new UnauthorizedError("Invalid refresh token"));
+			DebugUtil.error(new UnauthorizedError("Invalid refresh token"));
 		}
 	}
 
@@ -109,7 +110,7 @@ export class BaseController extends Controller {
 	// when frontend sees header is different from saved, should resave new ones
 	protected setTokenResponse(result: LoginResponse): void {
 		if (!result.accessToken || !result.refreshToken) {
-			ErrorHandler.ThrowError(new Error("Access or refresh token undefined"));
+			DebugUtil.error(new Error("Access or refresh token undefined"));
 		}
 		// Convert environment variables to numbers with fallbacks
 		const accessMaxAge = parseInt(process.env.TRAINER_LIFE!) || 900000; // 15m

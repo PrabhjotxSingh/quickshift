@@ -1,0 +1,34 @@
+service: api
+
+provider:
+     name: aws
+     runtime: nodejs18.x
+     memorySize: 2048
+     stage: dev
+     timeout: 15
+     region: us-east-2
+
+functions:
+     quickshift:
+          handler: src/serverless.quickshift
+          events:
+               - http: ANY /{proxy+}
+               - http: ANY /
+          environment:
+               DB_CONNECTION_STRING: ${env:DB_CONNECTION_STRING}
+               SECRET: ${env:SECRET}
+
+plugins:
+     - serverless-webpack
+     - serverless-offline
+     - serverless-dotenv-plugin
+
+custom:
+     dotenv:
+          path: .env.${self:provider.stage}
+          include:
+               - DB_CONNECTION_STRING
+               - SECRET
+     webpackIncludeModules: true
+
+useDotenv: true

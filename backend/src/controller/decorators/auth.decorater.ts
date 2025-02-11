@@ -1,4 +1,4 @@
-import { UserRole } from "../../core/model/user.model";
+import { UserRole } from "shared/src/enum/user-role.enum";
 import { verify } from "jsonwebtoken";
 import { BaseController } from "../base.controller";
 import { UnauthorizedError } from "../../core/error/UnauthorizedError";
@@ -15,7 +15,7 @@ async function getValidDecodedToken(
 	refreshToken: string,
 ): Promise<any> {
 	try {
-		return verify(accessToken, process.env.COOKIE_SECRET!);
+		return verify(accessToken, process.env.SECRET!);
 	} catch (error: any) {
 		if (error.name !== "TokenExpiredError") {
 			throw new UnauthorizedError("Invalid access token");
@@ -24,7 +24,7 @@ async function getValidDecodedToken(
 		if (!refreshResponse?.accessToken || !refreshResponse?.refreshToken) {
 			throw new UnauthorizedError("Invalid access token");
 		}
-		return verify(refreshResponse.accessToken, process.env.COOKIE_SECRET!);
+		return verify(refreshResponse.accessToken, process.env.SECRET!);
 	}
 }
 

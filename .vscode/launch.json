@@ -2,12 +2,23 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Backend debug",
+      "name": "backend web-api debug",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceFolder}/backend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "backend serverless debug",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev-serverless"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["<node_internals>/**"]
