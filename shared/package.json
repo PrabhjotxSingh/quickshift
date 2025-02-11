@@ -8,6 +8,6 @@
     "reflect-metadata": "^0.1.14"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "npm i && tsc"
   }
 }
