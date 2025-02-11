@@ -16,6 +16,6 @@
 		}
 	},
 
-	"include": ["src/**/*.ts", "swagger/**/*.json"],
+	"include": ["src/**/*.ts", "swagger/**/*.json", "webpack.config.js"],
 	"exclude": ["node_modules", "dist"]
 }

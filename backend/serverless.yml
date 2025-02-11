@@ -19,7 +19,7 @@ functions:
                SECRET: ${env:SECRET}
 
 plugins:
-     - serverless-plugin-typescript
+     - serverless-webpack
      - serverless-offline
      - serverless-dotenv-plugin
 
@@ -29,5 +29,6 @@ custom:
           include:
                - DB_CONNECTION_STRING
                - SECRET
+     webpackIncludeModules: true
 
 useDotenv: true
