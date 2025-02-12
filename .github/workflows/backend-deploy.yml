@@ -20,5 +20,8 @@ jobs:
 
       - name: Install dependencies and deploy
         working-directory: ./backend
+        env:
+          SECRET: ${{ secrets.SECRET }}
+          DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
         run: |
           npm run deploy
