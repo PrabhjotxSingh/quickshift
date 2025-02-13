@@ -5,7 +5,12 @@ export class DebugUtil {
 	static log(message: string): void {
 		console.log(message);
 	}
+
 	static error(er: Error): never {
 		throw er;
+	}
+
+	static warn(message: string): void {
+		console.warn(message);
 	}
 }
