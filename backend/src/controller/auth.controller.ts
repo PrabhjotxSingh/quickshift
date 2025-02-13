@@ -1,4 +1,4 @@
-import { Route, Post, Tags, Put, Body, Request, Path } from "tsoa";
+import { Route, Post, Tags, Put, Body, Request, Path, Query } from "tsoa";
 import { LoginRequest } from "shared/src/dto/request/auth/login.request";
 import { LoginResponse } from "shared/src/dto/response/auth/login.response";
 import { RefreshRequest } from "shared/src/dto/request/auth/refresh.request";
@@ -62,7 +62,7 @@ export class AuthController extends BaseController {
 	}
 
 	@Post("Test/CI")
-	public async testing(@Path() input1: string): Promise<string> {
+	public async testing(@Query() input1: string): Promise<string> {
 		return this.ok(input1);
 	}
 }
