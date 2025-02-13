@@ -28,6 +28,7 @@ mongoose
 // Importing after the mongoose.connect() as the models
 // need to be registered after the connection is established
 import { RegisterRoutes } from "./routes";
+import { ValidateError } from "tsoa";
 
 DebugUtil.log("registering parsers");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,15 +40,10 @@ app.use(cookieParser(process.env.SECRET));
 DebugUtil.log("registering context middleware");
 app.use(contextMiddleware);
 
-// for debugging
-// probably not needed anymore
-if (false) {
-	app.use((req, res, next) => {
-		console.log("Request cookies:", req.cookies);
-		console.log("Request signed cookies:", req.signedCookies);
-		next();
-	});
-}
+app.use((req, res, next) => {
+	console.log(`Recieved request to URL: ${req.url}`);
+	next();
+});
 
 DebugUtil.log("registering cors");
 app.use(
@@ -62,6 +58,32 @@ app.use(
 
 DebugUtil.log("registering routes");
 RegisterRoutes(app);
+
+// Custom error handler for Tsoa validation errors
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+	if (err instanceof ValidateError) {
+		DebugUtil.warn(`Validation Error for ${req.method} ${req.path}}`);
+
+		return res.status(400).json({
+			success: false,
+			message: "Invalid request parameters.",
+			errors: Object.entries(err.fields).map(([key, value]) => ({
+				parameter: key,
+				message: value.message,
+				expected: value.value,
+			})),
+		});
+	}
+
+	if (err instanceof Error) {
+		return res.status(500).json({
+			success: false,
+			message: err.message,
+		});
+	}
+
+	next();
+});
 
 DebugUtil.log("registering swagger");
 app.use(
