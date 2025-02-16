@@ -31,7 +31,7 @@ mongoose
 import { RegisterRoutes } from "./routes";
 import { ValidateError } from "tsoa";
 import Container from "typedi";
-import { Repository } from "./core/repository/repository";
+import { Repository } from "./core/repository/base.repository";
 import { CompanyModel } from "./core/model/company.model";
 import { CompanyService } from "./core/service/company.service";
 

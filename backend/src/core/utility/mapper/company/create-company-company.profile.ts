@@ -18,4 +18,18 @@ export const createCompanyCompanyProfile: MappingProfile = (mapper) => {
 			mapFrom((source) => source.description),
 		),
 	);
+
+	createMap(
+		mapper,
+		CreateCompanyRequest,
+		CompanyModel,
+		forMember(
+			(destination) => destination.name,
+			mapFrom((source) => source.name),
+		),
+		forMember(
+			(destination) => destination.description,
+			mapFrom((source) => source.description),
+		),
+	);
 };

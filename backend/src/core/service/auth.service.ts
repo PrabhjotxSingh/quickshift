@@ -6,7 +6,7 @@ import { UserModel } from "../model/user.model";
 import { UserRole } from "shared/src/enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
-import { Repository } from "../repository/repository";
+import { Repository } from "../repository/base.repository";
 import { mapper } from "../utility/mapper/automapper.config";
 import { DebugUtil } from "../utility/misc/debug.util";
 import * as bcrypt from "bcryptjs";
