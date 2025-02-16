@@ -72,4 +72,13 @@ export class CompanyService {
 
 		return mapper.map(await this.companyRepository.update(company.id, updatedCompany), CompanyModel, CompanyDto);
 	}
+
+	public async getUserCompany(user: UserDocument): Promise<CompanyDto> {
+		const company = await this.companyRepository.getByQuery({ owner: user.id });
+		if (company == null) {
+			throw new NotFoundError("Company not found");
+		}
+
+		return mapper.map(company, CompanyModel, CompanyDto);
+	}
 }

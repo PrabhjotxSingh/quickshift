@@ -34,11 +34,25 @@ export class CompanyController extends BaseController {
 		}
 	}
 
-	@Get()
+	@Get("id")
 	@Authenticate(UserRole.WORKER)
 	public async get(@Query() id: string): Promise<CompanyDto | string> {
 		try {
 			return await this.companyService.getCompanyById(id);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	/*
+	 * Gets the user's own company
+	 */
+	@Get()
+	@Authenticate(UserRole.EMPLOYER)
+	public async getSelfCompany(): Promise<CompanyDto | string> {
+		try {
+			const user = await this.getUser();
+			return await this.companyService.getUserCompany(user);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
