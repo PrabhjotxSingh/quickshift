@@ -19,13 +19,15 @@ import { Service } from "typedi";
 import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
 import { CompanyDto } from "shared/src/dto/models/company.dto";
 import { getRequestContext } from "../../controller/middleware/context.middleware";
+import { UserRepository } from "../repository/user.repository";
+import { CompanyRepository } from "../repository/company.repository";
 
 @Service()
 export class CompanyService {
-	private companyRepository = new Repository(CompanyModel);
-	private userRepository = new Repository(UserModel);
-
-	constructor() {}
+	constructor(
+		private userRepository: UserRepository,
+		private companyRepository: CompanyRepository,
+	) {}
 
 	public async createCompany(request: CreateCompanyRequest, user: UserDocument): Promise<CompanyDto> {
 		// Check if the user already has a company
