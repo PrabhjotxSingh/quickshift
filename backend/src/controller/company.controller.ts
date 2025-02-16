@@ -1,10 +1,7 @@
-import { Route, Post, Tags, Put, Body, Request, Path, Query, Get, Delete, Patch } from "tsoa";
+import { Route, Post, Tags, Body, Query, Get, Delete, Patch } from "tsoa";
 import { BaseController } from "./base.controller";
-import { UserDto } from "shared/src/dto/models/user.dto";
 import { Authenticate } from "./decorators/auth.decorater";
 import { UserRole } from "shared/src/enum/user-role.enum";
-import { Request as ExpressRequest } from "express";
-import { DebugUtil } from "../core/utility/misc/debug.util";
 import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
 import { CompanyService } from "../core/service/company.service";
 import { CompanyDto } from "shared/src/dto/models/company.dto";
