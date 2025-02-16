@@ -1,8 +1,9 @@
 // automapper.config.ts
 import { createMapper, Mapper } from "@automapper/core";
 import { classes } from "@automapper/classes";
-import { registerProfile } from "./user/register.profile";
-import { userProfile } from "./user/user.profile";
+import { registerRequestProfile } from "./user/register-request.profile";
+import { userDtoProfile } from "./user/user-dto.profile";
+import { companyDtoProfile } from "./company/company-dto.profile";
 
 // automapper.config.ts
 export const mapper = createMapper({
@@ -10,5 +11,6 @@ export const mapper = createMapper({
 });
 
 // Register the profiles
-registerProfile(mapper);
-userProfile(mapper);
+registerRequestProfile(mapper);
+userDtoProfile(mapper);
+companyDtoProfile(mapper);

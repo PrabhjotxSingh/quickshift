@@ -10,12 +10,14 @@ import { Authenticate } from "./decorators/auth.decorater";
 import { UserRole } from "shared/src/enum/user-role.enum";
 import { Request as ExpressRequest } from "express";
 import { DebugUtil } from "../core/utility/misc/debug.util";
+import { Service } from "typedi";
 
 @Route("Auth")
 @Tags("Auth")
+@Service()
 export class AuthController extends BaseController {
-	constructor() {
-		super();
+	constructor(authService: AuthService) {
+		super(authService);
 	}
 
 	@Post("Login")
@@ -55,15 +57,9 @@ export class AuthController extends BaseController {
 	public async registerAdmin(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
 			const result = await this.authService.register(request, true);
-			const x = 5;
 			return this.ok(result);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
-	}
-
-	@Post("Test/CI")
-	public async testing(@Query() input1: string): Promise<string> {
-		return this.ok(input1);
 	}
 }

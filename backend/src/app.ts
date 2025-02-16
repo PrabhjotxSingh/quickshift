@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
@@ -29,6 +30,10 @@ mongoose
 // need to be registered after the connection is established
 import { RegisterRoutes } from "./routes";
 import { ValidateError } from "tsoa";
+import Container from "typedi";
+import { Repository } from "./core/repository/repository";
+import { CompanyModel } from "./core/model/company.model";
+import { CompanyService } from "./core/service/company.service";
 
 DebugUtil.log("registering parsers");
 app.use(bodyParser.urlencoded({ extended: true }));

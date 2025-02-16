@@ -14,7 +14,9 @@ import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
 import { ObjectId } from "mongoose";
+import { Service } from "typedi";
 
+@Service()
 export class AuthService {
 	private userRepository = new Repository(UserModel);
 	private refreshTokenRepository = new Repository(RefreshTokenModel);

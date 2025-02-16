@@ -6,20 +6,26 @@ import { UserRole } from "shared/src/enum/user-role.enum";
 import { Request as ExpressRequest } from "express";
 import { DebugUtil } from "../core/utility/misc/debug.util";
 import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
+import { CompanyService } from "../core/service/company.service";
+import { CompanyDto } from "shared/src/dto/models/company.dto";
+import { AuthService } from "../core/service/auth.service";
 
 @Route("Company")
 @Tags("Company")
 export class CompanyController extends BaseController {
-	constructor() {
-		super();
+	constructor(
+		private companyService: CompanyService,
+		authService: AuthService,
+	) {
+		super(authService);
 	}
 
 	@Post()
-	public async login(@Body() request: CreateCompanyRequest): Promise<String> {
+	public async create(@Body() request: CreateCompanyRequest): Promise<CompanyDto | string> {
 		try {
-			DebugUtil.error(new Error("Not implemented"));
+			const user = await this.getUser();
+			return await this.companyService.createCompany(request, user);
 		} catch (ex: any) {
-			DebugUtil.error(new Error("Not implemented"));
 			return this.handleError(ex);
 		}
 	}
