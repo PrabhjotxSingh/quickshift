@@ -49,7 +49,7 @@ export class CompanyController extends BaseController {
 	 */
 	@Get()
 	@Authenticate(UserRole.EMPLOYER)
-	public async getSelfCompany(): Promise<CompanyDto | string> {
+	public async getRequestingUserCompany(): Promise<CompanyDto | string> {
 		try {
 			const user = await this.getUser();
 			return await this.companyService.getUserCompany(user);
