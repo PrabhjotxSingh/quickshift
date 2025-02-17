@@ -1,3 +1,7 @@
+/*
+ * This is for getting the req/res objects from anywhere in the code
+ * made for the auth.decorator
+ */
 import { AsyncLocalStorage } from "async_hooks";
 import { Request, Response } from "express";
 

@@ -1,4 +1,5 @@
-import { Model, Document, FilterQuery, ObjectId } from "mongoose";
+import { Model, Document, FilterQuery, ObjectId, UpdateQuery } from "mongoose";
+import { omit } from "lodash";
 
 export class Repository<T extends Document> {
 	constructor(private model: Model<T>) {}
@@ -73,7 +74,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async get(id: ObjectId): Promise<T | null> {
+	async get(id: any): Promise<T | null> {
 		try {
 			return await this.model.findById(id);
 		} catch (error: any) {
@@ -81,7 +82,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async delete(id: ObjectId): Promise<T | null> {
+	async delete(id: any): Promise<T | null> {
 		try {
 			const deletedDocument = await this.model.findByIdAndDelete(id);
 			if (!deletedDocument) {
@@ -93,15 +94,21 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async update(id: ObjectId, newData: Partial<T>): Promise<T | null> {
+	async update(id: any, newData: Partial<T>): Promise<T | null> {
 		try {
-			const existingDocument = await this.model.findById(id);
-			if (!existingDocument) {
-				throw new Error(`Document not found`);
+			const updateData: Partial<T> = JSON.parse(JSON.stringify(newData));
+
+			if (updateData.hasOwnProperty("_id")) {
+				delete updateData["_id"];
 			}
 
-			const updatedDocumentData = Object.assign({}, existingDocument.toObject(), newData);
-			return await this.model.findByIdAndUpdate(id, { $set: updatedDocumentData }, { new: true });
+			const updatedDocument = await this.model.findOneAndUpdate(
+				{ _id: id },
+				{ $set: updateData } as UpdateQuery<T>,
+				{ new: true },
+			);
+
+			return updatedDocument;
 		} catch (error: any) {
 			throw new Error(error.message);
 		}

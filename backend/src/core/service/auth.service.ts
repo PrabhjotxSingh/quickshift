@@ -6,7 +6,7 @@ import { UserModel } from "../model/user.model";
 import { UserRole } from "shared/src/enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
-import { Repository } from "../repository/repository";
+import { Repository } from "../repository/base.repository";
 import { mapper } from "../utility/mapper/automapper.config";
 import { DebugUtil } from "../utility/misc/debug.util";
 import * as bcrypt from "bcryptjs";
@@ -14,12 +14,16 @@ import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
 import { ObjectId } from "mongoose";
+import { Service } from "typedi";
+import { UserRepository } from "../repository/user.repository";
+import { RefreshTokenRepository } from "../repository/refresh-token.repository";
 
+@Service()
 export class AuthService {
-	private userRepository = new Repository(UserModel);
-	private refreshTokenRepository = new Repository(RefreshTokenModel);
-
-	constructor() {}
+	constructor(
+		private userRepository: UserRepository,
+		private refreshTokenRepository: RefreshTokenRepository,
+	) {}
 
 	async register(request: RegisterRequest, isAdmin: boolean = false): Promise<UserDto> {
 		try {

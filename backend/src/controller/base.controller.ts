@@ -3,26 +3,31 @@ import { AlreadyExistsError } from "../core/error/AlreadyExistsError";
 import { DebugUtil } from "../core/utility/misc/debug.util";
 import { LoginResponse } from "shared/src/dto/response/auth/login.response";
 import { UnauthorizedError } from "../core/error/UnauthorizedError";
-import { Repository } from "../core/repository/repository";
-import { UserModel } from "../core/model/user.model";
+import { Repository } from "../core/repository/base.repository";
+import { UserDocument, UserModel } from "../core/model/user.model";
 import mongoose, { ObjectId } from "mongoose";
 import { AuthService } from "../core/service/auth.service";
 import { NotFoundError } from "../core/error/NotFoundError";
 import { ForbiddenError } from "../core/error/ForbiddenError";
 import { sign } from "cookie-signature";
 import { getRequestContext, getResponseContext } from "./middleware/context.middleware";
+import { verify } from "jsonwebtoken";
+import { UserRepository } from "../core/repository/user.repository";
+import { Inject } from "typedi";
 
 require("dotenv").config();
 
 export class BaseController extends Controller {
+	@Inject()
+	protected authService!: AuthService;
+
+	@Inject()
+	private userRepository!: UserRepository;
+	constructor() {
+		super();
+	}
 	static ACCESS_TOKEN_COOKIE_HEADER: string = "access-token";
 	static REFRESH_TOKEN_COOKIE_HEADER: string = "refresh-token";
-
-	// TODO:
-	// Change to be dependecy injection
-	protected authService = new AuthService();
-
-	private userRepository = new Repository(UserModel);
 
 	public ok<T>(data: T): T {
 		this.setStatus(200); // OK
@@ -65,6 +70,7 @@ export class BaseController extends Controller {
 	 */
 	public handleError<T>(ex: any): T | string {
 		DebugUtil.log(ex.message);
+		DebugUtil.logErrorTrace(ex);
 		if (ex instanceof AlreadyExistsError) {
 			return this.alreadyExists(ex.message);
 		}
@@ -99,6 +105,32 @@ export class BaseController extends Controller {
 	public async getUserFromUsername(username: string) {
 		try {
 			return await this.userRepository.getByQuery({ username: username });
+		} catch (error) {
+			throw new UnauthorizedError("User not found");
+		}
+	}
+
+	public async getUser(): Promise<UserDocument> {
+		try {
+			const req = getRequestContext();
+			if (!req) {
+				throw new UnauthorizedError("Request context is missing");
+			}
+			const { cookies, signedCookies } = req;
+
+			const accessToken = signedCookies?.[BaseController.ACCESS_TOKEN_COOKIE_HEADER];
+			const refreshToken = cookies?.[BaseController.REFRESH_TOKEN_COOKIE_HEADER];
+
+			const decoded = verify(accessToken, process.env.SECRET!) as any;
+			if (!decoded) {
+				throw new UnauthorizedError("Invalid access token");
+			}
+
+			const user = await this.getUserFromUsername(decoded.username);
+			if (user == null) {
+				throw new UnauthorizedError("User not found");
+			}
+			return user;
 		} catch (error) {
 			throw new UnauthorizedError("User not found");
 		}

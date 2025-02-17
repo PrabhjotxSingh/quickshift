@@ -9,7 +9,8 @@
 		"name": "My API"
 	},
 	"routes": {
-		"routesDir": "src"
+		"routesDir": "src",
+		"iocModule": "src/di-container.ts"
 	},
 	"tsconfig": "tsconfig.json",
 	"additionalProperties": {},
