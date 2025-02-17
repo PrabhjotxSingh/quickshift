@@ -70,6 +70,7 @@ export class BaseController extends Controller {
 	 */
 	public handleError<T>(ex: any): T | string {
 		DebugUtil.log(ex.message);
+		DebugUtil.logErrorTrace(ex);
 		if (ex instanceof AlreadyExistsError) {
 			return this.alreadyExists(ex.message);
 		}

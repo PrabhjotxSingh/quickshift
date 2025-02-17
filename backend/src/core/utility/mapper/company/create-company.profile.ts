@@ -4,7 +4,7 @@ import { CompanyModel } from "../../../model/company.model";
 import { CompanyDto } from "shared/src/dto/models/company.dto";
 import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
 
-export const createCompanyCompanyProfile: MappingProfile = (mapper) => {
+export const createCompanyProfile: MappingProfile = (mapper) => {
 	createMap(
 		mapper,
 		CompanyModel,
