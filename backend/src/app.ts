@@ -81,6 +81,10 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
 	}
 
 	if (err instanceof Error) {
+		const stack = err.stack?.toString();
+		if (stack != null) {
+			DebugUtil.log(stack);
+		}
 		return res.status(500).json({
 			success: false,
 			message: err.message,

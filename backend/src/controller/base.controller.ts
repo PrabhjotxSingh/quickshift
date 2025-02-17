@@ -12,17 +12,22 @@ import { ForbiddenError } from "../core/error/ForbiddenError";
 import { sign } from "cookie-signature";
 import { getRequestContext, getResponseContext } from "./middleware/context.middleware";
 import { verify } from "jsonwebtoken";
+import { UserRepository } from "../core/repository/user.repository";
+import { Inject } from "typedi";
 
 require("dotenv").config();
 
 export class BaseController extends Controller {
-	constructor(protected authService: AuthService) {
+	@Inject()
+	protected authService!: AuthService;
+
+	@Inject()
+	private userRepository!: UserRepository;
+	constructor() {
 		super();
 	}
 	static ACCESS_TOKEN_COOKIE_HEADER: string = "access-token";
 	static REFRESH_TOKEN_COOKIE_HEADER: string = "refresh-token";
-
-	private userRepository = new Repository(UserModel);
 
 	public ok<T>(data: T): T {
 		this.setStatus(200); // OK

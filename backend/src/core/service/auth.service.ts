@@ -15,13 +15,15 @@ import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
 import { ObjectId } from "mongoose";
 import { Service } from "typedi";
+import { UserRepository } from "../repository/user.repository";
+import { RefreshTokenRepository } from "../repository/refresh-token.repository";
 
 @Service()
 export class AuthService {
-	private userRepository = new Repository(UserModel);
-	private refreshTokenRepository = new Repository(RefreshTokenModel);
-
-	constructor() {}
+	constructor(
+		private userRepository: UserRepository,
+		private refreshTokenRepository: RefreshTokenRepository,
+	) {}
 
 	async register(request: RegisterRequest, isAdmin: boolean = false): Promise<UserDto> {
 		try {

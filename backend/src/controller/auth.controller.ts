@@ -11,13 +11,14 @@ import { UserRole } from "shared/src/enum/user-role.enum";
 import { Request as ExpressRequest } from "express";
 import { DebugUtil } from "../core/utility/misc/debug.util";
 import { Service } from "typedi";
+import { UserRepository } from "../core/repository/user.repository";
 
 @Route("Auth")
 @Tags("Auth")
 @Service()
 export class AuthController extends BaseController {
-	constructor(authService: AuthService) {
-		super(authService);
+	constructor() {
+		super();
 	}
 
 	@Post("Login")

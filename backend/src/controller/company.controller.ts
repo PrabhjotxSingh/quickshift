@@ -8,16 +8,14 @@ import { CompanyDto } from "shared/src/dto/models/company.dto";
 import { AuthService } from "../core/service/auth.service";
 import { Service } from "typedi";
 import { ObjectId } from "mongoose";
+import { UserRepository } from "../core/repository/user.repository";
 
 @Route("Company")
 @Tags("Company")
 @Service()
 export class CompanyController extends BaseController {
-	constructor(
-		private companyService: CompanyService,
-		authService: AuthService,
-	) {
-		super(authService);
+	constructor(private companyService: CompanyService) {
+		super();
 	}
 
 	@Post()
