@@ -1,12 +1,103 @@
 :root {
+  --primary-teal: #008080; /* Our accent color */
+  --bg-light: #f5f5f5;
+  --text-light: #333;
+  --bg-dark: #000;
+  --text-dark: #ddd;
+
   font-family: "Open Sans", sans-serif;
-  margin: 0px;
+  margin: 0;
   line-height: 1.5;
   font-weight: 400;
   height: 100%;
+  color: var(--text-light);
+  background-color: var(--bg-light);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ========== Dark Mode Base ========== */
+.dark {
+  color-scheme: dark;
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.dark body,
+.dark #root {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.dark h2 {
+  color: var(--text-dark) !important;
+}
+
+
+/* Override common containers in dark mode */
+.dark .bar,
+.dark .form-content,
+.dark .content,
+.dark .dashboard-content,
+.dark .payment-content,
+.dark .shift-management-content,
+.dark .employee-dashboard-content {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-dark) !important;
+}
+
+/* ========== Dark Mode Utility Overrides ========== */
+.dark .box-shadow-element {
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #000 !important;
+  color: var(--text-dark) !important;
+  border: 1px solid #ffffff !important;
+}
+
+/* ========== Generic Button Styles (for both modes) ========== */
+button,
+.theme-toggle-btn {
+  background-color: var(--primary-teal) !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+button:hover,
+.theme-toggle-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* ========== Generic Hamburger Styles ========== */
+.hamburger span {
+  background-color: var(--text-light);
+}
+
+.dark .hamburger span {
+  background-color: var(--text-dark);
+}
+
+/* ========== Dark Mode Specific Button Overrides ========== */
+/* For dark mode, many buttons are overridden by generic rule above.
+   However, if any dark-mode-specific styling is needed for buttons other than .continue-btn,
+   add it here. */
+
+/* ========== Specific Override for Continue Button in Dark Mode ========== */
+.dark .continue-btn {
+  background-color: var(--primary-teal) !important;
+  color: #ffffff !important;
 }

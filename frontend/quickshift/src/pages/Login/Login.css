@@ -1,11 +1,8 @@
-/* Login.css */
-
 .center-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: calc(100vh - 60px);
-  background-color: #f5f5f5;
   overflow: hidden;
 }
 

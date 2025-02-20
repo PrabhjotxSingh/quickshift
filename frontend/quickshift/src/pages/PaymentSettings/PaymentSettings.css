@@ -1,0 +1,136 @@
+.payment-container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+  }
+  
+  /* The .payment-content class is overridden in dark mode by index.css if needed */
+  .payment-content {
+    background-color: #fff;
+    color: #333;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .payment-content h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .payment-subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+  
+  /* Method Selector */
+  .method-selector {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .method-card {
+    width: 100px;
+    height: 120px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background-color: #f0f0f0; /* light background for light mode */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  
+  .method-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .method-card.selected {
+    border-color: var(--primary-teal);
+  }
+  
+  .method-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+  
+  .method-icon::before {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  .method-name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Payment Form */
+  .payment-form {
+    margin-top: 20px;
+  }
+  
+  .form-row {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-row label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-row input,
+  .split-inputs select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .expires-row {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .split-inputs {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .continue-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* =================== DARK MODE OVERRIDES =================== */
+  .dark .payment-content {
+    background-color: #1e1e1e !important;
+    color: #fff !important;
+  }
+  
+  .dark .method-card {
+    background-color: #2a2a2a !important;
+    color: #ddd !important;
+  }
+  
+  /* In dark mode, invert the Apple Pay image */
+  .dark .apple-pay {
+    filter: invert(1);
+  }
+  

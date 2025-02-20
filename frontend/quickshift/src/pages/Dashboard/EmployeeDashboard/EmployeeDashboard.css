@@ -1,0 +1,108 @@
+.employee-dashboard-container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+  }
+  
+  .employee-dashboard-content {
+    background-color: #fff;
+    color: #000;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .employee-dashboard-content h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+  }
+  
+  .earnings-section {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .earnings-card {
+    background-color: #fff;
+    color: #000;
+    border-radius: 10px;
+    padding: 20px;
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .earnings-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .earnings-amount {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .chart-container {
+    margin-top: 15px;
+  }
+  
+  /* Shifts Section */
+  .shifts-section {
+    background-color: #fff;
+    color: #333;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .shifts-section h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  
+  .shift-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .shift-list li {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  .shift-date {
+    font-weight: bold;
+  }
+  
+  .shift-time,
+  .shift-location {
+    opacity: 0.8;
+  }
+  
+  /* =================== DARK MODE OVERRIDES =================== */
+  .dark .employee-dashboard-content {
+    background-color: #000 !important;
+    color: var(--text-dark) !important;
+  }
+  
+  .dark .earnings-card {
+    background-color: #000 !important;
+    color: var(--text-dark) !important;
+  }
+  
+  .dark .shifts-section {
+    background-color: #000 !important;
+    color: var(--text-dark) !important;
+  }
+  
+  .dark .chart-container {
+    background-color: #000 !important;
+  }
+  

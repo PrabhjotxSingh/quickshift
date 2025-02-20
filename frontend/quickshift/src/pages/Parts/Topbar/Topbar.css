@@ -9,6 +9,8 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* ensure it stays above other elements */
+  background-color: white; /* override in dark mode with .dark .bar */
 }
 
 .bar .logo {
@@ -16,18 +18,100 @@
   font-weight: bold;
 }
 
-.bar .nav-links {
-  display: flex;
-  gap: 20px;
+.hamburger {
+  display: none; /* hidden on larger screens */
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
 }
 
-.bar .nav-links a {
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: black;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+/* nav-links */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Links styling */
+.nav-links a {
   color: black;
   text-decoration: none;
   font-size: 16px;
   transition: opacity 0.3s;
 }
-
-.bar .nav-links a:hover {
+.nav-links a:hover {
   opacity: 0.8;
+}
+
+/* Theme toggle button inside nav */
+.theme-toggle-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+.theme-toggle-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive: Show hamburger on smaller screens */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 60px; /* just below the bar */
+    right: 0;
+    background-color: white; /* override in dark mode with .dark .nav-links */
+    flex-direction: column;
+    width: 200px;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .nav-links.open {
+    transform: translateX(0);
+  }
+}
+
+/* Dark mode overrides for top bar. (Because .dark is on <html>) */
+.dark .bar {
+  background-color: #000;
+  color: #ddd;
+}
+
+.dark .hamburger span {
+  background-color: #ddd;
+}
+
+.dark .nav-links {
+  background-color: #000;
+}
+
+.dark .nav-links a {
+  color: #ddd;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }

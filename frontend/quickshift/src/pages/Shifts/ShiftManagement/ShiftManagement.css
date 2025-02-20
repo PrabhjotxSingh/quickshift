@@ -1,0 +1,77 @@
+.shift-management-container {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 60px);
+    padding: 20px;
+  }
+  
+  .shift-management-content {
+    background-color: #fff;
+    width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .shift-management-content h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+  }
+  
+  .shifts-list {
+    margin-bottom: 30px;
+  }
+  
+  .shifts-list h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .shifts-list ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .shifts-list li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  
+  /* Add Shift Form */
+  .add-shift-form h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .add-shift-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .add-shift-form input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .add-shift-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .add-shift-form button:hover {
+    background-color: #0056b3;
+  }
+  
