@@ -13,6 +13,7 @@ export interface JobDocument extends Document {
 	endTime: Date;
 	pay: number;
 	location: Location;
+	userHired: Schema.Types.ObjectId;
 }
 
 const JobSchema = new Schema<JobDocument>({
@@ -53,6 +54,11 @@ const JobSchema = new Schema<JobDocument>({
 	location: {
 		latitude: { type: Number, required: true },
 		longitude: { type: Number, required: true },
+	},
+	userHired: {
+		type: Schema.Types.ObjectId,
+		ref: "User",
+		required: true,
 	},
 });
 

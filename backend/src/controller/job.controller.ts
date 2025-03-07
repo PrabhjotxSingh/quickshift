@@ -14,7 +14,7 @@ import { UserRepository } from "../core/repository/user.repository";
 @Tags("Job")
 @Service()
 export class JobController extends BaseController {
-	constructor(private JobService: JobService) {
+	constructor(private jobService: JobService) {
 		super();
 	}
 
@@ -22,7 +22,7 @@ export class JobController extends BaseController {
 	@Authenticate(UserRole.WORKER)
 	public async create(@Body() request: CreateJobRequest): Promise<JobDto | string> {
 		try {
-			return await this.JobService.createJob(request);
+			return await this.jobService.createJob(request);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
@@ -32,7 +32,7 @@ export class JobController extends BaseController {
 	@Authenticate(UserRole.WORKER)
 	public async get(@Query() id: string): Promise<JobDto | string> {
 		try {
-			return await this.JobService.getJobById(id);
+			return await this.jobService.getJobById(id);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
@@ -42,7 +42,7 @@ export class JobController extends BaseController {
 	@Authenticate(UserRole.EMPLOYER)
 	public async delete(@Query() jobId: string): Promise<string> {
 		try {
-			await this.JobService.deleteJob(jobId);
+			await this.jobService.deleteJob(jobId);
 			return this.ok("Succesfullt deleted Job");
 		} catch (ex: any) {
 			return this.handleError(ex);
@@ -53,7 +53,18 @@ export class JobController extends BaseController {
 	@Authenticate(UserRole.EMPLOYER)
 	public async update(@Query() jobId: string, @Body() request: CreateJobRequest): Promise<JobDto | string> {
 		try {
-			return await this.JobService.updateJob(request, jobId);
+			return await this.jobService.updateJob(request, jobId);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Get("User")
+	@Authenticate(UserRole.WORKER)
+	public async getUserJobs(@Query() getUpcoming: boolean) {
+		try {
+			const user = await this.getUser();
+			return await this.jobService.getUsersJobs(user.id, getUpcoming);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}

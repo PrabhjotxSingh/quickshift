@@ -13,8 +13,8 @@ import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
-import mongoose, { ObjectId, Types } from "mongoose";
-import { JobModel } from "../model/job.model";
+import mongoose, { FilterQuery, ObjectId, Types } from "mongoose";
+import { JobDocument, JobModel } from "../model/job.model";
 import { Service } from "typedi";
 import { CreateJobRequest } from "shared/src/dto/request/job/create-job-request";
 import { JobDto } from "shared/src/dto/models/job.dto";
@@ -27,7 +27,7 @@ import { CompanyRepository } from "../repository/company.repository";
 export class JobService {
 	constructor(
 		private companyRepository: CompanyRepository,
-		private JobRepository: JobRepository,
+		private jobRepository: JobRepository,
 	) {}
 
 	public async createJob(request: CreateJobRequest): Promise<JobDto> {
@@ -39,11 +39,11 @@ export class JobService {
 		const newJob = mapper.map(request, CreateJobRequest, JobModel);
 		newJob.isOpen = true;
 
-		return mapper.map(await this.JobRepository.create(newJob), JobModel, JobDto);
+		return mapper.map(await this.jobRepository.create(newJob), JobModel, JobDto);
 	}
 
 	public async getJobById(id: string): Promise<JobDto> {
-		const Job = await this.JobRepository.get(id);
+		const Job = await this.jobRepository.get(id);
 		if (Job == null) {
 			throw new NotFoundError("Job not found");
 		}
@@ -52,26 +52,54 @@ export class JobService {
 	}
 
 	public async deleteJob(id: string): Promise<void> {
-		await this.JobRepository.delete(id);
+		await this.jobRepository.delete(id);
 	}
 
 	public async updateJob(request: CreateJobRequest, jobId: string): Promise<JobDto> {
-		const Job = await this.JobRepository.get(jobId);
+		const Job = await this.jobRepository.get(jobId);
 		if (Job == null) {
 			throw new NotFoundError("Job not found");
 		}
 
 		const updatedJob = mapper.map(request, CreateJobRequest, JobModel);
 
-		return mapper.map(await this.JobRepository.update(Job.id, updatedJob), JobModel, JobDto);
+		return mapper.map(await this.jobRepository.update(Job.id, updatedJob), JobModel, JobDto);
 	}
 
 	public async getUserJob(user: CompanyDocument): Promise<JobDto> {
-		const Job = await this.JobRepository.getByQuery({ owner: user.id });
+		const Job = await this.jobRepository.getByQuery({ owner: user.id });
 		if (Job == null) {
 			throw new NotFoundError("Job not found");
 		}
 
 		return mapper.map(Job, JobModel, JobDto);
+	}
+
+	public async getAvailableJobs(tags?: string[]): Promise<JobDocument[] | undefined> {
+		let result;
+		if (!tags || tags.length === 0) {
+			result = await this.jobRepository.getMultipleByQuery({ isOpen: true });
+		}
+
+		result = await this.jobRepository.getMultipleByQuery({
+			isOpen: true,
+			tags: { $in: tags },
+		});
+
+		return result;
+	}
+
+	public async getUsersJobs(userId: string, getUpcoming: boolean = false) {
+		let query: FilterQuery<JobDocument>;
+		if (getUpcoming) {
+			const currentTime = new Date();
+			query = {
+				userHired: userId,
+				startTime: { $gt: currentTime },
+			};
+		} else {
+			query = { userHired: userId };
+		}
+		return this.jobRepository.getByQuery(query);
 	}
 }
