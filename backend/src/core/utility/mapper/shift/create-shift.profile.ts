@@ -1,16 +1,16 @@
-// job-request-to-dto.mapping.profile.ts
+// shift-request-to-dto.mapping.profile.ts
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import mongoose from "mongoose";
-import { JobDto } from "shared/src/dto/models/job.dto";
-import { CreateJobRequest } from "shared/src/dto/request/job/create-job-request";
-import { JobModel } from "../../../model/job.model";
+import { ShiftDto } from "shared/src/dto/models/shift.dto";
+import { CreateShiftRequest } from "shared/src/dto/request/shift/create-shift-request";
+import { ShiftModel } from "../../../model/shift.model";
 
-export const createJobRequestToJobDtoProfile: MappingProfile = (mapper) => {
-	// Map from CreateJobRequest to JobDto
+export const createShiftRequestToShiftDtoProfile: MappingProfile = (mapper) => {
+	// Map from CreateShiftRequest to ShiftDto
 	createMap(
 		mapper,
-		CreateJobRequest,
-		JobDto,
+		CreateShiftRequest,
+		ShiftDto,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company),
@@ -49,11 +49,11 @@ export const createJobRequestToJobDtoProfile: MappingProfile = (mapper) => {
 		),
 	);
 
-	// Reverse mapping from JobDto to CreateJobRequest
+	// Reverse mapping from ShiftDto to CreateShiftRequest
 	createMap(
 		mapper,
-		JobDto,
-		CreateJobRequest,
+		ShiftDto,
+		CreateShiftRequest,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company),
@@ -91,11 +91,11 @@ export const createJobRequestToJobDtoProfile: MappingProfile = (mapper) => {
 		),
 	);
 
-	// Map from JobModel to CreateJobRequest
+	// Map from ShiftModel to CreateShiftRequest
 	createMap(
 		mapper,
-		JobModel,
-		CreateJobRequest,
+		ShiftModel,
+		CreateShiftRequest,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company.toString()),
@@ -134,11 +134,11 @@ export const createJobRequestToJobDtoProfile: MappingProfile = (mapper) => {
 		),
 	);
 
-	// Reverse mapping from CreateJobRequest to JobModel
+	// Reverse mapping from CreateShiftRequest to ShiftModel
 	createMap(
 		mapper,
-		CreateJobRequest,
-		JobModel,
+		CreateShiftRequest,
+		ShiftModel,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => new mongoose.Types.ObjectId(src.company)),

@@ -1,11 +1,11 @@
 import { Service } from "typedi";
 import { UserDocument } from "../model/user.model";
 import { Repository } from "./base.repository";
-import { JobDocument, JobModel } from "../model/job.model";
+import { ShiftDocument, ShiftModel } from "../model/shift.model";
 
 @Service()
-export class JobRepository extends Repository<JobDocument> {
+export class ShiftRepository extends Repository<ShiftDocument> {
 	constructor() {
-		super(JobModel);
+		super(ShiftModel);
 	}
 }

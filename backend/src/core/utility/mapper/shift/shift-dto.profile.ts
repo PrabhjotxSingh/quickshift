@@ -1,14 +1,14 @@
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import mongoose from "mongoose";
-import { JobDto } from "shared/src/dto/models/job.dto";
-import { JobModel } from "../../../model/job.model";
+import { ShiftDto } from "shared/src/dto/models/shift.dto";
+import { ShiftModel } from "../../../model/shift.model";
 
-export const jobDtoProfile: MappingProfile = (mapper) => {
-	// Map from JobModel to JobDto
+export const shiftDtoProfile: MappingProfile = (mapper) => {
+	// Map from ShiftModel to ShiftDto
 	createMap(
 		mapper,
-		JobModel,
-		JobDto,
+		ShiftModel,
+		ShiftDto,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company.toString()),
@@ -51,11 +51,11 @@ export const jobDtoProfile: MappingProfile = (mapper) => {
 		),
 	);
 
-	// Reverse mapping from JobDto to JobModel
+	// Reverse mapping from ShiftDto to ShiftModel
 	createMap(
 		mapper,
-		JobDto,
-		JobModel,
+		ShiftDto,
+		ShiftModel,
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => new mongoose.Types.ObjectId(src.company)),
