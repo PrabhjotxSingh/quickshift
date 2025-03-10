@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { UserDocument } from "../model/user.model";
 import { Repository } from "./base.repository";
-import { JobDocument } from "../model/job.model";
+import { ShiftDocument } from "../model/shift.model";
 import { CompanyDocument, CompanyModel } from "../model/company.model";
 
 @Service()

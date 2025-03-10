@@ -3,7 +3,7 @@ import { CompanyDocument } from "./company.model";
 import { required } from "joi";
 import { Location } from "shared/src/dto/models/location";
 
-export interface JobDocument extends Document {
+export interface ShiftDocument extends Document {
 	company: mongoose.Types.ObjectId | CompanyDocument;
 	name: string;
 	description: string;
@@ -16,7 +16,7 @@ export interface JobDocument extends Document {
 	userHired: Schema.Types.ObjectId;
 }
 
-const JobSchema = new Schema<JobDocument>({
+const ShiftSchema = new Schema<ShiftDocument>({
 	company: {
 		type: Schema.Types.ObjectId,
 		ref: "Company",
@@ -62,4 +62,4 @@ const JobSchema = new Schema<JobDocument>({
 	},
 });
 
-export const JobModel = mongoose.model<JobDocument>("Job", JobSchema);
+export const ShiftModel = mongoose.model<ShiftDocument>("Shift", ShiftSchema);

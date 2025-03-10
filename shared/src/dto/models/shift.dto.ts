@@ -1,7 +1,7 @@
 import { AutoMap } from "@automapper/classes";
 import { Location } from "./location";
 
-export class JobDto {
+export class ShiftDto {
   @AutoMap()
   company!: string;
   @AutoMap()

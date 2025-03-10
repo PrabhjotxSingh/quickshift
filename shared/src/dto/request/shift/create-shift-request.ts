@@ -1,7 +1,7 @@
 import { AutoMap } from "@automapper/classes";
 import { Location } from "../../models/location";
 
-export class CreateJobRequest {
+export class CreateShiftRequest {
   @AutoMap()
   name!: string;
   @AutoMap()
