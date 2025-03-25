@@ -1,33 +1,4 @@
-.bar {
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  color: black;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.bar .logo {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.bar .nav-links {
-  display: flex;
-  gap: 20px;
-}
-
-.bar .nav-links a {
-  color: black;
-  text-decoration: none;
-  font-size: 16px;
-  transition: opacity 0.3s;
-}
-
-.bar .nav-links a:hover {
-  opacity: 0.8;
+.topbar-container {
+  margin: 10px;
+  border-bottom: solid;
 }
