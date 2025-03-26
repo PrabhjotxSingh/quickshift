@@ -67,8 +67,7 @@ export class Repository<T extends Document> {
 
 	async create(documentData: Partial<T>): Promise<T> {
 		try {
-			const newDocument = new this.model(documentData);
-			return await newDocument.save();
+			return await this.model.create(documentData);
 		} catch (error: any) {
 			throw new Error(error.message);
 		}
