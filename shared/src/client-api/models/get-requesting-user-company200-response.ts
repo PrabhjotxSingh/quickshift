@@ -28,6 +28,12 @@ export interface GetRequestingUserCompany200Response {
      * @type {string}
      * @memberof GetRequestingUserCompany200Response
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetRequestingUserCompany200Response
+     */
     'name': string;
     /**
      * 

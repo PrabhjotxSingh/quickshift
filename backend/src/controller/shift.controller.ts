@@ -80,4 +80,25 @@ export class ShiftController extends BaseController {
 			return this.handleError(ex);
 		}
 	}
+
+	@Get("Applicants")
+	@Authenticate(UserRole.EMPLOYER)
+	public async getApplicants(@Query() shiftId: string) {
+		try {
+			return await this.shiftService.getShiftApplications(shiftId);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Post("Apply")
+	@Authenticate(UserRole.WORKER)
+	public async applyToShift(@Query() shiftId: string) {
+		try {
+			const user = await this.getUser();
+			return await this.shiftService.applyToShift(shiftId, user);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
 }

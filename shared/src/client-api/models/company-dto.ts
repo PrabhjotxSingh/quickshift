@@ -25,6 +25,12 @@ export interface CompanyDto {
      * @type {string}
      * @memberof CompanyDto
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CompanyDto
+     */
     'name': string;
     /**
      * 

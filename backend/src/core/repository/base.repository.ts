@@ -20,7 +20,7 @@ export class Repository<T extends Document> {
 		}
 	}
 
-	async getMultipleByQuery(query: FilterQuery<T>): Promise<T[]> {
+	async getManyByQuery(query: FilterQuery<T>): Promise<T[]> {
 		try {
 			return await this.model.find(query).exec();
 		} catch (error: any) {
