@@ -79,12 +79,12 @@ export class ShiftService {
 		let result;
 		if (!tags || tags.length === 0) {
 			result = await this.shiftRepository.getMultipleByQuery({ isOpen: true });
+		} else {
+			result = await this.shiftRepository.getMultipleByQuery({
+				isOpen: true,
+				tags: { $in: tags },
+			});
 		}
-
-		result = await this.shiftRepository.getMultipleByQuery({
-			isOpen: true,
-			tags: { $in: tags },
-		});
 
 		return result;
 	}
