@@ -72,7 +72,7 @@ export class ShiftController extends BaseController {
 
 	@Get("Available")
 	@Authenticate(UserRole.WORKER)
-	public async getAvailableShifts(@Query() tags: string[]) {
+	public async getAvailableShifts(@Query() tags?: string[]) {
 		try {
 			const user = await this.getUser();
 			return await this.shiftService.getAvailableShifts(tags);

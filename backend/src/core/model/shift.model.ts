@@ -13,7 +13,7 @@ export interface ShiftDocument extends Document {
 	endTime: Date;
 	pay: number;
 	location: Location;
-	userHired: Schema.Types.ObjectId;
+	userHired?: Schema.Types.ObjectId;
 }
 
 const ShiftSchema = new Schema<ShiftDocument>({
@@ -58,7 +58,7 @@ const ShiftSchema = new Schema<ShiftDocument>({
 	userHired: {
 		type: Schema.Types.ObjectId,
 		ref: "User",
-		required: true,
+		required: false,
 	},
 });
 
