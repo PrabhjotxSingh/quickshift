@@ -26,5 +26,9 @@ export const companyDtoProfile: MappingProfile = (mapper) => {
 			// Convert the id to a string (e.g., the ObjectId value)
 			mapFrom((source) => source.id.toString()),
 		),
+		forMember(
+			(destination) => destination.companyAdmins,
+			mapFrom((source) => source.companyAdmins.map((adminId) => adminId.toString())),
+		),
 	);
 };

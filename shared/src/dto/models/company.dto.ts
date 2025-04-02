@@ -9,4 +9,6 @@ export class CompanyDto {
   description!: string;
   @AutoMap()
   owner!: string;
+  @AutoMap()
+  companyAdmins!: string[];
 }
