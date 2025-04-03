@@ -1,10 +1,10 @@
 import { Route, Post, Tags, Body, Query, Get, Delete, Patch } from "tsoa";
 import { BaseController } from "./base.controller";
 import { Authenticate } from "./decorators/auth.decorater";
-import { UserRole } from "shared/src/enum/user-role.enum";
-import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
+import { UserRole } from "../core/enum/user-role.enum";
+import { CreateCompanyRequest } from "../core/dto/request/company/create-company.request";
 import { CompanyService } from "../core/service/company.service";
-import { CompanyDto } from "shared/src/dto/models/company.dto";
+import { CompanyDto } from "../core/dto/models/company.dto";
 import { AuthService } from "../core/service/auth.service";
 import { Service } from "typedi";
 import { ObjectId } from "mongoose";

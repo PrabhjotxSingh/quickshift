@@ -1,7 +1,7 @@
 // registerProfile.ts
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
-import { RegisterRequest } from "shared/src/dto/request/auth/register.request";
-import { UserDto } from "shared/src/dto/models/user.dto";
+import { RegisterRequest } from "../../../dto/request/auth/register.request";
+import { UserDto } from "../../../dto/models/user.dto";
 
 export const registerRequestProfile: MappingProfile = (mapper) => {
 	createMap(

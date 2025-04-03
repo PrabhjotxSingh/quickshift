@@ -1,10 +1,10 @@
 import { Route, Post, Tags, Body, Query, Get, Delete, Patch } from "tsoa";
 import { BaseController } from "./base.controller";
 import { Authenticate, AuthenticateAny } from "./decorators/auth.decorater";
-import { UserRole } from "shared/src/enum/user-role.enum";
-import { CreateShiftRequest } from "shared/src/dto/request/shift/create-shift-request";
+import { UserRole } from "../core/enum/user-role.enum";
+import { CreateShiftRequest } from "../core/dto/request/shift/create-shift-request";
 import { ShiftService } from "../core/service/shift.service";
-import { ShiftDto } from "shared/src/dto/models/shift.dto";
+import { ShiftDto } from "../core/dto/models/shift.dto";
 import { AuthService } from "../core/service/auth.service";
 import { Service } from "typedi";
 import { ObjectId, Types } from "mongoose";

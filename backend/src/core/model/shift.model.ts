@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { CompanyDocument } from "./company.model";
 import { required } from "joi";
-import { Location } from "shared/src/dto/models/location";
+import { Location } from "../dto/models/location";
 
 export interface ShiftDocument extends Document {
 	company: mongoose.Types.ObjectId | CompanyDocument;

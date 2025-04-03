@@ -1,10 +1,10 @@
 import { AuthService } from "../../core/service/auth.service";
 import { UserRepository } from "../../core/repository/user.repository";
 import { RefreshTokenRepository } from "../../core/repository/refresh-token.repository";
-import { UserDto } from "shared/src/dto/models/user.dto";
-import { LoginRequest } from "shared/src/dto/request/auth/login.request";
-import { RegisterRequest } from "shared/src/dto/request/auth/register.request";
-import { UserRole } from "shared/src/enum/user-role.enum";
+import { UserDto } from "../../core/dto/models/user.dto";
+import { LoginRequest } from "../../core/dto/request/auth/login.request";
+import { RegisterRequest } from "../../core/dto/request/auth/register.request";
+import { UserRole } from "../../core/enum/user-role.enum";
 import { AlreadyExistsError } from "../../core/error/AlreadyExistsError";
 import { NotFoundError } from "../../core/error/NotFoundError";
 import { Types, Schema, Model } from "mongoose";
