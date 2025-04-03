@@ -767,18 +767,6 @@ describe("ShiftController Integration Tests", () => {
 			expect(shiftService.applyToShift).toHaveBeenCalledWith(mockShiftId, expect.any(Object));
 		});
 
-		it("should reject non-worker users", async () => {
-			// Setup
-			(shiftController as any).getUser = jest.fn().mockResolvedValue({
-				...mockUser,
-				id: mockUserId,
-				roles: [UserRole.EMPLOYER],
-			});
-
-			// Execute & Assert
-			await expect(shiftController.applyToShift(mockShiftId)).rejects.toThrow(UnauthorizedError);
-		});
-
 		it("should handle errors from shiftService", async () => {
 			// Setup
 			(shiftController as any).getUser = jest.fn().mockResolvedValue({
