@@ -1,8 +1,8 @@
 // shift-request-to-dto.mapping.profile.ts
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import mongoose from "mongoose";
-import { ShiftDto } from "shared/src/dto/models/shift.dto";
-import { CreateShiftRequest } from "shared/src/dto/request/shift/create-shift-request";
+import { ShiftDto } from "../../../dto/models/shift.dto";
+import { CreateShiftRequest } from "../../../dto/request/shift/create-shift-request";
 import { ShiftModel } from "../../../model/shift.model";
 
 export const createShiftRequestToShiftDtoProfile: MappingProfile = (mapper) => {

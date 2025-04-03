@@ -1,6 +1,6 @@
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import mongoose, { Types } from "mongoose";
-import { ShiftDto } from "shared/src/dto/models/shift.dto";
+import { ShiftDto } from "../../../dto/models/shift.dto";
 import { ShiftModel } from "../../../model/shift.model";
 
 export const shiftDtoProfile: MappingProfile = (mapper) => {
