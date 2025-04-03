@@ -94,9 +94,13 @@ export class ShiftService {
 		return result;
 	}
 
-	public async getUsersShifts(userId: string, getUpcoming: boolean = false) {
+	// Gets users shifts.
+	// onlyUpcoming:
+	//				true -> return only upcoming shifts
+	//			 	false -> return all shifts
+	public async getUsersShifts(userId: string, onlyUpcoming: boolean = false) {
 		let query: FilterQuery<ShiftDocument>;
-		if (getUpcoming) {
+		if (onlyUpcoming) {
 			const currentTime = new Date();
 			query = {
 				userHired: userId,

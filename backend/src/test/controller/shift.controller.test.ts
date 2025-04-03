@@ -622,4 +622,62 @@ describe("ShiftController Integration Tests", () => {
 			await expect(shiftController.getApplicants(nonExistentShiftId)).rejects.toThrow(NotFoundError);
 		});
 	});
+
+	describe("getUserShifts", () => {
+		const mockShifts = [
+			{
+				...mockShift,
+				_id: new Types.ObjectId().toString(),
+				startTime: new Date(Date.now() + 86400000), // Tomorrow
+				endTime: new Date(Date.now() + 172800000), // Day after tomorrow
+			},
+		];
+
+		it("should get shifts for provided userId", async () => {
+			// Setup
+			const providedUserId = new Types.ObjectId().toString();
+			shiftService.getUsersShifts = jest.fn().mockResolvedValue(mockShifts);
+
+			// Execute
+			const result = await shiftController.getUserShifts(true, providedUserId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUsersShifts).toHaveBeenCalledWith(providedUserId, true);
+		});
+
+		it("should get shifts for authenticated user when no userId provided", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.getUsersShifts = jest.fn().mockResolvedValue(mockShifts);
+
+			// Execute
+			const result = await shiftController.getUserShifts(true);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUsersShifts).toHaveBeenCalledWith(mockUserId, true);
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			const error = new Error("Failed to get shifts");
+			shiftService.getUsersShifts = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.getUserShifts(true)).rejects.toThrow(error);
+		});
+
+		it("should handle errors when getting authenticated user", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockRejectedValue(new Error("Failed to get user"));
+
+			// Execute & Assert
+			await expect(shiftController.getUserShifts(true)).rejects.toThrow("Failed to get user");
+		});
+	});
 });

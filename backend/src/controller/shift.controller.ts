@@ -97,10 +97,17 @@ export class ShiftController extends BaseController {
 
 	@Get("User")
 	@Authenticate(UserRole.WORKER)
-	public async getUserShifts(@Query() getUpcoming: boolean) {
+	public async getUserShifts(@Query() getUpcoming: boolean, @Query() userId?: string) {
 		try {
-			const user = await this.getUser();
-			return await this.shiftService.getUsersShifts(user.id, getUpcoming);
+			let finalUserId: string;
+			if (userId == null) {
+				const user = await this.getUser();
+				finalUserId = user.id;
+			} else {
+				finalUserId = userId;
+			}
+
+			return await this.shiftService.getUsersShifts(finalUserId, getUpcoming);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
