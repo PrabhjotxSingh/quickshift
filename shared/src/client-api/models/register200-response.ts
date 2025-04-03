@@ -37,6 +37,12 @@ export interface Register200Response {
      * @type {string}
      * @memberof Register200Response
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Register200Response
+     */
     'email': string;
     /**
      * 

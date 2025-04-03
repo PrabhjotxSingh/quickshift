@@ -80,5 +80,17 @@ export interface Get200Response {
      * @memberof Get200Response
      */
     'location': Location;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof Get200Response
+     */
+    'isComplete': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof Get200Response
+     */
+    'rating'?: number;
 }
 

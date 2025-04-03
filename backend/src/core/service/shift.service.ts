@@ -139,4 +139,40 @@ export class ShiftService {
 
 		return newApplication;
 	}
+
+	public async hireUserForShift(shiftId: string, userId: string): Promise<ShiftDto> {
+		const shift = await this.shiftRepository.get(shiftId);
+		if (!shift) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		if (!shift.isOpen) {
+			throw new ShiftUnavailableError("Shift is not available for hiring");
+		}
+
+		shift.userHired = new mongoose.Schema.Types.ObjectId(userId);
+		shift.isOpen = false;
+
+		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);
+	}
+
+	public async completeShiftWithRating(shiftId: string, rating: number): Promise<ShiftDto> {
+		const shift = await this.shiftRepository.get(shiftId);
+		if (!shift) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		if (shift.isComplete) {
+			throw new Error("Shift is already completed");
+		}
+
+		if (rating < 0 || rating > 100) {
+			throw new Error("Rating must be between 0 and 100");
+		}
+
+		shift.isComplete = true;
+		shift.rating = rating;
+
+		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);
+	}
 }

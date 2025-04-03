@@ -77,5 +77,17 @@ export interface ShiftDto {
      * @memberof ShiftDto
      */
     'location': Location;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ShiftDto
+     */
+    'isComplete': boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof ShiftDto
+     */
+    'rating'?: number;
 }
 

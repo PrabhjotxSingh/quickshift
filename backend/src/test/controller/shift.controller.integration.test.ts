@@ -801,4 +801,249 @@ describe("ShiftController Integration Tests", () => {
 			await expect(shiftController.applyToShift(mockShiftId)).rejects.toThrow("Failed to get user");
 		});
 	});
+
+	describe("hireUser", () => {
+		const mockWorkerId = new Types.ObjectId().toString();
+
+		it("should allow employer to hire user for shift", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.hireUserForShift = jest.fn().mockResolvedValue({
+				...mockShift,
+				userHired: mockWorkerId,
+				isOpen: false,
+			});
+
+			// Execute
+			const result = await shiftController.hireUser(mockShiftId, mockWorkerId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.hireUserForShift).toHaveBeenCalledWith(mockShiftId, mockWorkerId);
+		});
+
+		it("should allow company admin to hire user for shift", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockCompanyAdmin,
+				id: mockCompanyAdminId,
+				roles: [UserRole.COMPANYADMIN],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.hireUserForShift = jest.fn().mockResolvedValue({
+				...mockShift,
+				userHired: mockWorkerId,
+				isOpen: false,
+			});
+
+			// Execute
+			const result = await shiftController.hireUser(mockShiftId, mockWorkerId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.hireUserForShift).toHaveBeenCalledWith(mockShiftId, mockWorkerId);
+		});
+
+		it("should allow admin to hire user for shift", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.ADMIN],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.hireUserForShift = jest.fn().mockResolvedValue({
+				...mockShift,
+				userHired: mockWorkerId,
+				isOpen: false,
+			});
+
+			// Execute
+			const result = await shiftController.hireUser(mockShiftId, mockWorkerId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.hireUserForShift).toHaveBeenCalledWith(mockShiftId, mockWorkerId);
+		});
+
+		it("should reject unauthorized user", async () => {
+			// Setup
+			const unauthorizedUser = {
+				...mockUser,
+				_id: new Types.ObjectId(),
+				id: new Types.ObjectId().toString(),
+				roles: [UserRole.WORKER],
+			} as UserDocument;
+
+			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockRejectedValue(new UnauthorizedError("User not authorized"));
+
+			// Execute & Assert
+			await expect(shiftController.hireUser(mockShiftId, mockWorkerId)).rejects.toThrow(UnauthorizedError);
+		});
+
+		it("should throw NotFoundError if shift not found", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			const nonExistentShiftId = new Types.ObjectId().toString();
+			shiftService.getShiftById = jest.fn().mockRejectedValue(new NotFoundError("Shift not found"));
+
+			// Execute & Assert
+			await expect(shiftController.hireUser(nonExistentShiftId, mockWorkerId)).rejects.toThrow(NotFoundError);
+		});
+	});
+
+	describe("completeShift", () => {
+		const mockRating = 85;
+
+		it("should allow employer to complete shift with rating", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.completeShiftWithRating = jest.fn().mockResolvedValue({
+				...mockShift,
+				isComplete: true,
+				rating: mockRating,
+			});
+
+			// Execute
+			const result = await shiftController.completeShift(mockShiftId, mockRating);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.completeShiftWithRating).toHaveBeenCalledWith(mockShiftId, mockRating);
+		});
+
+		it("should allow company admin to complete shift with rating", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockCompanyAdmin,
+				id: mockCompanyAdminId,
+				roles: [UserRole.COMPANYADMIN],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.completeShiftWithRating = jest.fn().mockResolvedValue({
+				...mockShift,
+				isComplete: true,
+				rating: mockRating,
+			});
+
+			// Execute
+			const result = await shiftController.completeShift(mockShiftId, mockRating);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.completeShiftWithRating).toHaveBeenCalledWith(mockShiftId, mockRating);
+		});
+
+		it("should allow admin to complete shift with rating", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.ADMIN],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.completeShiftWithRating = jest.fn().mockResolvedValue({
+				...mockShift,
+				isComplete: true,
+				rating: mockRating,
+			});
+
+			// Execute
+			const result = await shiftController.completeShift(mockShiftId, mockRating);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.completeShiftWithRating).toHaveBeenCalledWith(mockShiftId, mockRating);
+		});
+
+		it("should reject unauthorized user", async () => {
+			// Setup
+			const unauthorizedUser = {
+				...mockUser,
+				_id: new Types.ObjectId(),
+				id: new Types.ObjectId().toString(),
+				roles: [UserRole.WORKER],
+			} as UserDocument;
+
+			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockRejectedValue(new UnauthorizedError("User not authorized"));
+
+			// Execute & Assert
+			await expect(shiftController.completeShift(mockShiftId, mockRating)).rejects.toThrow(UnauthorizedError);
+		});
+
+		it("should throw NotFoundError if shift not found", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			const nonExistentShiftId = new Types.ObjectId().toString();
+			shiftService.getShiftById = jest.fn().mockRejectedValue(new NotFoundError("Shift not found"));
+
+			// Execute & Assert
+			await expect(shiftController.completeShift(nonExistentShiftId, mockRating)).rejects.toThrow(
+				NotFoundError,
+			);
+		});
+
+		it("should reject invalid rating", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			(shiftController as any).validateCompanyAccess = jest
+				.fn()
+				.mockImplementation((companyId: string, userId: string) => Promise.resolve());
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+			shiftService.completeShiftWithRating = jest
+				.fn()
+				.mockRejectedValue(new Error("Rating must be between 0 and 100"));
+
+			// Execute & Assert
+			await expect(shiftController.completeShift(mockShiftId, 150)).rejects.toThrow(
+				"Rating must be between 0 and 100",
+			);
+		});
+	});
 });
