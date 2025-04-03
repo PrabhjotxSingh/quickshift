@@ -680,4 +680,125 @@ describe("ShiftController Integration Tests", () => {
 			await expect(shiftController.getUserShifts(true)).rejects.toThrow("Failed to get user");
 		});
 	});
+
+	describe("get", () => {
+		it("should get shift by id for worker", async () => {
+			// Setup
+			shiftService.getShiftById = jest.fn().mockResolvedValue(mockShift);
+
+			// Execute
+			const result = await shiftController.get(mockShiftId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getShiftById).toHaveBeenCalledWith(mockShiftId);
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			const error = new Error("Failed to get shift");
+			shiftService.getShiftById = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.get(mockShiftId)).rejects.toThrow(error);
+		});
+	});
+
+	describe("getAvailableShifts", () => {
+		const mockAvailableShifts = [
+			{
+				...mockShift,
+				_id: new Types.ObjectId().toString(),
+				startTime: new Date(Date.now() + 86400000),
+				endTime: new Date(Date.now() + 172800000),
+			},
+		];
+
+		it("should get available shifts for worker with no tags", async () => {
+			// Setup
+			shiftService.getAvailableShifts = jest.fn().mockResolvedValue(mockAvailableShifts);
+
+			// Execute
+			const result = await shiftController.getAvailableShifts();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(undefined);
+		});
+
+		it("should get available shifts for worker with tags", async () => {
+			// Setup
+			const tags = ["tag1", "tag2"];
+			shiftService.getAvailableShifts = jest.fn().mockResolvedValue(mockAvailableShifts);
+
+			// Execute
+			const result = await shiftController.getAvailableShifts(tags);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(tags);
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			const error = new Error("Failed to get available shifts");
+			shiftService.getAvailableShifts = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.getAvailableShifts()).rejects.toThrow(error);
+		});
+	});
+
+	describe("applyToShift", () => {
+		it("should allow worker to apply to shift", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.applyToShift = jest.fn().mockResolvedValue({ success: true });
+
+			// Execute
+			const result = await shiftController.applyToShift(mockShiftId);
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.applyToShift).toHaveBeenCalledWith(mockShiftId, expect.any(Object));
+		});
+
+		it("should reject non-worker users", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+
+			// Execute & Assert
+			await expect(shiftController.applyToShift(mockShiftId)).rejects.toThrow(UnauthorizedError);
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			const error = new Error("Failed to apply to shift");
+			shiftService.applyToShift = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.applyToShift(mockShiftId)).rejects.toThrow(error);
+		});
+
+		it("should handle errors when getting authenticated user", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockRejectedValue(new Error("Failed to get user"));
+
+			// Execute & Assert
+			await expect(shiftController.applyToShift(mockShiftId)).rejects.toThrow("Failed to get user");
+		});
+	});
 });
