@@ -12,6 +12,7 @@ import { UserRepository } from "../core/repository/user.repository";
 import { CompanyRepository } from "../core/repository/company.repository";
 import { ForbiddenError } from "../core/error/ForbiddenError";
 import { UserDocument } from "../core/model/user.model";
+import { CompanyService } from "../core/service/company.service";
 
 @Route("Shift")
 @Tags("Shift")
@@ -19,13 +20,13 @@ import { UserDocument } from "../core/model/user.model";
 export class ShiftController extends BaseController {
 	constructor(
 		private shiftService: ShiftService,
-		private companyRepository: CompanyRepository,
+		private companyService: CompanyService,
 	) {
 		super();
 	}
 
 	private async validateCompanyAccess(companyId: string, userId: string): Promise<void> {
-		const company = await this.companyRepository.get(companyId);
+		const company = await this.companyService.getCompanyById(companyId);
 		if (!company) {
 			throw new Error("Company not found");
 		}

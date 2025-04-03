@@ -47,5 +47,11 @@ export interface GetRequestingUserCompany200Response {
      * @memberof GetRequestingUserCompany200Response
      */
     'owner': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof GetRequestingUserCompany200Response
+     */
+    'companyAdmins': Array<string>;
 }
 
