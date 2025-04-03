@@ -13,7 +13,7 @@ import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
-import mongoose, { FilterQuery, ObjectId, Types } from "mongoose";
+import mongoose, { FilterQuery, ObjectId, Types, Schema } from "mongoose";
 import { ShiftDocument, ShiftModel } from "../model/shift.model";
 import { Service } from "typedi";
 import { CreateShiftRequest } from "shared/src/dto/request/shift/create-shift-request";
@@ -131,6 +131,16 @@ export class ShiftService {
 			throw new ShiftUnavailableError("Shift is not available for applications");
 		}
 
+		// Check if user has already applied
+		const existingApplication = await this.shiftApplicantRepository.getByQuery({
+			shiftId: shift._id as Types.ObjectId,
+			user: user._id as Types.ObjectId,
+		});
+
+		if (existingApplication) {
+			throw new AlreadyExistsError("User has already applied to this shift");
+		}
+
 		const newApplication = await this.shiftApplicantRepository.create({
 			shiftId: shift._id as Types.ObjectId,
 			user: user._id as Types.ObjectId,
@@ -150,7 +160,7 @@ export class ShiftService {
 			throw new ShiftUnavailableError("Shift is not available for hiring");
 		}
 
-		shift.userHired = new mongoose.Schema.Types.ObjectId(userId);
+		shift.userHired = new mongoose.Types.ObjectId(userId);
 		shift.isOpen = false;
 
 		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);

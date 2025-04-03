@@ -82,6 +82,12 @@ export interface Get200Response {
     'location': Location;
     /**
      * 
+     * @type {string}
+     * @memberof Get200Response
+     */
+    'userHired'?: string;
+    /**
+     * 
      * @type {boolean}
      * @memberof Get200Response
      */

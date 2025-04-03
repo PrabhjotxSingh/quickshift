@@ -21,6 +21,8 @@ export class ShiftDto {
   @AutoMap()
   location!: Location;
   @AutoMap()
+  userHired?: string;
+  @AutoMap()
   isComplete!: boolean;
   @AutoMap()
   rating?: number;

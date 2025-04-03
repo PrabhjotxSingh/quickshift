@@ -97,7 +97,7 @@ export class ShiftController extends BaseController {
 
 	@Get("User")
 	@Authenticate(UserRole.WORKER)
-	public async getUserShifts(@Query() getUpcoming: boolean, @Query() userId?: string) {
+	public async getUserShifts(@Query() getUpcoming: boolean = false, @Query() userId?: string) {
 		try {
 			let finalUserId: string;
 			if (userId == null) {
@@ -157,9 +157,7 @@ export class ShiftController extends BaseController {
 		try {
 			const user = await this.getUser();
 			const shift = await this.shiftService.getShiftById(shiftId);
-			if (typeof shift === "string") {
-				throw new Error(shift);
-			}
+
 			await this.validateCompanyAccess(shift.company, user);
 			return await this.shiftService.hireUserForShift(shiftId, userId);
 		} catch (ex: any) {
@@ -169,7 +167,7 @@ export class ShiftController extends BaseController {
 
 	@Post("Complete")
 	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
-	public async completeShift(@Query() shiftId: string, @Body() rating: number) {
+	public async completeShift(@Query() shiftId: string, @Query() rating: number) {
 		try {
 			const user = await this.getUser();
 			const shift = await this.shiftService.getShiftById(shiftId);

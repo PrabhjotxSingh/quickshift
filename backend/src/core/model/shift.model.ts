@@ -13,7 +13,7 @@ export interface ShiftDocument extends Document {
 	endTime: Date;
 	pay: number;
 	location: Location;
-	userHired?: Schema.Types.ObjectId;
+	userHired?: mongoose.Types.ObjectId;
 	isComplete: boolean;
 	rating?: number;
 }

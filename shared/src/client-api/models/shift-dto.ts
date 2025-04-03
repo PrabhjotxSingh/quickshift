@@ -79,6 +79,12 @@ export interface ShiftDto {
     'location': Location;
     /**
      * 
+     * @type {string}
+     * @memberof ShiftDto
+     */
+    'userHired'?: string;
+    /**
+     * 
      * @type {boolean}
      * @memberof ShiftDto
      */
