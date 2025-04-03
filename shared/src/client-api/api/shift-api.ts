@@ -247,10 +247,11 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserShifts: async (getUpcoming: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUserShifts: async (getUpcoming: boolean, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'getUpcoming' is not null or undefined
             assertParamExists('getUserShifts', 'getUpcoming', getUpcoming)
             const localVarPath = `/Shift/User`;
@@ -267,6 +268,10 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
 
             if (getUpcoming !== undefined) {
                 localVarQueryParameter['getUpcoming'] = getUpcoming;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
             }
 
 
@@ -407,11 +412,12 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserShifts(getUpcoming, options);
+        async getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserShifts(getUpcoming, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ShiftApi.getUserShifts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -496,11 +502,12 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getUserShifts(getUpcoming, options).then((request) => request(axios, basePath));
+        getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getUserShifts(getUpcoming, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -578,11 +585,12 @@ export interface ShiftApiInterface {
     /**
      * 
      * @param {boolean} getUpcoming 
+     * @param {string} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApiInterface
      */
-    getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+    getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<any>;
 
     /**
      * 
@@ -672,12 +680,13 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
     /**
      * 
      * @param {boolean} getUpcoming 
+     * @param {string} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApi
      */
-    public getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig) {
-        return ShiftApiFp(this.configuration).getUserShifts(getUpcoming, options).then((request) => request(this.axios, this.basePath));
+    public getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getUserShifts(getUpcoming, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -154,8 +154,8 @@ describe("AuthService", () => {
 	let mockRefreshTokenRepository: jest.Mocked<RefreshTokenRepository>;
 
 	const mockUserId = new Types.ObjectId();
-	const mockUser: UserDto & { id?: string } = {
-		id: mockUserId.toString(),
+	const mockUser: UserDto = {
+		_id: mockUserId.toString(),
 		username: "testuser",
 		email: "test@example.com",
 		password: "hashedPassword",

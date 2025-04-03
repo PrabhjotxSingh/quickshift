@@ -3,6 +3,9 @@ import { UserRole } from "../../enum/user-role.enum";
 
 export class UserDto {
   @AutoMap()
+  _id!: string;
+
+  @AutoMap()
   email!: string;
 
   @AutoMap()
