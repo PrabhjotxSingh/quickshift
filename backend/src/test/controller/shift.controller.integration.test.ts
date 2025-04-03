@@ -88,6 +88,8 @@ describe("ShiftController Integration Tests", () => {
 		endTime: new Date(),
 		pay: 15,
 		location: mockLocation,
+		isComplete: false,
+		rating: undefined,
 	} as ShiftDto;
 
 	const mockShiftDocument: ShiftDocument = {
@@ -101,6 +103,8 @@ describe("ShiftController Integration Tests", () => {
 		endTime: new Date(),
 		pay: 15,
 		location: mockLocation,
+		isComplete: false,
+		rating: undefined,
 	} as ShiftDocument;
 
 	let mockUser: UserDocument;
@@ -294,6 +298,8 @@ describe("ShiftController Integration Tests", () => {
 			endTime: new Date(),
 			pay: 15,
 			location: mockLocation,
+			isComplete: false,
+			rating: undefined,
 		};
 
 		it("should allow owner to create shift", async () => {
@@ -449,6 +455,8 @@ describe("ShiftController Integration Tests", () => {
 			endTime: new Date(),
 			pay: 15,
 			location: mockLocation,
+			isComplete: false,
+			rating: undefined,
 		};
 
 		it("should allow owner to update shift", async () => {
@@ -630,6 +638,8 @@ describe("ShiftController Integration Tests", () => {
 				_id: new Types.ObjectId().toString(),
 				startTime: new Date(Date.now() + 86400000), // Tomorrow
 				endTime: new Date(Date.now() + 172800000), // Day after tomorrow
+				isComplete: false,
+				rating: undefined,
 			},
 		];
 
@@ -711,6 +721,8 @@ describe("ShiftController Integration Tests", () => {
 				_id: new Types.ObjectId().toString(),
 				startTime: new Date(Date.now() + 86400000),
 				endTime: new Date(Date.now() + 172800000),
+				isComplete: false,
+				rating: undefined,
 			},
 		];
 

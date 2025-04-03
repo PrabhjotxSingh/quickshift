@@ -6,6 +6,9 @@ export class UserDto {
   _id!: string;
 
   @AutoMap()
+  id!: string;
+
+  @AutoMap()
   email!: string;
 
   @AutoMap()

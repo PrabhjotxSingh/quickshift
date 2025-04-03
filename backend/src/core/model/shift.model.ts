@@ -14,6 +14,8 @@ export interface ShiftDocument extends Document {
 	pay: number;
 	location: Location;
 	userHired?: Schema.Types.ObjectId;
+	isComplete: boolean;
+	rating?: number;
 }
 
 const ShiftSchema = new Schema<ShiftDocument>({
@@ -59,6 +61,17 @@ const ShiftSchema = new Schema<ShiftDocument>({
 		type: Schema.Types.ObjectId,
 		ref: "User",
 		required: false,
+	},
+	isComplete: {
+		type: Boolean,
+		default: false,
+		required: true,
+	},
+	rating: {
+		type: Number,
+		required: false,
+		min: 0,
+		max: 5,
 	},
 });
 

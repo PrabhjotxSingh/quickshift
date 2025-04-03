@@ -20,4 +20,8 @@ export class ShiftDto {
   pay!: number;
   @AutoMap()
   location!: Location;
+  @AutoMap()
+  isComplete!: boolean;
+  @AutoMap()
+  rating?: number;
 }

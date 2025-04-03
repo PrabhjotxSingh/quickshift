@@ -41,6 +41,14 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 			(dest) => dest.pay,
 			mapFrom((src) => src.pay),
 		),
+		forMember(
+			(dest) => dest.isComplete,
+			mapFrom((src) => src.isComplete),
+		),
+		forMember(
+			(dest) => dest.rating,
+			mapFrom((src) => src.rating),
+		),
 		// Explicitly map the nested location property
 		forMember(
 			(dest) => dest.location,
@@ -87,6 +95,14 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		forMember(
 			(dest) => dest.pay,
 			mapFrom((src) => src.pay),
+		),
+		forMember(
+			(dest) => dest.isComplete,
+			mapFrom((src) => src.isComplete),
+		),
+		forMember(
+			(dest) => dest.rating,
+			mapFrom((src) => src.rating),
 		),
 		// Reverse mapping for the location: explicitly create an object with fully spelled-out keys
 		forMember(
