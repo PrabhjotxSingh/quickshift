@@ -769,14 +769,22 @@ describe("ShiftController Integration Tests", () => {
 				id: mockUserId,
 				roles: [UserRole.WORKER],
 			});
-			shiftService.applyToShift = jest.fn().mockResolvedValue({ success: true });
+			shiftService.applyToShift = jest.fn().mockResolvedValue({
+				_id: new Types.ObjectId(),
+				shiftId: new Types.ObjectId(mockShiftId),
+				company: new Types.ObjectId(mockCompanyId),
+				user: new Types.ObjectId(mockUserId),
+			});
 
 			// Execute
-			const result = await shiftController.applyToShift(mockShiftId);
+			const result = (await shiftController.applyToShift(mockShiftId)) as ShiftApplicantDocument;
 
 			// Assert
 			expect(result).toBeDefined();
 			expect(shiftService.applyToShift).toHaveBeenCalledWith(mockShiftId, expect.any(Object));
+			expect(result.shiftId.toString()).toBe(mockShiftId);
+			expect(result.company.toString()).toBe(mockCompanyId);
+			expect(result.user.toString()).toBe(mockUserId);
 		});
 
 		it("should handle errors from shiftService", async () => {
@@ -823,11 +831,21 @@ describe("ShiftController Integration Tests", () => {
 			});
 
 			// Execute
-			const result = await shiftController.hireUser(mockShiftId, mockWorkerId);
+			const result = (await shiftController.hireUser(mockShiftId, mockWorkerId)) as ShiftDto;
 
 			// Assert
 			expect(result).toBeDefined();
 			expect(shiftService.hireUserForShift).toHaveBeenCalledWith(mockShiftId, mockWorkerId);
+			expect(result.userHired).toBe(mockWorkerId);
+			expect(result.isOpen).toBe(false);
+			expect(result.company).toBe(mockShift.company);
+			expect(result.name).toBe(mockShift.name);
+			expect(result.description).toBe(mockShift.description);
+			expect(result.tags).toEqual(mockShift.tags);
+			expect(result.startTime).toEqual(mockShift.startTime);
+			expect(result.endTime).toEqual(mockShift.endTime);
+			expect(result.pay).toBe(mockShift.pay);
+			expect(result.location).toEqual(mockShift.location);
 		});
 
 		it("should allow company admin to hire user for shift", async () => {
@@ -934,11 +952,22 @@ describe("ShiftController Integration Tests", () => {
 			});
 
 			// Execute
-			const result = await shiftController.completeShift(mockShiftId, mockRating);
+			const result = (await shiftController.completeShift(mockShiftId, mockRating)) as ShiftDto;
 
 			// Assert
 			expect(result).toBeDefined();
 			expect(shiftService.completeShiftWithRating).toHaveBeenCalledWith(mockShiftId, mockRating);
+			expect(result.isComplete).toBe(true);
+			expect(result.rating).toBe(mockRating);
+			expect(result.company).toBe(mockShift.company);
+			expect(result.name).toBe(mockShift.name);
+			expect(result.description).toBe(mockShift.description);
+			expect(result.tags).toEqual(mockShift.tags);
+			expect(result.isOpen).toBe(mockShift.isOpen);
+			expect(result.startTime).toEqual(mockShift.startTime);
+			expect(result.endTime).toEqual(mockShift.endTime);
+			expect(result.pay).toBe(mockShift.pay);
+			expect(result.location).toEqual(mockShift.location);
 		});
 
 		it("should allow company admin to complete shift with rating", async () => {
