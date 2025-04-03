@@ -105,6 +105,48 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {string} shiftId 
+         * @param {number} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeShift: async (shiftId: string, body: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'shiftId' is not null or undefined
+            assertParamExists('completeShift', 'shiftId', shiftId)
+            // verify required parameter 'body' is not null or undefined
+            assertParamExists('completeShift', 'body', body)
+            const localVarPath = `/Shift/Complete`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (shiftId !== undefined) {
+                localVarQueryParameter['shiftId'] = shiftId;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {CreateShiftRequest} createShiftRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -247,10 +289,11 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserShifts: async (getUpcoming: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUserShifts: async (getUpcoming: boolean, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'getUpcoming' is not null or undefined
             assertParamExists('getUserShifts', 'getUpcoming', getUpcoming)
             const localVarPath = `/Shift/User`;
@@ -267,6 +310,53 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
 
             if (getUpcoming !== undefined) {
                 localVarQueryParameter['getUpcoming'] = getUpcoming;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} shiftId 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        hireUser: async (shiftId: string, userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'shiftId' is not null or undefined
+            assertParamExists('hireUser', 'shiftId', shiftId)
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('hireUser', 'userId', userId)
+            const localVarPath = `/Shift/Hire`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (shiftId !== undefined) {
+                localVarQueryParameter['shiftId'] = shiftId;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
             }
 
 
@@ -358,6 +448,19 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} shiftId 
+         * @param {number} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async completeShift(shiftId: string, body: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeShift(shiftId, body, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.completeShift']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {CreateShiftRequest} createShiftRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -407,13 +510,27 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserShifts(getUpcoming, options);
+        async getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserShifts(getUpcoming, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ShiftApi.getUserShifts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} shiftId 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async hireUser(shiftId: string, userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.hireUser(shiftId, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.hireUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -459,6 +576,16 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {string} shiftId 
+         * @param {number} body 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        completeShift(shiftId: string, body: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.completeShift(shiftId, body, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {CreateShiftRequest} createShiftRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -496,11 +623,22 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @param {boolean} getUpcoming 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getUserShifts(getUpcoming, options).then((request) => request(axios, basePath));
+        getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getUserShifts(getUpcoming, userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} shiftId 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        hireUser(shiftId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.hireUser(shiftId, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -541,6 +679,16 @@ export interface ShiftApiInterface {
 
     /**
      * 
+     * @param {string} shiftId 
+     * @param {number} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    completeShift(shiftId: string, body: number, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+
+    /**
+     * 
      * @param {CreateShiftRequest} createShiftRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -578,11 +726,22 @@ export interface ShiftApiInterface {
     /**
      * 
      * @param {boolean} getUpcoming 
+     * @param {string} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApiInterface
      */
-    getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+    getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+
+    /**
+     * 
+     * @param {string} shiftId 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    hireUser(shiftId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<any>;
 
     /**
      * 
@@ -623,6 +782,18 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
      */
     public applyToShift(shiftId: string, options?: RawAxiosRequestConfig) {
         return ShiftApiFp(this.configuration).applyToShift(shiftId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} shiftId 
+     * @param {number} body 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public completeShift(shiftId: string, body: number, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).completeShift(shiftId, body, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -672,12 +843,25 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
     /**
      * 
      * @param {boolean} getUpcoming 
+     * @param {string} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApi
      */
-    public getUserShifts(getUpcoming: boolean, options?: RawAxiosRequestConfig) {
-        return ShiftApiFp(this.configuration).getUserShifts(getUpcoming, options).then((request) => request(this.axios, this.basePath));
+    public getUserShifts(getUpcoming: boolean, userId?: string, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getUserShifts(getUpcoming, userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} shiftId 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public hireUser(shiftId: string, userId: string, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).hireUser(shiftId, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

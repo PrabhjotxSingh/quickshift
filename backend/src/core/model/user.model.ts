@@ -1,7 +1,8 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 import { UserRole } from "shared/src/enum/user-role.enum";
 
 export interface UserDocument extends Document {
+	_id: Types.ObjectId;
 	email: string;
 	username: string;
 	password: string;

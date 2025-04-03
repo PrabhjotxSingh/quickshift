@@ -154,7 +154,8 @@ describe("AuthService", () => {
 	let mockRefreshTokenRepository: jest.Mocked<RefreshTokenRepository>;
 
 	const mockUserId = new Types.ObjectId();
-	const mockUser: UserDto & { id?: string } = {
+	const mockUser: UserDto = {
+		_id: mockUserId.toString(),
 		id: mockUserId.toString(),
 		username: "testuser",
 		email: "test@example.com",
@@ -267,11 +268,11 @@ describe("AuthService", () => {
 			expect(bcrypt.genSalt).toHaveBeenCalledWith(10);
 			expect(bcrypt.hash).toHaveBeenCalledWith("password123", "mockSalt");
 			expect(mockUserRepository.create).toHaveBeenCalled();
-			expect(result).toEqual(mockUser);
+			expect(result).toEqual({ ...mockUser, id: mockUserId.toString() });
 		});
 
 		it("should throw AlreadyExistsError if user exists", async () => {
-			mockUserRepository.getByQuery.mockResolvedValue(mockUser as any);
+			mockUserRepository.getByQuery.mockResolvedValue({ ...mockUser, id: mockUserId.toString() } as any);
 
 			await expect(authService.register(registerRequest)).rejects.toThrow(AlreadyExistsError);
 		});
@@ -280,6 +281,7 @@ describe("AuthService", () => {
 			mockUserRepository.getByQuery.mockResolvedValue(null);
 			mockUserRepository.create.mockResolvedValue({
 				...mockUser,
+				id: mockUserId.toString(),
 				roles: [UserRole.ADMIN, UserRole.WORKER],
 			} as any);
 
@@ -296,7 +298,7 @@ describe("AuthService", () => {
 		};
 
 		it("should login successfully with valid credentials", async () => {
-			mockUserRepository.getByQuery.mockResolvedValue(mockUser as any);
+			mockUserRepository.getByQuery.mockResolvedValue({ ...mockUser, id: mockUserId.toString() } as any);
 			mockRefreshTokenRepository.create.mockResolvedValue(mockRefreshToken);
 
 			const result = await authService.Login(loginRequest, "testDevice");
@@ -307,7 +309,7 @@ describe("AuthService", () => {
 			expect(result).toEqual({
 				accessToken: "mockAccessToken",
 				refreshToken: mockRefreshToken.token,
-				user: mockUser,
+				user: { ...mockUser, id: mockUserId.toString() },
 			});
 		});
 
@@ -318,7 +320,7 @@ describe("AuthService", () => {
 		});
 
 		it("should throw NotFoundError with invalid password", async () => {
-			mockUserRepository.getByQuery.mockResolvedValue(mockUser as any);
+			mockUserRepository.getByQuery.mockResolvedValue({ ...mockUser, id: mockUserId.toString() } as any);
 			(bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
 			await expect(authService.Login(loginRequest, "testDevice")).rejects.toThrow(NotFoundError);
@@ -363,7 +365,7 @@ describe("AuthService", () => {
 			expect(result).toEqual({
 				accessToken: "mockAccessToken",
 				refreshToken: mockRefreshToken.token,
-				user: mockUser,
+				user: { ...mockUser, id: mockUserId.toString() },
 			});
 		});
 

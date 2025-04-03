@@ -46,8 +46,9 @@ export class AuthService {
 				userDto.roles = [UserRole.ADMIN, UserRole.WORKER];
 			}
 
-			// Create the user in the database
-			const newUser = await this.userRepository.create(userDto);
+			// Map UserDto to UserDocument and create the user in the database
+			const userDocument = mapper.map(userDto, UserDto, UserModel);
+			const newUser = await this.userRepository.create(userDocument);
 
 			return mapper.map(newUser, UserModel, UserDto);
 		} catch (ex: any) {

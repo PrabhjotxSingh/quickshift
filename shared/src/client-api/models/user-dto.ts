@@ -28,6 +28,18 @@ export interface UserDto {
      * @type {string}
      * @memberof UserDto
      */
+    '_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDto
+     */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDto
+     */
     'email': string;
     /**
      * 

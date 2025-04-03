@@ -1,5 +1,5 @@
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { ShiftDto } from "shared/src/dto/models/shift.dto";
 import { ShiftModel } from "../../../model/shift.model";
 
@@ -41,6 +41,18 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 			(dest) => dest.pay,
 			mapFrom((src) => src.pay),
 		),
+		forMember(
+			(dest) => dest.isComplete,
+			mapFrom((src) => src.isComplete),
+		),
+		forMember(
+			(dest) => dest.rating,
+			mapFrom((src) => src.rating),
+		),
+		forMember(
+			(dest) => dest.userHired,
+			mapFrom((src) => src.userHired?.toString()),
+		),
 		// Explicitly map the nested location property
 		forMember(
 			(dest) => dest.location,
@@ -58,7 +70,7 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		ShiftModel,
 		forMember(
 			(dest) => dest.company,
-			mapFrom((src) => new mongoose.Types.ObjectId(src.company)),
+			mapFrom((src) => new Types.ObjectId(src.company)),
 		),
 		forMember(
 			(dest) => dest.name,
@@ -87,6 +99,18 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		forMember(
 			(dest) => dest.pay,
 			mapFrom((src) => src.pay),
+		),
+		forMember(
+			(dest) => dest.isComplete,
+			mapFrom((src) => src.isComplete),
+		),
+		forMember(
+			(dest) => dest.rating,
+			mapFrom((src) => src.rating),
+		),
+		forMember(
+			(dest) => dest.userHired,
+			mapFrom((src) => (src.userHired ? new mongoose.Types.ObjectId(src.userHired) : undefined)),
 		),
 		// Reverse mapping for the location: explicitly create an object with fully spelled-out keys
 		forMember(
