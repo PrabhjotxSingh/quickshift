@@ -25,23 +25,27 @@ export class ShiftController extends BaseController {
 		super();
 	}
 
-	private async validateCompanyAccess(companyId: string, userId: string): Promise<void> {
+	private async validateCompanyAccess(companyId: string, user: UserDocument): Promise<void> {
 		const company = await this.companyService.getCompanyById(companyId);
 		if (!company) {
 			throw new Error("Company not found");
 		}
-
-		const isOwner = company.owner.toString() === userId;
-		const isCompanyAdmin = company.companyAdmins.some((adminId) => adminId.toString() === userId);
-		const isEmployer = (await this.getUser())?.roles.includes(UserRole.EMPLOYER);
-
-		if (!isOwner && !isCompanyAdmin && !isEmployer) {
-			throw new ForbiddenError("User does not have permission to manage this company");
+		if (
+			!user.roles.some((role) => {
+				return role === UserRole.ADMIN;
+			})
+		) {
+			const isOwner = company.owner.toString() === user.id;
+			const isCompanyAdmin = company.companyAdmins.some((adminId) => adminId.toString() === user.id);
+			const isEmployer = (await this.getUser())?.roles.includes(UserRole.EMPLOYER);
+			if (!isOwner && !isCompanyAdmin && !isEmployer) {
+				throw new ForbiddenError("User does not have permission to manage this company");
+			}
 		}
 	}
 
 	@Post()
-	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN])
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
 	public async create(@Body() request: CreateShiftRequest): Promise<ShiftDto | string> {
 		try {
 			const user = await this.getUser();
@@ -63,15 +67,13 @@ export class ShiftController extends BaseController {
 	}
 
 	@Delete()
-	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN])
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
 	public async delete(@Query() shiftId: string): Promise<string> {
 		try {
 			const user = await this.getUser();
 			const shift = await this.shiftService.getShiftById(shiftId);
-			if (typeof shift === "string") {
-				throw new Error(shift);
-			}
-			await this.validateCompanyAccess(shift.company, user.id);
+
+			await this.validateCompanyAccess(shift.company, user);
 			await this.shiftService.deleteShift(shiftId);
 			return this.ok("Successfully deleted Shift");
 		} catch (ex: any) {
@@ -80,15 +82,13 @@ export class ShiftController extends BaseController {
 	}
 
 	@Patch()
-	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN])
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
 	public async update(@Query() shiftId: string, @Body() request: CreateShiftRequest): Promise<ShiftDto | string> {
 		try {
 			const user = await this.getUser();
 			const shift = await this.shiftService.getShiftById(shiftId);
-			if (typeof shift === "string") {
-				throw new Error(shift);
-			}
-			await this.validateCompanyAccess(shift.company, user.id);
+
+			await this.validateCompanyAccess(shift.company, user);
 			return await this.shiftService.updateShift(request, shiftId);
 		} catch (ex: any) {
 			return this.handleError(ex);
@@ -126,7 +126,7 @@ export class ShiftController extends BaseController {
 			if (typeof shift === "string") {
 				throw new Error(shift);
 			}
-			await this.validateCompanyAccess(shift.company, user.id);
+			await this.validateCompanyAccess(shift.company, user);
 			return await this.shiftService.getShiftApplications(shiftId);
 		} catch (ex: any) {
 			return this.handleError(ex);
