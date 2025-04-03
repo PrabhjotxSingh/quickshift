@@ -81,7 +81,7 @@ describe("Repository", () => {
 			const mockExec = jest.fn().mockResolvedValue(mockDocuments);
 			(mockModel.find as jest.Mock).mockReturnValue({ exec: mockExec });
 
-			const result = await repository.getMultipleByQuery(query);
+			const result = await repository.getManyByQuery(query);
 
 			expect(mockModel.find).toHaveBeenCalledWith(query);
 			expect(result).toEqual(mockDocuments);

@@ -25,6 +25,12 @@ export interface CompanyDto {
      * @type {string}
      * @memberof CompanyDto
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CompanyDto
+     */
     'name': string;
     /**
      * 
@@ -38,5 +44,11 @@ export interface CompanyDto {
      * @memberof CompanyDto
      */
     'owner': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CompanyDto
+     */
+    'companyAdmins': Array<string>;
 }
 

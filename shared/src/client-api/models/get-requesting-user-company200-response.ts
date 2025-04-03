@@ -28,6 +28,12 @@ export interface GetRequestingUserCompany200Response {
      * @type {string}
      * @memberof GetRequestingUserCompany200Response
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof GetRequestingUserCompany200Response
+     */
     'name': string;
     /**
      * 
@@ -41,5 +47,11 @@ export interface GetRequestingUserCompany200Response {
      * @memberof GetRequestingUserCompany200Response
      */
     'owner': string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof GetRequestingUserCompany200Response
+     */
+    'companyAdmins': Array<string>;
 }
 

@@ -22,12 +22,17 @@ import { getRequestContext } from "../../controller/middleware/context.middlewar
 import { UserRepository } from "../repository/user.repository";
 import { ShiftRepository } from "../repository/shift.repository";
 import { CompanyRepository } from "../repository/company.repository";
+import { ShiftApplicantRepository } from "../repository/shift-applicant.repository";
+import { ShiftApplicantDocument } from "../model/shift-applicant.model";
+import { UserDocument } from "../model/user.model";
+import { ShiftUnavailableError } from "../error/ShiftUnavailableError";
 
 @Service()
 export class ShiftService {
 	constructor(
 		private companyRepository: CompanyRepository,
 		private shiftRepository: ShiftRepository,
+		private shiftApplicantRepository: ShiftApplicantRepository,
 	) {}
 
 	public async createShift(request: CreateShiftRequest): Promise<ShiftDto> {
@@ -78,13 +83,13 @@ export class ShiftService {
 	public async getAvailableShifts(tags?: string[]): Promise<ShiftDocument[] | undefined> {
 		let result;
 		if (!tags || tags.length === 0) {
-			result = await this.shiftRepository.getMultipleByQuery({ isOpen: true });
+			result = await this.shiftRepository.getManyByQuery({ isOpen: true });
+		} else {
+			result = await this.shiftRepository.getManyByQuery({
+				isOpen: true,
+				tags: { $in: tags },
+			});
 		}
-
-		result = await this.shiftRepository.getMultipleByQuery({
-			isOpen: true,
-			tags: { $in: tags },
-		});
 
 		return result;
 	}
@@ -101,5 +106,33 @@ export class ShiftService {
 			query = { userHired: userId };
 		}
 		return this.shiftRepository.getByQuery(query);
+	}
+
+	public async getShiftApplications(shiftId: string): Promise<ShiftApplicantDocument[]> {
+		const shifts = await this.shiftApplicantRepository.getManyByQuery({ shiftId: shiftId });
+		if (shifts == null) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		return shifts;
+	}
+
+	public async applyToShift(shiftId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
+		const shift = await this.shiftRepository.get(shiftId);
+		if (!shift) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		if (!shift.isOpen) {
+			throw new ShiftUnavailableError("Shift is not available for applications");
+		}
+
+		const newApplication = await this.shiftApplicantRepository.create({
+			shiftId: shift._id as Types.ObjectId,
+			user: user._id as Types.ObjectId,
+			company: shift.company as Types.ObjectId,
+		});
+
+		return newApplication;
 	}
 }
