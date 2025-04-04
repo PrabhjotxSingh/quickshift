@@ -1,6 +1,6 @@
 .signup-container {
   background-color: rgb(0, 0, 0);
-  background-image: url("../../assets/login-wall.png");
+  background-image: url("/login-wall.png");
   background-position: center;
   background-size: cover;
   height: 100vh;
