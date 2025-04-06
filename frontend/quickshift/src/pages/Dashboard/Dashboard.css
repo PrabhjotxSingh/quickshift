@@ -1,0 +1,44 @@
+.center-dash {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+.table-container {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.leaflet-marker-icon.bouncing {
+  animation: bounce 0.6s infinite alternate;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+.carousel-container {
+  max-width: 100%; /* Ensure the carousel doesn't exceed its container's width */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.carousel-item {
+  min-width: 250px; /* Limit the minimum width of carousel items */
+  margin-right: 10px; /* Add space between carousel items */
+}
+
+@media (max-width: 768px) {
+  .carousel-item {
+    min-width: 200px; /* Adjust for smaller screens */
+  }
+}
