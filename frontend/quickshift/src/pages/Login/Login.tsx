@@ -11,27 +11,39 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend-api";
-import { useEffect, useState } from "react";
+import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend/backend-api";
+import { useEffect, useState, useRef } from "react";
 import { LoginRequest } from "../../backend-api";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const initialCheckDone = useRef(false);
 
   useEffect(() => {
-    BackendAPI.initialize();
+    // Prevent multiple initialization
+    if (initialCheckDone.current) return;
+    initialCheckDone.current = true;
 
-    try {
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-      if (token) {
-        BackendAPI.refresh();
-        navigate("/dashboard");
+    // Initialize API and check if already logged in
+    const checkExistingAuth = async () => {
+      BackendAPI.initialize();
+
+      try {
+        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+        if (token) {
+          const isValid = await BackendAPI.checkAuth(false); // Check without refresh first
+          if (isValid) {
+            navigate("/dashboard");
+          }
+        }
+      } catch (error) {
+        console.log("Error checking authentication status:", error);
       }
-    } catch {
-      console.log("Error retrieving tokens from storage");
-    }
+    };
+
+    checkExistingAuth();
   }, [navigate]);
 
   const handleLogin = async () => {

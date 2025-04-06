@@ -5,7 +5,7 @@ import {
   Configuration,
   LoginRequest,
   RefreshRequest,
-} from "../backend-api";
+} from "../../backend-api";
 
 const API_BASE_URL = "http://localhost:3000";
 export const ACCESS_TOKEN_KEY = "quickshift_access_token";
@@ -15,6 +15,7 @@ export class BackendAPI {
   static shiftApi: ShiftApi;
   static companyApi: CompanyApi;
   static authApi: AuthApi;
+  static isAuthenticated: boolean = false;
 
   static initialize = (token?: string) => {
     // Try to get token from localStorage if not provided
@@ -35,6 +36,11 @@ export class BackendAPI {
     this.shiftApi = new ShiftApi(config);
     this.companyApi = new CompanyApi(config);
     this.authApi = new AuthApi(config);
+
+    // Update authentication state
+    this.isAuthenticated = !!token;
+
+    return this.isAuthenticated;
   };
 
   static async login(loginRequest: LoginRequest) {
@@ -48,7 +54,9 @@ export class BackendAPI {
         }
       }
       this.updateAuthToken(result.data.accessToken);
+      this.isAuthenticated = true;
     } else {
+      this.isAuthenticated = false;
       throw new Error("Invalid login");
     }
   }
@@ -62,6 +70,7 @@ export class BackendAPI {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
 
     if (!currentToken || !refreshToken) {
+      this.isAuthenticated = false;
       throw new Error("No tokens available for refresh");
     }
 
@@ -79,18 +88,55 @@ export class BackendAPI {
           localStorage.setItem(REFRESH_TOKEN_KEY, result.data.refreshToken);
         }
         this.updateAuthToken(result.data.accessToken);
+        this.isAuthenticated = true;
         return result.data.accessToken;
       } else {
+        this.isAuthenticated = false;
         throw new Error("Failed to refresh token");
       }
     } catch (error) {
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
+      this.isAuthenticated = false;
       throw error;
+    }
+  }
+
+  /**
+   * Checks if the user is authenticated and optionally attempts to refresh the token
+   * @param attemptRefresh Whether to attempt refreshing the token (default true)
+   */
+  static async checkAuth(attemptRefresh = false): Promise<boolean> {
+    const hasToken = this.initialize();
+
+    if (!hasToken) {
+      return false;
+    }
+
+    // Skip token refresh if not needed
+    if (!attemptRefresh) {
+      return this.isAuthenticated;
+    }
+
+    try {
+      await this.refresh();
+      return true;
+    } catch (error) {
+      console.error("Authentication validation failed:", error);
+      return false;
     }
   }
 
   static updateAuthToken = (token: string) => {
     this.initialize(token);
+  };
+
+  static logout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    }
+    this.isAuthenticated = false;
+    this.initialize();
   };
 }

@@ -152,6 +152,7 @@ export default function Dashboard() {
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get user location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserCoords([position.coords.latitude, position.coords.longitude]);
