@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { BackendAPI } from "../../lib/backend-api";
+import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend-api";
 import { useEffect, useState } from "react";
 import { LoginRequest } from "../../backend-api";
 
@@ -23,7 +23,7 @@ export default function Login() {
   useEffect(() => {
     BackendAPI.initialize();
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     if (token) {
       BackendAPI.updateAuthToken(token);
       navigate("/dashboard");
