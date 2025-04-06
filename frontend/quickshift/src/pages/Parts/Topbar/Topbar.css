@@ -2,3 +2,10 @@
   margin: 10px;
   border-bottom: solid;
 }
+
+.profile-drop {
+  z-index: 1049 !important;
+  left: 0;
+  padding-left: 8px;
+  top: 100%;
+}

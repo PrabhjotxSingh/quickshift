@@ -1,6 +1,7 @@
 import "./Topbar.css";
 
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
+import { useState } from "react";
 
 import {
   Accordion,
@@ -68,12 +69,12 @@ const Navbar1 = ({
       title: "Past Jobs",
       url: "#",
     },
+    {
+      title: "Post Job",
+      url: "/post-job", // Link to Post Job page
+    },
   ],
-}: // auth = {
-//   login: { title: "Login", url: "#" },
-//   signup: { title: "Sign up", url: "#" },
-// },
-Navbar1Props) => {
+}: Navbar1Props) => {
   return (
     <div className="topbar-container">
       <section className="py-4">
@@ -91,18 +92,14 @@ Navbar1Props) => {
                 <NavigationMenu>
                   <NavigationMenuList>
                     {menu.map((item) => renderMenuItem(item))}
+                    {/* Profile Dropdown */}
+                    <NavigationMenuItem>
+                      <ProfileDropdown />
+                    </NavigationMenuItem>
                   </NavigationMenuList>
                 </NavigationMenu>
               </div>
             </div>
-            {/* <div className="flex gap-2">
-              <Button asChild variant="outline" size="sm">
-                <a href={auth.login.url}>{auth.login.title}</a>
-              </Button>
-              <Button asChild size="sm">
-                <a href={auth.signup.url}>{auth.signup.title}</a>
-              </Button>
-            </div> */}
           </nav>
 
           {/* Mobile Menu */}
@@ -110,7 +107,6 @@ Navbar1Props) => {
             <div className="flex items-center justify-between">
               {/* Logo */}
               <b>QuickShift</b>
-              {/* <a href={logo.url} className="flex items-center gap-2"></a> */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="icon">
@@ -134,15 +130,7 @@ Navbar1Props) => {
                     >
                       {menu.map((item) => renderMobileMenuItem(item))}
                     </Accordion>
-
-                    {/* <div className="flex flex-col gap-3">
-                      <Button asChild variant="outline">
-                        <a href={auth.login.url}>{auth.login.title}</a>
-                      </Button>
-                      <Button asChild>
-                        <a href={auth.signup.url}>{auth.signup.title}</a>
-                      </Button>
-                    </div> */}
+                    <ProfileDropdown />
                   </div>
                 </SheetContent>
               </Sheet>
@@ -221,6 +209,39 @@ const SubMenuLink = ({ item }: { item: MenuItem }) => {
         )}
       </div>
     </a>
+  );
+};
+
+// Profile Dropdown Component
+const ProfileDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="relative">
+      <Button variant="outline" size="sm" onClick={toggleDropdown}>
+        Profile
+      </Button>
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg p-2 profile-drop">
+          <a
+            href="/profile"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            View Profile
+          </a>
+          <a
+            href="/logout"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            <LogOut className="mr-2" /> Logout
+          </a>
+        </div>
+      )}
+    </div>
   );
 };
 
