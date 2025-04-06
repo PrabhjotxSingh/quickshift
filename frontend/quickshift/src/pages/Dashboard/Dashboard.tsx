@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./Dashboard.css";
 import markerIcon from "@/assets/marker.png";
+import { Circle } from "react-leaflet";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -36,6 +37,13 @@ const customIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
+const customIconLarge = new L.Icon({
+  iconUrl: markerIcon,
+  iconSize: [35, 35], // Larger than 25x25
+  iconAnchor: [17, 45],
+  popupAnchor: [1, -34],
+});
+
 type Jobs = {
   id: string;
   name: string;
@@ -47,7 +55,7 @@ type Jobs = {
   coords?: [number, number];
 };
 
-// const userSkills = ["driving"];
+const userSkills = ["driving"];
 
 const jobs: Jobs[] = [
   {
@@ -130,6 +138,12 @@ function getDistanceFromLatLonInMiles(
   return R * c;
 }
 
+function matchesUserSkills(job: Jobs, skills: string[]) {
+  return job.skills.some((skill) =>
+    skills.some((userSkill) => userSkill.toLowerCase() === skill.toLowerCase())
+  );
+}
+
 export default function Dashboard() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [filteredJobs, setFilteredJobs] = useState<Jobs[]>([]);
@@ -188,13 +202,24 @@ export default function Dashboard() {
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             />
+
+            {/* Draw radius around user */}
+            {userCoords && (
+              <Circle
+                center={userCoords}
+                radius={radius * 1609.34} // Convert miles to meters
+                pathOptions={{ color: "gray", fillOpacity: 0.1 }}
+              />
+            )}
+
+            {/* Job markers */}
             {filteredJobs
               .filter((job) => job.coords)
               .map((job) => (
                 <Marker
                   key={job.id}
                   position={job.coords!}
-                  icon={customIcon}
+                  icon={hoveredJobId === job.id ? customIconLarge : customIcon}
                   eventHandlers={{
                     mouseover: () => setHoveredJobId(job.id),
                     mouseout: () => setHoveredJobId(null),
@@ -221,28 +246,31 @@ export default function Dashboard() {
               </h1>
               <p>These jobs are found based on your location and skills.</p>
               <br />
-              {filteredJobs.length > 0 ? (
+              {filteredJobs.filter((job) => matchesUserSkills(job, userSkills))
+                .length > 0 ? (
                 <Carousel className="w-full max-w-xs">
                   <CarouselContent>
-                    {filteredJobs.map((job, index) => (
-                      <CarouselItem key={index}>
-                        <div className="p-1">
-                          <Card>
-                            <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
-                              <span className="text-3xl font-semibold">
-                                {job.name}
-                              </span>
-                              <span className="text-xl">{job.location}</span>
-                              <span className="text-xl">${job.pay}/hr</span>
-                              <br />
-                              <span className="text-m">
-                                {job.skills.join(", ")}
-                              </span>
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </CarouselItem>
-                    ))}
+                    {filteredJobs
+                      .filter((job) => matchesUserSkills(job, userSkills))
+                      .map((job, index) => (
+                        <CarouselItem key={index}>
+                          <div className="p-1">
+                            <Card>
+                              <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
+                                <span className="text-3xl font-semibold">
+                                  {job.name}
+                                </span>
+                                <span className="text-xl">{job.location}</span>
+                                <span className="text-xl">${job.pay}/hr</span>
+                                <br />
+                                <span className="text-m">
+                                  {job.skills.join(", ")}
+                                </span>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </CarouselItem>
+                      ))}
                   </CarouselContent>
                   <CarouselPrevious />
                   <CarouselNext />
@@ -250,7 +278,7 @@ export default function Dashboard() {
               ) : (
                 <p className="text-gray-600">
                   {userCoords
-                    ? "No jobs found within set miles."
+                    ? "No jobs found within set miles or skill type."
                     : "Getting your location..."}
                 </p>
               )}
