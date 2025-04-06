@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+/shared/src/client-api/.gitignore
 
 .DS_Store
 

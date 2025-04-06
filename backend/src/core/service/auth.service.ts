@@ -1,9 +1,9 @@
-import { UserDto } from "shared/src/dto/models/user.dto";
-import { LoginRequest } from "shared/src/dto/request/auth/login.request";
-import { RegisterRequest } from "shared/src/dto/request/auth/register.request";
-import { LoginResponse } from "shared/src/dto/response/auth/login.response";
+import { UserDto } from "../dto/models/user.dto";
+import { LoginRequest } from "../dto/request/auth/login.request";
+import { RegisterRequest } from "../dto/request/auth/register.request";
+import { LoginResponse } from "../dto/response/auth/login.response";
 import { UserModel } from "../model/user.model";
-import { UserRole } from "shared/src/enum/user-role.enum";
+import { UserRole } from "../enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
 import { Repository } from "../repository/base.repository";
@@ -46,8 +46,9 @@ export class AuthService {
 				userDto.roles = [UserRole.ADMIN, UserRole.WORKER];
 			}
 
-			// Create the user in the database
-			const newUser = await this.userRepository.create(userDto);
+			// Map UserDto to UserDocument and create the user in the database
+			const userDocument = mapper.map(userDto, UserDto, UserModel);
+			const newUser = await this.userRepository.create(userDocument);
 
 			return mapper.map(newUser, UserModel, UserDto);
 		} catch (ex: any) {

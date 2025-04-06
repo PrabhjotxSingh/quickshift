@@ -1,10 +1,10 @@
 import { Route, Post, Tags, Body, Query, Get, Delete, Patch } from "tsoa";
 import { BaseController } from "./base.controller";
 import { Authenticate } from "./decorators/auth.decorater";
-import { UserRole } from "shared/src/enum/user-role.enum";
-import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
+import { UserRole } from "../core/enum/user-role.enum";
+import { CreateCompanyRequest } from "../core/dto/request/company/create-company.request";
 import { CompanyService } from "../core/service/company.service";
-import { CompanyDto } from "shared/src/dto/models/company.dto";
+import { CompanyDto } from "../core/dto/models/company.dto";
 import { AuthService } from "../core/service/auth.service";
 import { Service } from "typedi";
 import { ObjectId } from "mongoose";
@@ -20,7 +20,7 @@ export class CompanyController extends BaseController {
 
 	@Post()
 	@Authenticate(UserRole.WORKER)
-	public async create(@Body() request: CreateCompanyRequest): Promise<CompanyDto | string> {
+	public async createCompany(@Body() request: CreateCompanyRequest): Promise<CompanyDto | string> {
 		try {
 			const user = await this.getUser();
 			return await this.companyService.createCompany(request, user);
@@ -31,7 +31,7 @@ export class CompanyController extends BaseController {
 
 	@Get("id")
 	@Authenticate(UserRole.WORKER)
-	public async get(@Query() id: string): Promise<CompanyDto | string> {
+	public async getCompanyById(@Query() id: string): Promise<CompanyDto | string> {
 		try {
 			return await this.companyService.getCompanyById(id);
 		} catch (ex: any) {
@@ -55,7 +55,7 @@ export class CompanyController extends BaseController {
 
 	@Delete()
 	@Authenticate(UserRole.EMPLOYER)
-	public async delete(): Promise<string> {
+	public async deleteCompany(): Promise<string> {
 		try {
 			const user = await this.getUser();
 			await this.companyService.deleteCompany(user);
@@ -67,7 +67,7 @@ export class CompanyController extends BaseController {
 
 	@Patch()
 	@Authenticate(UserRole.EMPLOYER)
-	public async update(@Body() request: CreateCompanyRequest): Promise<CompanyDto | string> {
+	public async updateCompany(@Body() request: CreateCompanyRequest): Promise<CompanyDto | string> {
 		try {
 			const user = await this.getUser();
 			return await this.companyService.updateCompany(request, user);

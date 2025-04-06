@@ -1,8 +1,8 @@
 // companyProfile.ts
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import { CompanyModel } from "../../../model/company.model";
-import { CompanyDto } from "shared/src/dto/models/company.dto";
-import { CreateCompanyRequest } from "shared/src/dto/request/company/create-company.request";
+import { CompanyDto } from "../../../dto/models/company.dto";
+import { CreateCompanyRequest } from "../../../dto/request/company/create-company.request";
 
 export const createCompanyProfile: MappingProfile = (mapper) => {
 	createMap(

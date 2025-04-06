@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { CompanyDocument } from "./company.model";
 import { required } from "joi";
-import { Location } from "shared/src/dto/models/location";
+import { Location } from "../dto/models/location";
 
 export interface ShiftDocument extends Document {
 	company: mongoose.Types.ObjectId | CompanyDocument;
@@ -13,7 +13,9 @@ export interface ShiftDocument extends Document {
 	endTime: Date;
 	pay: number;
 	location: Location;
-	userHired: Schema.Types.ObjectId;
+	userHired?: mongoose.Types.ObjectId;
+	isComplete: boolean;
+	rating?: number;
 }
 
 const ShiftSchema = new Schema<ShiftDocument>({
@@ -58,7 +60,18 @@ const ShiftSchema = new Schema<ShiftDocument>({
 	userHired: {
 		type: Schema.Types.ObjectId,
 		ref: "User",
+		required: false,
+	},
+	isComplete: {
+		type: Boolean,
+		default: false,
 		required: true,
+	},
+	rating: {
+		type: Number,
+		required: false,
+		min: 0,
+		max: 5,
 	},
 });
 

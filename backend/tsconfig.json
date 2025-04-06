@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ES2024",
-		"types": ["node"],
+		"types": ["node", "jest"],
 		"module": "commonjs",
 		"rootDir": ".",
 		"outDir": "./dist",

@@ -1,4 +1,4 @@
-import { UserRole } from "shared/src/enum/user-role.enum";
+import { UserRole } from "../../core/enum/user-role.enum";
 import { verify } from "jsonwebtoken";
 import { BaseController } from "../base.controller";
 import { UnauthorizedError } from "../../core/error/UnauthorizedError";
@@ -53,6 +53,44 @@ export function Authenticate(role: UserRole) {
 
 				const user = await controller.getUserFromUsername(decoded.username);
 				if (!user || !user.roles.includes(role)) {
+					throw new ForbiddenError("Insufficient permissions");
+				}
+
+				return originalMethod.apply(this, args);
+			} catch (error) {
+				return controller.handleError(error);
+			}
+		};
+
+		return descriptor;
+	};
+}
+
+export function AuthenticateAny(roles: UserRole[]) {
+	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+		const originalMethod = descriptor.value;
+
+		descriptor.value = async function (...args: any[]) {
+			const controller = this as BaseController;
+			const req = getRequestContext();
+
+			if (!req) {
+				throw new UnauthorizedError("Request context is missing");
+			}
+
+			const { cookies, signedCookies } = req;
+			const accessToken = signedCookies?.[BaseController.ACCESS_TOKEN_COOKIE_HEADER];
+			const refreshToken = cookies?.[BaseController.REFRESH_TOKEN_COOKIE_HEADER];
+
+			if (!accessToken || !refreshToken) {
+				throw new UnauthorizedError("Missing authentication tokens");
+			}
+
+			try {
+				const decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
+
+				const user = await controller.getUserFromUsername(decoded.username);
+				if (!user || !roles.some((role) => user.roles.includes(role))) {
 					throw new ForbiddenError("Insufficient permissions");
 				}
 
