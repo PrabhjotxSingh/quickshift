@@ -47,7 +47,7 @@ type Jobs = {
   coords?: [number, number];
 };
 
-const userSkills = ["driving"];
+// const userSkills = ["driving"];
 
 const jobs: Jobs[] = [
   {
