@@ -10,9 +10,23 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { BackendAPI } from "../../lib/backend-api";
+import { useEffect } from "react";
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    BackendAPI.initialize();
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      BackendAPI.updateAuthToken(token);
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   return (
     <>
       <div className="login-container"></div>
