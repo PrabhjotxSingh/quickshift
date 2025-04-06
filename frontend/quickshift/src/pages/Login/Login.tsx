@@ -10,9 +10,43 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend-api";
+import { useEffect, useState } from "react";
+import { LoginRequest } from "../../backend-api";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    BackendAPI.initialize();
+
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (token) {
+        BackendAPI.refresh();
+        navigate("/dashboard");
+      }
+    } catch {
+      console.log("Error retrieving tokens from storage");
+    }
+  }, [navigate]);
+
+  const handleLogin = async () => {
+    try {
+      const loginRequest: LoginRequest = {
+        username: email,
+        password: password,
+      };
+      await BackendAPI.login(loginRequest);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
   return (
     <>
       <div className="login-container"></div>
@@ -23,18 +57,30 @@ export default function Login() {
             <CardDescription>Login below to get started.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="name">Email</Label>
-                  <Input id="name" placeholder="Your email address" />
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    placeholder="Your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="framework">Password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     type="password"
-                    id="name"
+                    id="password"
                     placeholder="Your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
               </div>
@@ -44,7 +90,7 @@ export default function Login() {
             <Link to="/signup">
               <Button variant="outline">Signup</Button>
             </Link>
-            <Button>Login</Button>
+            <Button onClick={handleLogin}>Login</Button>
           </CardFooter>
         </Card>
       </div>
