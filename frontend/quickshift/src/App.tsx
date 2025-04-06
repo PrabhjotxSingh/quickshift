@@ -4,13 +4,19 @@ import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Signup from "./pages/Signup/Signup";
 import { AuthenticatedRoute } from "./components/auth/ProtectedRoute";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { BackendAPI } from "./lib/backend/backend-api";
 
 function App() {
-  // Initialize backend API on app startup
+  // Flag to ensure we only initialize once
+  const initialized = useRef(false);
+
+  // Initialize backend API on app startup (once)
   useEffect(() => {
-    BackendAPI.initialize();
+    if (!initialized.current) {
+      BackendAPI.initialize();
+      initialized.current = true;
+    }
   }, []);
 
   return (

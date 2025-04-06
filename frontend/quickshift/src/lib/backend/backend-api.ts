@@ -103,14 +103,19 @@ export class BackendAPI {
   }
 
   /**
-   * check if authneticated.
-   * calls refresh to ensure
+   * Checks if the user is authenticated and optionally attempts to refresh the token
+   * @param attemptRefresh Whether to attempt refreshing the token (default true)
    */
-  static async checkAuth(): Promise<boolean> {
+  static async checkAuth(attemptRefresh = false): Promise<boolean> {
     const hasToken = this.initialize();
 
     if (!hasToken) {
       return false;
+    }
+
+    // Skip token refresh if not needed
+    if (!attemptRefresh) {
+      return this.isAuthenticated;
     }
 
     try {
