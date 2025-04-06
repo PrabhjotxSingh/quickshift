@@ -117,6 +117,16 @@ const jobs: Jobs[] = [
     date: new Date("2025-02-28"),
     coords: [39.103119, -84.512016],
   },
+  {
+    id: "7",
+    name: "Dishwasher",
+    company: "Downtown Diner",
+    pay: 20,
+    location: "1234 Ohio rd",
+    skills: ["Driving", "Navigation", "Customer Service"],
+    date: new Date("2025-02-28"),
+    coords: [39.1753, -84.2944],
+  },
 ];
 
 function getDistanceFromLatLonInMiles(
@@ -150,6 +160,18 @@ export default function Dashboard() {
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Jobs | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const openJobDetails = (job: Jobs) => {
+    setSelectedJob(job);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setSelectedJob(null);
+    setShowModal(false);
+  };
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -230,7 +252,13 @@ export default function Dashboard() {
                     {job.company} <br />
                     Pay: ${job.pay}/hr <br />
                     {job.location} <br />
-                    Skills: {job.skills.join(", ")}
+                    Skills: {job.skills.join(", ")} <br />
+                    <button
+                      onClick={() => openJobDetails(job)}
+                      className="mt-2 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800"
+                    >
+                      View
+                    </button>
                   </Popup>
                 </Marker>
               ))}
@@ -343,6 +371,7 @@ export default function Dashboard() {
                       }`}
                       onMouseEnter={() => setHoveredJobId(job.id)}
                       onMouseLeave={() => setHoveredJobId(null)}
+                      onClick={() => openJobDetails(job)}
                     >
                       <TableCell>{job.name}</TableCell>
                       <TableCell>{job.company}</TableCell>
@@ -357,6 +386,43 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {showModal && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-lg shadow-xl">
+            <h2 className="text-2xl font-bold mb-2">{selectedJob.name}</h2>
+            <p className="text-gray-700 mb-1">
+              <strong>Company:</strong> {selectedJob.company}
+            </p>
+            <p className="text-gray-700 mb-1">
+              <strong>Pay:</strong> ${selectedJob.pay}/hr
+            </p>
+            <p className="text-gray-700 mb-1">
+              <strong>Location:</strong> {selectedJob.location}
+            </p>
+            <p className="text-gray-700 mb-3">
+              <strong>Required Skills:</strong> {selectedJob.skills.join(", ")}
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  alert(`You have accepted the job: ${selectedJob.name}`);
+                  closeModal();
+                }}
+                className="px-4 py-2 rounded bg-black text-white hover:bg-gray-700"
+              >
+                Accept Job
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

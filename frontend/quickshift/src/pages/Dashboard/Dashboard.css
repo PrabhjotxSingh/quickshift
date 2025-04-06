@@ -28,17 +28,26 @@
 }
 
 .carousel-container {
-  max-width: 100%; /* Ensure the carousel doesn't exceed its container's width */
-  overflow: hidden; /* Prevent overflow */
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .carousel-item {
-  min-width: 250px; /* Limit the minimum width of carousel items */
-  margin-right: 10px; /* Add space between carousel items */
+  min-width: 250px;
+  margin-right: 10px;
 }
 
 @media (max-width: 768px) {
   .carousel-item {
-    min-width: 200px; /* Adjust for smaller screens */
+    min-width: 200px;
   }
+}
+
+.leaflet-container {
+  z-index: 1;
+}
+
+.dialog-overlay,
+.dialog-content {
+  z-index: 1050 !important;
 }
