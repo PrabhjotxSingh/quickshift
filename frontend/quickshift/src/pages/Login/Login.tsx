@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend-api";
+import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend/backend-api";
 import { useEffect, useState } from "react";
 import { LoginRequest } from "../../backend-api";
 

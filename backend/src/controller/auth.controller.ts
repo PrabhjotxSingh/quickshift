@@ -35,11 +35,13 @@ export class AuthController extends BaseController {
 	}
 
 	@Put("Refresh")
-	public async refreshTokens(@Body() request: RefreshRequest): Promise<LoginResponse> {
-		return this.internalServerError({
-			success: false,
-			refreshToken: "Not Implemented",
-		});
+	public async refreshTokens(@Body() request: RefreshRequest): Promise<LoginResponse | string> {
+		try {
+			const result = await this.authService.refresh(request.refreshToken, this.getDeviceName());
+			return this.ok(result);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
 	}
 
 	@Post("Register")

@@ -26,8 +26,6 @@ import type { Login200Response } from '../models';
 // @ts-ignore
 import type { LoginRequest } from '../models';
 // @ts-ignore
-import type { LoginResponse } from '../models';
-// @ts-ignore
 import type { RefreshRequest } from '../models';
 // @ts-ignore
 import type { Register200Response } from '../models';
@@ -207,7 +205,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginResponse>> {
+        async refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Login200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.refreshTokens(refreshRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.refreshTokens']?.[localVarOperationServerIndex]?.url;
@@ -262,7 +260,7 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<LoginResponse> {
+        refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<Login200Response> {
             return localVarFp.refreshTokens(refreshRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -308,7 +306,7 @@ export interface AuthApiInterface {
      * @throws {RequiredError}
      * @memberof AuthApiInterface
      */
-    refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<LoginResponse>;
+    refreshTokens(refreshRequest: RefreshRequest, options?: RawAxiosRequestConfig): AxiosPromise<Login200Response>;
 
     /**
      * 
