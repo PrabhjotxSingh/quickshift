@@ -174,6 +174,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    // Get user location
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserCoords([position.coords.latitude, position.coords.longitude]);

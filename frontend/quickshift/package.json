@@ -20,6 +20,7 @@
     "@radix-ui/react-slider": "^1.2.3",
     "@radix-ui/react-slot": "^1.1.2",
     "@tailwindcss/vite": "^4.0.15",
+    "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.5.2",
@@ -29,10 +30,10 @@
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^7.1.5",
+    "shared": "file:../shared",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.15",
-    "tw-animate-css": "^1.2.4",
-    "shared": "file:../shared"
+    "tw-animate-css": "^1.2.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

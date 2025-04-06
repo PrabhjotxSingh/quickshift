@@ -5,10 +5,9 @@
 	"main": "webApiServer.ts",
 	"scripts": {
 		"deploy": "npm run build && serverless deploy",
-		"build": "npm --prefix ../shared run build && npm i && npx tsoa spec-and-routes && npx tsc -b && npm run generate-api",
-		"generate-api": "openapi-generator-cli generate -i ./swagger/swagger.json -g typescript-axios -o ../shared/src/client-api --skip-validate-spec --additional-properties=supportsES6=true,generateSourceCodeOnly=true,withInterfaces=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
-		"start": "npm run build && nodemon --exec ts-node ./src/webApiServer.ts",
-		"dev": "npm run build && nodemon --inspect --watch src --ext ts --ignore src/routes.ts --ignore dist/swagger.json --exec \"npx tsoa spec-and-routes && ts-node src/webApiServer.ts\"",
+		"build": "npm i && npx tsoa spec-and-routes && npx tsc -b && npm run generate-api",
+		"generate-api": "openapi-generator-cli generate -i ./swagger/swagger.json -g typescript-axios -o ../frontend/quickshift/src/backend-api --skip-validate-spec --additional-properties=supportsES6=true,generateSourceCodeOnly=true,withInterfaces=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
+		"dev": "npm run build && nodemon --inspect --watch src --ext ts --ignore src/routes.ts --ignore dist/swagger.json --ignore ../frontend/** --exec \"npx tsoa spec-and-routes && ts-node src/webApiServer.ts\"",
 		"dev-serverless": "serverless offline",
 		"test": "jest"
 	},
@@ -42,7 +41,6 @@
 		"prettier": "^3.3.2",
 		"reflect-metadata": "^0.1.14",
 		"serverless-http": "^3.2.0",
-		"shared": "file:../shared",
 		"swagger-ui-express": "^5.0.1",
 		"tsoa": "^6.3.1",
 		"typedi": "^0.10.0",
@@ -69,8 +67,5 @@
 		"webpack": "^5.97.1",
 		"webpack-cli": "^6.0.1",
 		"webpack-node-externals": "^3.0.0"
-	},
-	"workspaces": [
-		"../shared"
-	]
+	}
 }
