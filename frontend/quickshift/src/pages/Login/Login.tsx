@@ -23,10 +23,14 @@ export default function Login() {
   useEffect(() => {
     BackendAPI.initialize();
 
-    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (token) {
-      BackendAPI.updateAuthToken(token);
-      navigate("/dashboard");
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (token) {
+        BackendAPI.refresh();
+        navigate("/dashboard");
+      }
+    } catch {
+      console.log("Error retrieving tokens from storage");
     }
   }, [navigate]);
 

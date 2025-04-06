@@ -84,7 +84,6 @@ export class BackendAPI {
         throw new Error("Failed to refresh token");
       }
     } catch (error) {
-      // Clear tokens on refresh failure
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       throw error;
