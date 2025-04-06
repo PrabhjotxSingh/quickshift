@@ -3,7 +3,7 @@ import "./App.css";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Signup from "./pages/Signup/Signup";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { AuthenticatedRoute } from "./components/auth/ProtectedRoute";
 import { useEffect } from "react";
 import { BackendAPI } from "./lib/backend/backend-api";
 
@@ -22,9 +22,9 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <AuthenticatedRoute>
               <Dashboard />
-            </ProtectedRoute>
+            </AuthenticatedRoute>
           }
         />
       </Routes>

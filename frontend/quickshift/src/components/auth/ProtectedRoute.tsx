@@ -7,23 +7,14 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-/**
- * Route wrapper that ensures a user is authenticated
- * Redirects to login if not authenticated
+/*
+ * ensures authentication before going to route
  */
-export function ProtectedRoute({
+export function AuthenticatedRoute({
   children,
   redirectTo = "/login",
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Loading...
-      </div>
-    );
-  }
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to={redirectTo} replace />;
