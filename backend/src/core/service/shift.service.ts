@@ -26,6 +26,8 @@ import { ShiftApplicantRepository } from "../repository/shift-applicant.reposito
 import { ShiftApplicantDocument } from "../model/shift-applicant.model";
 import { UserDocument } from "../model/user.model";
 import { ShiftUnavailableError } from "../error/ShiftUnavailableError";
+import { ShiftApplicantDto } from "../dto/models/shift-applicant.dto";
+import { ShiftApplicantModel } from "../model/shift-applicant.model";
 
 @Service()
 export class ShiftService {
@@ -304,13 +306,34 @@ export class ShiftService {
 		return shiftDto;
 	}
 
-	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDocument[]> {
+	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDto[]> {
 		// Get all applications where the user is the applicant
 		const applications = await this.shiftApplicantRepository.getManyByQuery({
 			user: user._id,
 		});
 
-		return applications;
+		const applicationDtos: ShiftApplicantDto[] = [];
+
+		// Map each application to DTO and include shift data
+		for (const application of applications) {
+			const applicationDto = mapper.map(application, ShiftApplicantModel, ShiftApplicantDto);
+
+			// Get and include shift data
+			const shift = await this.shiftRepository.get(application.shiftId.toString());
+			if (shift) {
+				applicationDto.shift = mapper.map(shift, ShiftModel, ShiftDto);
+
+				// Get company name for shift
+				const company = await this.companyRepository.get(shift.company.toString());
+				if (company) {
+					applicationDto.shift.companyName = company.name;
+				}
+			}
+
+			applicationDtos.push(applicationDto);
+		}
+
+		return applicationDtos;
 	}
 
 	public async denyShiftApplicant(applicationId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
@@ -358,5 +381,32 @@ export class ShiftService {
 		}, 0);
 
 		return totalEarnings;
+	}
+
+	public async getCompanyOpenShifts(companyId: string): Promise<ShiftDto[]> {
+		// Get all open shifts for the company
+		const query: FilterQuery<ShiftDocument> = {
+			isOpen: true,
+			company: new Types.ObjectId(companyId),
+		};
+
+		const shifts = await this.shiftRepository.getManyByQuery(query);
+
+		// Map to DTOs and populate company names
+		const shiftDtos: ShiftDto[] = [];
+		const company = await this.companyRepository.get(companyId);
+
+		for (const shift of shifts) {
+			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+
+			// Populate the company name
+			if (company) {
+				shiftDto.companyName = company.name;
+			}
+
+			shiftDtos.push(shiftDto);
+		}
+
+		return shiftDtos;
 	}
 }

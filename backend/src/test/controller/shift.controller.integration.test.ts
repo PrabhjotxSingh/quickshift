@@ -29,6 +29,7 @@ import * as crypto from "crypto";
 import { connect, disconnect } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { BaseController } from "../../controller/base.controller";
+import { ShiftApplicantDto } from "../../core/dto/models/shift-applicant.dto";
 
 // Override the authentication decorator
 // This is necessary to bypass the JWT verification
@@ -989,11 +990,26 @@ describe("ShiftController Integration Tests", () => {
 	describe("getPendingApplications", () => {
 		const mockPendingApplications = [
 			{
-				_id: new Types.ObjectId(),
-				shiftId: new Types.ObjectId(mockShiftId),
-				company: new Types.ObjectId(mockCompanyId),
-				user: new Types.ObjectId(),
-			} as ShiftApplicantDocument,
+				_id: new Types.ObjectId().toString(),
+				shiftId: new Types.ObjectId(mockShiftId).toString(),
+				company: new Types.ObjectId(mockCompanyId).toString(),
+				user: new Types.ObjectId().toString(),
+				rejected: false,
+				shift: {
+					_id: mockShiftId,
+					company: mockCompanyId,
+					companyName: "Test Company",
+					name: "Test Shift",
+					description: "Test Description",
+					tags: ["test"],
+					isOpen: true,
+					startTime: new Date(),
+					endTime: new Date(),
+					pay: 100,
+					location: { latitude: 0, longitude: 0 },
+					isComplete: false,
+				},
+			} as ShiftApplicantDto,
 		];
 
 		it("should allow employer to get pending applications", async () => {

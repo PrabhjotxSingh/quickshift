@@ -16,14 +16,15 @@ import { AxiosResponse } from "axios";
 // Interface based on shift-applicant.model
 interface ShiftApplicant {
   _id: string;
-  company: {
-    _id: string;
-    name: string;
-  };
-  shiftId: {
+  company: string;
+  shiftId: string;
+  user: string;
+  rejected: boolean;
+  shift?: {
     _id: string;
     name: string;
     company: string;
+    companyName: string;
     pay: number;
     location: {
       latitude: number;
@@ -32,9 +33,9 @@ interface ShiftApplicant {
     startTime: string;
     endTime: string;
     tags: string[];
+    isOpen: boolean;
+    isComplete: boolean;
   };
-  user: string;
-  rejected: boolean;
 }
 
 // Interface for Shift data
@@ -111,16 +112,18 @@ export default function MyJobs() {
       const rejected: JobDisplay[] = [];
 
       applications.forEach((app) => {
+        if (!app.shift) return;
+
         const jobDisplay: JobDisplay = {
           id: app._id,
-          name: app.shiftId.name,
-          company: app.company.name || "Unknown Company",
-          pay: app.shiftId.pay,
-          location: `${app.shiftId.location.latitude}, ${app.shiftId.location.longitude}`,
-          skills: app.shiftId.tags || [],
-          date: new Date(app.shiftId.startTime),
-          coords: app.shiftId.location
-            ? [app.shiftId.location.latitude, app.shiftId.location.longitude]
+          name: app.shift.name,
+          company: app.shift.companyName || "Unknown Company",
+          pay: app.shift.pay,
+          location: `${app.shift.location.latitude}, ${app.shift.location.longitude}`,
+          skills: app.shift.tags || [],
+          date: new Date(app.shift.startTime),
+          coords: app.shift.location
+            ? [app.shift.location.latitude, app.shift.location.longitude]
             : undefined,
         };
 

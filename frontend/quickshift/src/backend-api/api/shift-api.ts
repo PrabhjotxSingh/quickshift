@@ -25,6 +25,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 import type { CreateShiftRequest } from '../models';
 // @ts-ignore
 import type { Get200Response } from '../models';
+// @ts-ignore
+import type { GetPendingApplications200Response } from '../models';
 /**
  * ShiftApi - axios parameter creator
  * @export
@@ -617,7 +619,7 @@ export const ShiftApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPendingApplications(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+        async getPendingApplications(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPendingApplications200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingApplications(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ShiftApi.getPendingApplications']?.[localVarOperationServerIndex]?.url;
@@ -761,7 +763,7 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+        getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response> {
             return localVarFp.getPendingApplications(options).then((request) => request(axios, basePath));
         },
         /**
@@ -890,7 +892,7 @@ export interface ShiftApiInterface {
      * @throws {RequiredError}
      * @memberof ShiftApiInterface
      */
-    getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<any>;
+    getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response>;
 
     /**
      * 
