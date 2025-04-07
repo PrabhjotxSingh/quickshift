@@ -413,12 +413,12 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => {
-                  alert(`You have accepted the job: ${selectedJob.name}`);
+                  alert(`You have applied the job: ${selectedJob.name}`);
                   closeModal();
                 }}
                 className="px-4 py-2 rounded bg-black text-white hover:bg-gray-700"
               >
-                Accept Job
+                Apply
               </button>
             </div>
           </div>

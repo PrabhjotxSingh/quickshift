@@ -62,16 +62,12 @@ const Navbar1 = ({
   menu = [
     { title: "Home", url: "/dashboard" },
     {
-      title: "Accepted Jobs",
-      url: "#",
-    },
-    {
-      title: "Past Jobs",
-      url: "#",
+      title: "My Jobs",
+      url: "/my-jobs",
     },
     {
       title: "Post Job",
-      url: "/post-job", // Link to Post Job page
+      url: "/post-jobs",
     },
   ],
 }: Navbar1Props) => {
