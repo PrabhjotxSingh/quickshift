@@ -183,6 +183,42 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        denyApplicant: async (applicationId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'applicationId' is not null or undefined
+            assertParamExists('denyApplicant', 'applicationId', applicationId)
+            const localVarPath = `/Shift/Deny`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (applicationId !== undefined) {
+                localVarQueryParameter['applicationId'] = applicationId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -530,6 +566,18 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async denyApplicant(applicationId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.denyApplicant(applicationId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.denyApplicant']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -674,6 +722,15 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {string} applicationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        denyApplicant(applicationId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.denyApplicant(applicationId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -790,6 +847,15 @@ export interface ShiftApiInterface {
      * @memberof ShiftApiInterface
      */
     create(createShiftRequest: CreateShiftRequest, options?: RawAxiosRequestConfig): AxiosPromise<Get200Response>;
+
+    /**
+     * 
+     * @param {string} applicationId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    denyApplicant(applicationId: string, options?: RawAxiosRequestConfig): AxiosPromise<any>;
 
     /**
      * 
@@ -916,6 +982,17 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
      */
     public create(createShiftRequest: CreateShiftRequest, options?: RawAxiosRequestConfig) {
         return ShiftApiFp(this.configuration).create(createShiftRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} applicationId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public denyApplicant(applicationId: string, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).denyApplicant(applicationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
