@@ -141,7 +141,7 @@ export default function MyJobs() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCancel(job.id);
+                        handleCancel();
                       }}
                       className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
                     >
@@ -151,7 +151,7 @@ export default function MyJobs() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleContact(job.id);
+                        handleContact();
                       }}
                       className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
                     >
