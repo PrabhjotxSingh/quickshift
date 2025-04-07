@@ -30,7 +30,10 @@ export default function Login() {
     // Check if already logged in
     const checkExistingAuth = async () => {
       try {
-        // Check for cookies without refresh
+        // Try to load from localStorage first (for refresh cases)
+        BackendAPI.loadTokensFromStorage();
+
+        // Check for cookies or memory tokens without refresh
         const isValid = await BackendAPI.checkAuth(false);
         if (isValid) {
           navigate("/dashboard");
@@ -55,10 +58,32 @@ export default function Login() {
       const success = await BackendAPI.login(loginRequest);
       if (success) {
         console.log("Login successful, navigating to dashboard");
-        // Force a longer delay to ensure cookies are set
-        setTimeout(() => {
-          navigate("/dashboard", { replace: true });
-        }, 500); // Increased delay to 500ms
+
+        // Verify authentication status after login
+        const isAuthed = await BackendAPI.checkAuth(false);
+        console.log("Post-login auth check:", isAuthed);
+
+        if (isAuthed) {
+          // Force a longer delay to ensure cookies are set
+          setTimeout(() => {
+            navigate("/dashboard", { replace: true });
+          }, 500); // Increased delay to 500ms
+        } else {
+          console.warn(
+            "Login appeared successful but authentication check failed"
+          );
+          // Try to proceed anyway using memory-based authentication
+          console.log("Attempting to use memory token authentication");
+          // Verify memory tokens are set
+          if (BackendAPI._memoryToken) {
+            setTimeout(() => {
+              navigate("/dashboard", { replace: true });
+            }, 500);
+          } else {
+            console.error("No memory tokens available, login failed");
+            throw new Error("Authentication failed");
+          }
+        }
       }
     } catch (error) {
       console.error("Login failed:", error);
