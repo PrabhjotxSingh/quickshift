@@ -1072,4 +1072,64 @@ describe("ShiftController Integration Tests", () => {
 			await expect(shiftController.getPendingApplications()).rejects.toThrow("Failed to get user");
 		});
 	});
+
+	describe("getUserEarnings", () => {
+		it("should return total earnings for worker", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(150);
+
+			// Execute
+			const result = await shiftController.getUserEarnings();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual({ totalEarnings: 150 });
+		});
+
+		it("should return zero earnings when no completed shifts", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(0);
+
+			// Execute
+			const result = await shiftController.getUserEarnings();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual({ totalEarnings: 0 });
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			const error = new Error("Failed to get user earnings");
+			shiftService.getUserTotalEarnings = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.getUserEarnings()).rejects.toThrow(error);
+		});
+
+		it("should handle errors when getting authenticated user", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockRejectedValue(new Error("Failed to get user"));
+
+			// Execute & Assert
+			await expect(shiftController.getUserEarnings()).rejects.toThrow("Failed to get user");
+		});
+	});
 });

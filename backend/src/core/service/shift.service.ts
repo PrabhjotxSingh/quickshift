@@ -229,4 +229,23 @@ export class ShiftService {
 
 		return filteredApplications;
 	}
+
+	public async getUserTotalEarnings(userId: string): Promise<number> {
+		// Get all completed shifts where the user was hired
+		const completedShifts = await this.shiftRepository.getManyByQuery({
+			userHired: userId,
+			isComplete: true,
+		});
+
+		if (!completedShifts || completedShifts.length === 0) {
+			return 0;
+		}
+
+		// Calculate total earnings
+		const totalEarnings = completedShifts.reduce((total, shift) => {
+			return total + shift.pay;
+		}, 0);
+
+		return totalEarnings;
+	}
 }
