@@ -526,11 +526,18 @@ export default function PostJobs() {
                       >
                         <div className="flex-1">
                           <p className="font-medium">
-                            {`${applicant.userData?.username}: ${applicant.userData?.firstName} ${applicant.userData?.lastName}`}
+                            {applicant.userData
+                              ? `${applicant.userData.firstName} ${applicant.userData.lastName}`
+                              : "User information not available"}
                           </p>
                           {applicant.userData && (
                             <div className="text-sm text-gray-600">
-                              <p>Email: {applicant.userData.email}</p>
+                              <p>
+                                <span className="mr-2">
+                                  {applicant.userData.username}
+                                </span>
+                                <span>{applicant.userData.email}</span>
+                              </p>
                               {applicant.userData.skills &&
                                 applicant.userData.skills.length > 0 && (
                                   <p>
