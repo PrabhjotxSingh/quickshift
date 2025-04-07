@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./PostJobs.css";
+import Swal from "sweetalert2";
 
 type Job = {
   id: string;
@@ -21,6 +22,56 @@ export default function PostJobs() {
     location: "",
   });
 
+  useEffect(() => {
+    const fetchCompanyName = async () => {
+      const fetchedCompanyName = ""; // replace this with actual fetch logic
+
+      if (!fetchedCompanyName || fetchedCompanyName === "") {
+        let userCompany = "";
+
+        while (!userCompany) {
+          const {
+            value: inputCompany,
+            isConfirmed,
+            isDismissed,
+          } = await Swal.fire({
+            title: "Enter Company Name",
+            input: "text",
+            inputLabel: "Your company name is required to post jobs.",
+            inputPlaceholder: "e.g., Bob's Bakery",
+            showCancelButton: true,
+            confirmButtonText: "Continue",
+            cancelButtonText: "Cancel",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+            inputValidator: (value) => {
+              if (!value.trim()) {
+                return "Please enter a company name!";
+              }
+              return null;
+            },
+            allowOutsideClick: false,
+          });
+
+          if (isDismissed) {
+            window.location.href = "/dashboard";
+            return;
+          }
+
+          if (isConfirmed && inputCompany?.trim()) {
+            userCompany = inputCompany.trim();
+            setFormData((prev) => ({ ...prev, company: userCompany }));
+          }
+        }
+      } else {
+        setFormData((prev) => ({ ...prev, company: fetchedCompanyName }));
+      }
+    };
+
+    fetchCompanyName();
+  }, []);
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -32,10 +83,10 @@ export default function PostJobs() {
       company: formData.company,
       pay: parseFloat(formData.pay),
       location: formData.location,
-      applicants: ["Alice", "Bob", "Charlie"], // mock applicants
+      applicants: ["Alice", "Bob", "Charlie"],
     };
     setPostedJobs([...postedJobs, newJob]);
-    setFormData({ name: "", company: "", pay: "", location: "" });
+    setFormData({ ...formData, name: "", pay: "", location: "" });
   };
 
   const handleAcceptApplicant = (jobId: string, applicant: string) => {
@@ -67,6 +118,7 @@ export default function PostJobs() {
             onChange={handleInput}
             placeholder="Company"
             className="border px-3 py-2 w-full"
+            disabled
           />
           <input
             name="pay"
