@@ -85,7 +85,11 @@ export default function MyJobs() {
         // Fetch pending applications
         const pendingApplicationsResponse =
           await BackendAPI.shiftApi.getPendingApplications();
-        processApplications(pendingApplicationsResponse);
+        processApplications(
+          pendingApplicationsResponse as unknown as AxiosResponse<
+            ShiftApplicant[]
+          >
+        );
 
         // Fetch user shifts (not upcoming = all shifts)
         const userShiftsResponse = await BackendAPI.shiftApi.getUserShifts(
