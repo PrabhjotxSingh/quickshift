@@ -30,6 +30,7 @@
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^7.1.5",
+    "recharts": "^2.15.2",
     "shared": "file:../shared",
     "sweetalert2": "^11.17.2",
     "tailwind-merge": "^3.0.2",

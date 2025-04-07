@@ -6,6 +6,9 @@ import Signup from "./pages/Signup/Signup";
 import { AuthenticatedRoute } from "./components/auth/ProtectedRoute";
 import { useEffect, useRef } from "react";
 import { BackendAPI } from "./lib/backend/backend-api";
+import MyJobs from "./pages/MyJobs/MyJobs";
+import PostJobs from "./pages/PostJobs/PostJobs";
+import Profile from "./pages/Profile/Profile";
 
 function App() {
   // Flag to ensure we only initialize once
@@ -30,6 +33,30 @@ function App() {
           element={
             <AuthenticatedRoute>
               <Dashboard />
+            </AuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/my-jobs"
+          element={
+            <AuthenticatedRoute>
+              <MyJobs />
+            </AuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/post-jobs"
+          element={
+            <AuthenticatedRoute>
+              <PostJobs />
+            </AuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <AuthenticatedRoute>
+              <Profile />
             </AuthenticatedRoute>
           }
         />
