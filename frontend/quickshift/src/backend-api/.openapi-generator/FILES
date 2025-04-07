@@ -12,6 +12,8 @@ index.ts
 models/company-dto.ts
 models/create-company-request.ts
 models/create-shift-request.ts
+models/get-company-open-shifts200-response.ts
+models/get-pending-applications200-response.ts
 models/get-requesting-user-company200-response.ts
 models/get200-response.ts
 models/index.ts
@@ -22,6 +24,7 @@ models/login200-response.ts
 models/refresh-request.ts
 models/register-request.ts
 models/register200-response.ts
+models/shift-applicant-dto.ts
 models/shift-dto.ts
 models/user-dto.ts
 models/user-role.ts

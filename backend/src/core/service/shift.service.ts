@@ -26,6 +26,8 @@ import { ShiftApplicantRepository } from "../repository/shift-applicant.reposito
 import { ShiftApplicantDocument } from "../model/shift-applicant.model";
 import { UserDocument } from "../model/user.model";
 import { ShiftUnavailableError } from "../error/ShiftUnavailableError";
+import { ShiftApplicantDto } from "../dto/models/shift-applicant.dto";
+import { ShiftApplicantModel } from "../model/shift-applicant.model";
 
 @Service()
 export class ShiftService {
@@ -205,6 +207,14 @@ export class ShiftService {
 		return shifts;
 	}
 
+	public async getShiftApplicantById(id: string): Promise<ShiftApplicantDocument> {
+		const application = await this.shiftApplicantRepository.get(id);
+		if (!application) {
+			throw new NotFoundError("Application not found");
+		}
+		return application;
+	}
+
 	public async applyToShift(shiftId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
 		const shift = await this.shiftRepository.get(shiftId);
 		if (!shift) {
@@ -296,48 +306,62 @@ export class ShiftService {
 		return shiftDto;
 	}
 
-	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDocument[]> {
-		// Get all open shifts
-		const openShifts = await this.shiftRepository.getManyByQuery({ isOpen: true });
-		if (!openShifts || openShifts.length === 0) {
-			return [];
-		}
-
-		// Get all applications for these open shifts
-		const shiftIds = openShifts.map((shift) => shift._id);
+	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDto[]> {
+		// Get all applications where the user is the applicant
 		const applications = await this.shiftApplicantRepository.getManyByQuery({
-			shiftId: { $in: shiftIds },
+			user: user._id,
 		});
 
-		// Filter applications to only those for companies the user has access to
-		const filteredApplications = [];
+		const applicationDtos: ShiftApplicantDto[] = [];
+
+		// Map each application to DTO and include shift data
 		for (const application of applications) {
-			try {
-				const company = await this.companyRepository.get(application.company);
-				if (!company) {
-					continue;
-				}
+			const applicationDto = mapper.map(application, ShiftApplicantModel, ShiftApplicantDto);
 
-				const isAdmin = user.roles.includes(UserRole.ADMIN);
-				if (isAdmin) {
-					filteredApplications.push(application);
-					continue;
-				}
+			// Get and include shift data
+			const shift = await this.shiftRepository.get(application.shiftId.toString());
+			if (shift) {
+				applicationDto.shift = mapper.map(shift, ShiftModel, ShiftDto);
 
-				const isOwner = company.owner.toString() === user.id;
-				const isCompanyAdmin = company.companyAdmins.some((adminId) => adminId.toString() === user.id);
-				const isEmployer = user.roles.includes(UserRole.EMPLOYER);
-
-				if (isOwner || isCompanyAdmin || isEmployer) {
-					filteredApplications.push(application);
+				// Get company name for shift
+				const company = await this.companyRepository.get(shift.company.toString());
+				if (company) {
+					applicationDto.shift.companyName = company.name;
 				}
-			} catch (error) {
-				// Skip applications for companies the user doesn't have access to
-				continue;
 			}
+
+			applicationDtos.push(applicationDto);
 		}
 
-		return filteredApplications;
+		return applicationDtos;
+	}
+
+	public async denyShiftApplicant(applicationId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
+		const application = await this.shiftApplicantRepository.get(applicationId);
+		if (!application) {
+			throw new NotFoundError("Application not found");
+		}
+
+		// Get the shift to verify company access
+		const shift = await this.shiftRepository.get(application.shiftId.toString());
+		if (!shift) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		// Verify the shift belongs to the same company as the user
+		if (shift.company.toString() !== application.company.toString()) {
+			throw new Error("Shift and application company mismatch");
+		}
+
+		// Update the application to mark it as rejected
+		application.rejected = true;
+		const updatedApplication = await this.shiftApplicantRepository.update(applicationId, application);
+
+		if (!updatedApplication) {
+			throw new Error("Failed to update application");
+		}
+
+		return updatedApplication;
 	}
 
 	public async getUserTotalEarnings(userId: string): Promise<number> {
@@ -357,5 +381,32 @@ export class ShiftService {
 		}, 0);
 
 		return totalEarnings;
+	}
+
+	public async getCompanyOpenShifts(companyId: string): Promise<ShiftDto[]> {
+		// Get all open shifts for the company
+		const query: FilterQuery<ShiftDocument> = {
+			isOpen: true,
+			company: new Types.ObjectId(companyId),
+		};
+
+		const shifts = await this.shiftRepository.getManyByQuery(query);
+
+		// Map to DTOs and populate company names
+		const shiftDtos: ShiftDto[] = [];
+		const company = await this.companyRepository.get(companyId);
+
+		for (const shift of shifts) {
+			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+
+			// Populate the company name
+			if (company) {
+				shiftDto.companyName = company.name;
+			}
+
+			shiftDtos.push(shiftDto);
+		}
+
+		return shiftDtos;
 	}
 }

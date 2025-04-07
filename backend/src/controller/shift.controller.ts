@@ -13,6 +13,7 @@ import { CompanyRepository } from "../core/repository/company.repository";
 import { ForbiddenError } from "../core/error/ForbiddenError";
 import { UserDocument } from "../core/model/user.model";
 import { CompanyService } from "../core/service/company.service";
+import { ShiftApplicantDto } from "../core/dto/models/shift-applicant.dto";
 
 @Route("Shift")
 @Tags("Shift")
@@ -145,10 +146,23 @@ export class ShiftController extends BaseController {
 
 	@Get("PendingApplications")
 	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
-	public async getPendingApplications() {
+	public async getPendingApplications(): Promise<ShiftApplicantDto[] | string> {
 		try {
 			const user = await this.getUser();
-			return await this.shiftService.getPendingApplications(user);
+			const pendingApplications = await this.shiftService.getPendingApplications(user);
+			return pendingApplications;
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Get("CompanyOpenShifts")
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
+	public async getCompanyOpenShifts(@Query() companyId: string): Promise<ShiftDto[] | string> {
+		try {
+			const user = await this.getUser();
+			await this.validateCompanyAccess(companyId, user);
+			return await this.shiftService.getCompanyOpenShifts(companyId);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
@@ -186,6 +200,22 @@ export class ShiftController extends BaseController {
 
 			await this.validateCompanyAccess(shift.company, user);
 			return await this.shiftService.hireUserForShift(shiftId, userId);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Post("Deny")
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
+	public async denyApplicant(@Query() applicationId: string) {
+		try {
+			const user = await this.getUser();
+
+			// Get the application to check company access
+			const application = await this.shiftService.getShiftApplicantById(applicationId);
+			await this.validateCompanyAccess(application.company.toString(), user);
+
+			return await this.shiftService.denyShiftApplicant(applicationId, user);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
