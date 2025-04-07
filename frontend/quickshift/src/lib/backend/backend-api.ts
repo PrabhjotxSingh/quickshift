@@ -7,9 +7,11 @@ import {
   RefreshRequest,
 } from "../../backend-api";
 
-const API_BASE_URL = import.meta.env.VITE_PROD
-  ? "https://11976zm8eb.execute-api.us-east-2.amazonaws.com/dev/"
-  : "http://localhost:3000";
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:3000"
+    : "https://11976zm8eb.execute-api.us-east-2.amazonaws.com/dev/";
 export const ACCESS_TOKEN_KEY = "quickshift_access_token";
 export const REFRESH_TOKEN_KEY = "quickshift_refresh_token";
 
