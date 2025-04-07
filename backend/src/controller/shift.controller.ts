@@ -121,7 +121,7 @@ export class ShiftController extends BaseController {
 	public async getAvailableShifts(@Query() tags?: string[]) {
 		try {
 			const user = await this.getUser();
-			return await this.shiftService.getAvailableShifts(tags);
+			return await this.shiftService.getAvailableShifts(tags, user.id);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}

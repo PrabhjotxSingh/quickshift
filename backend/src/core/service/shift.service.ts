@@ -115,7 +115,8 @@ export class ShiftService {
 		return shiftDto;
 	}
 
-	public async getAvailableShifts(tags?: string[]): Promise<ShiftDto[]> {
+	public async getAvailableShifts(tags?: string[], userId?: string): Promise<ShiftDto[]> {
+		// Get all open shifts
 		let query: FilterQuery<ShiftDocument> = { isOpen: true };
 
 		if (tags && tags.length > 0) {
@@ -124,10 +125,31 @@ export class ShiftService {
 
 		const shifts = await this.shiftRepository.getManyByQuery(query);
 
+		// If userId is provided, filter out shifts the user has already applied to
+		let availableShifts = shifts;
+
+		if (userId) {
+			// Filter out shifts the user has already applied to
+			availableShifts = [];
+
+			for (const shift of shifts) {
+				// Check if user has already applied to this shift
+				const existingApplication = await this.shiftApplicantRepository.getByQuery({
+					user: new Types.ObjectId(userId),
+					shiftId: shift._id,
+				});
+
+				// If no application exists, add this shift to available shifts
+				if (!existingApplication) {
+					availableShifts.push(shift);
+				}
+			}
+		}
+
 		// Map to DTOs and populate company names
 		const shiftDtos: ShiftDto[] = [];
 
-		for (const shift of shifts) {
+		for (const shift of availableShifts) {
 			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
 
 			// Populate the company name
@@ -200,7 +222,7 @@ export class ShiftService {
 		});
 
 		if (existingApplication) {
-			throw new AlreadyExistsError("User has already applied to this shift");
+			return existingApplication;
 		}
 
 		const newApplication = await this.shiftApplicantRepository.create({
