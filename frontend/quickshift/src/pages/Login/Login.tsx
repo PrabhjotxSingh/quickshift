@@ -1,4 +1,5 @@
 import "./Login.css";
+import Swal from "sweetalert2";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -56,6 +57,16 @@ export default function Login() {
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Unable to log in!",
+        footer: '<a href="/signup">Maybe you need to create an account?</a>',
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
     }
   };
 

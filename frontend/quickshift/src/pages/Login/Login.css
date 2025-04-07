@@ -12,3 +12,10 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.swal2-black-button {
+  background-color: black !important;
+  color: white !important;
+  border: none;
+  box-shadow: none;
+}
