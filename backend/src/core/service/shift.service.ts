@@ -200,7 +200,10 @@ export class ShiftService {
 	}
 
 	public async getShiftApplications(shiftId: string): Promise<ShiftApplicantDto[]> {
-		const applications = await this.shiftApplicantRepository.getManyByQuery({ shiftId: shiftId });
+		const applications = await this.shiftApplicantRepository.getManyByQuery({
+			shiftId: shiftId,
+			rejected: { $ne: true }, // Exclude rejected applications
+		});
 		if (applications == null) {
 			throw new NotFoundError("Shift not found");
 		}
