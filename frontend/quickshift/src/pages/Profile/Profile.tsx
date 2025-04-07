@@ -10,6 +10,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import { Input } from "@/components/ui/input";
+
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+
 // Sample user and earnings data
 const username = "username HERE";
 const earningsData = [
@@ -20,6 +26,16 @@ const earningsData = [
 ];
 
 export default function Profile() {
+  const [skills, setSkills] = useState("");
+
+  const handleSkillsSubmit = () => {
+    const skillsArray = skills
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter((skill) => skill !== "");
+    console.log(skillsArray);
+  };
+
   return (
     <>
       <Navbar1 />
@@ -54,6 +70,18 @@ export default function Profile() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* Skills Input */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">Enter your skills</h3>
+          <p className="text-sm text-gray-500">Use commas to separate skills</p>
+          <Input
+            value={skills}
+            onChange={(e) => setSkills(e.target.value)}
+            placeholder="e.g., driving, cleaning, software"
+          />
+          <Button onClick={handleSkillsSubmit}>Submit</Button>
+        </div>
       </div>
     </>
   );
