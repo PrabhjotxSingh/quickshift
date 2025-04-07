@@ -7,6 +7,9 @@ import {
   CreateCompanyRequest,
   CreateShiftRequest,
   Location,
+  ShiftDto,
+  ShiftApplicantDto,
+  UserDto,
 } from "../../backend-api/models";
 
 type Job = {
@@ -15,8 +18,14 @@ type Job = {
   company: string;
   pay: number;
   location: string;
-  applicants: string[];
+  applicants: Applicant[];
   acceptedApplicant?: string;
+};
+
+type Applicant = {
+  id: string;
+  userId: string;
+  userData?: UserDto;
 };
 
 export default function PostJobs() {
@@ -196,43 +205,45 @@ export default function PostJobs() {
           );
           if (response.status === 200 && response.data) {
             // Process the open shifts
-            const shifts = response.data;
+            const shifts = response.data as ShiftDto[];
 
             // For each shift, get the applicants
             const shiftsWithApplicants = await Promise.all(
-              shifts.map(async (shift: any) => {
+              shifts.map(async (shift: ShiftDto) => {
                 try {
                   const applicantsResponse =
-                    await BackendAPI.shiftApi.getApplicants(shift.id);
+                    await BackendAPI.shiftApi.getApplicants(shift._id);
                   const applicants =
                     applicantsResponse.status === 200
-                      ? applicantsResponse.data
+                      ? (applicantsResponse.data as ShiftApplicantDto[])
                       : [];
 
                   return {
-                    id: shift.id,
+                    id: shift._id,
                     name: shift.name,
-                    company: shift.company,
+                    company: shift.companyName,
                     pay: shift.pay,
                     location: `${shift.location.latitude}, ${shift.location.longitude}`,
-                    applicants: applicants.map(
-                      (app: { userId: string }) => app.userId
-                    ),
-                    acceptedApplicant: shift.workerId,
+                    applicants: applicants.map((app: ShiftApplicantDto) => ({
+                      id: app._id,
+                      userId: app.user,
+                      userData: app.userData,
+                    })),
+                    acceptedApplicant: shift.userHired,
                   };
                 } catch (error) {
                   console.error(
-                    `Error fetching applicants for shift ${shift.id}:`,
+                    `Error fetching applicants for shift ${shift._id}:`,
                     error
                   );
                   return {
-                    id: shift.id,
+                    id: shift._id,
                     name: shift.name,
-                    company: shift.company,
+                    company: shift.companyName,
                     pay: shift.pay,
                     location: `${shift.location.latitude}, ${shift.location.longitude}`,
                     applicants: [],
-                    acceptedApplicant: shift.workerId,
+                    acceptedApplicant: shift.userHired,
                   };
                 }
               })
@@ -293,7 +304,7 @@ export default function PostJobs() {
       if (response.status === 200 && response.data) {
         // Add the new job to the list
         const newJob: Job = {
-          id: response.data.id || Date.now().toString(),
+          id: response.data._id || Date.now().toString(),
           name: formData.name,
           company: formData.company,
           pay: parseFloat(formData.pay),
@@ -510,21 +521,37 @@ export default function PostJobs() {
                   <ul className="space-y-1">
                     {job.applicants.map((applicant) => (
                       <li
-                        key={applicant}
-                        className="flex items-center justify-between"
+                        key={applicant.id}
+                        className="flex items-center justify-between border-b pb-2"
                       >
-                        <span>{applicant}</span>
+                        <div className="flex-1">
+                          <p className="font-medium">
+                            {`${applicant.userData?.username}: ${applicant.userData?.firstName} ${applicant.userData?.lastName}`}
+                          </p>
+                          {applicant.userData && (
+                            <div className="text-sm text-gray-600">
+                              <p>Email: {applicant.userData.email}</p>
+                              {applicant.userData.skills &&
+                                applicant.userData.skills.length > 0 && (
+                                  <p>
+                                    Skills:{" "}
+                                    {applicant.userData.skills.join(", ")}
+                                  </p>
+                                )}
+                            </div>
+                          )}
+                        </div>
                         <div className="space-x-2">
                           <button
                             onClick={() =>
-                              handleAcceptApplicant(job.id, applicant)
+                              handleAcceptApplicant(job.id, applicant.userId)
                             }
                             className="text-sm bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
                           >
                             Accept
                           </button>
                           <button
-                            onClick={() => handleDenyApplicant(applicant)}
+                            onClick={() => handleDenyApplicant(applicant.id)}
                             className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
                           >
                             Deny
@@ -532,6 +559,11 @@ export default function PostJobs() {
                         </div>
                       </li>
                     ))}
+                    {job.applicants.length === 0 && (
+                      <li className="text-gray-500 italic">
+                        No applicants yet
+                      </li>
+                    )}
                   </ul>
                 </>
               ) : (
