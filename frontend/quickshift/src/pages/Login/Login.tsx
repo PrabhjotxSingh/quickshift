@@ -12,11 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  BackendAPI,
-  ACCESS_TOKEN_COOKIE,
-  REFRESH_TOKEN_COOKIE,
-} from "../../lib/backend/backend-api";
+import { BackendAPI } from "../../lib/backend/backend-api";
 import { useEffect, useState, useRef } from "react";
 import { LoginRequest } from "../../backend-api";
 
