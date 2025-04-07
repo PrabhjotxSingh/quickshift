@@ -14,11 +14,17 @@ export const useAuth = () => {
 
     const verifyAuth = async () => {
       try {
-        const isAuthed = await BackendAPI.checkAuth();
+        console.log("Verifying authentication...");
+        // Explicitly set attemptRefresh to false to avoid potential loops
+        const isAuthed = await BackendAPI.checkAuth(false);
+        console.log("Authentication check result:", isAuthed);
         setIsAuthenticated(isAuthed);
 
         if (!isAuthed) {
+          console.log("Not authenticated, redirecting to login");
           navigate("/login");
+        } else {
+          console.log("Authenticated, allowing access");
         }
       } finally {
         setIsLoading(false);
