@@ -30,6 +30,12 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { BackendAPI } from "@/lib/backend/backend-api";
+import { ShiftDto } from "@/backend-api/models";
+
+// Create a custom interface that extends ShiftDto to include the _id property
+interface ShiftWithId extends ShiftDto {
+  _id: string;
+}
 
 const customIcon = new L.Icon({
   iconUrl: markerIcon,
@@ -44,21 +50,6 @@ const customIconLarge = new L.Icon({
   iconAnchor: [17, 45],
   popupAnchor: [1, -34],
 });
-
-// Define the Shift interface based on the API response
-interface Shift {
-  id: string;
-  title: string;
-  employer: string;
-  rate: number;
-  location: string;
-  tags: string[];
-  startTime: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
 
 const userSkills = ["driving"];
 
@@ -81,7 +72,7 @@ function getDistanceFromLatLonInMiles(
   return R * c;
 }
 
-function matchesUserSkills(shift: Shift, skills: string[]) {
+function matchesUserSkills(shift: ShiftDto, skills: string[]) {
   return shift.tags.some((tag) =>
     skills.some((userSkill) => userSkill.toLowerCase() === tag.toLowerCase())
   );
@@ -89,17 +80,17 @@ function matchesUserSkills(shift: Shift, skills: string[]) {
 
 export default function Dashboard() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
-  const [shifts, setShifts] = useState<Shift[]>([]);
-  const [filteredShifts, setFilteredShifts] = useState<Shift[]>([]);
+  const [shifts, setShifts] = useState<ShiftWithId[]>([]);
+  const [filteredShifts, setFilteredShifts] = useState<ShiftWithId[]>([]);
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
   const [hoveredShiftId, setHoveredShiftId] = useState<string | null>(null);
-  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [selectedShift, setSelectedShift] = useState<ShiftWithId | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const openShiftDetails = (shift: Shift) => {
+  const openShiftDetails = (shift: ShiftWithId) => {
     setSelectedShift(shift);
     setShowModal(true);
   };
@@ -117,8 +108,12 @@ export default function Dashboard() {
         // Use BackendAPI's shiftApi instead of directly instantiating ShiftApi
         console.log(`Authenticated is ${BackendAPI.isAuthenticated}`);
         const response = await BackendAPI.shiftApi.getAvailableShifts();
-
-        // The API response should already match our Shift interface
+        console.log("Shift data:", response.data);
+        // Log the first shift to see its structure
+        if (response.data && response.data.length > 0) {
+          console.log("First shift structure:", response.data[0]);
+        }
+        // The API response should match the ShiftDto interface
         setShifts(response.data);
         setError(null);
       } catch (err) {
@@ -144,23 +139,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (userCoords) {
-      const nearbyShifts = shifts.filter((shift) =>
-        shift.coordinates
-          ? getDistanceFromLatLonInMiles(
-              userCoords[0],
-              userCoords[1],
-              shift.coordinates.lat,
-              shift.coordinates.lng
-            ) <= radius
-          : includeRemote && shift.location.toLowerCase() === "remote"
+      const nearbyShifts = shifts.filter(
+        (shift) =>
+          shift.location
+            ? getDistanceFromLatLonInMiles(
+                userCoords[0],
+                userCoords[1],
+                shift.location.latitude,
+                shift.location.longitude
+              ) <= radius
+            : false // We don't have remote jobs in this implementation
       );
       setFilteredShifts(nearbyShifts);
     } else {
-      setFilteredShifts(
-        includeRemote
-          ? shifts.filter((shift) => shift.location.toLowerCase() === "remote")
-          : []
-      );
+      setFilteredShifts([]);
     }
   }, [userCoords, radius, includeRemote, shifts]);
 
@@ -196,24 +188,24 @@ export default function Dashboard() {
 
             {/* Shift markers */}
             {filteredShifts
-              .filter((shift) => shift.coordinates)
+              .filter((shift) => shift.location)
               .map((shift) => (
                 <Marker
-                  key={shift.id}
-                  position={[shift.coordinates!.lat, shift.coordinates!.lng]}
+                  key={shift._id}
+                  position={[shift.location.latitude, shift.location.longitude]}
                   icon={
-                    hoveredShiftId === shift.id ? customIconLarge : customIcon
+                    hoveredShiftId === shift._id ? customIconLarge : customIcon
                   }
                   eventHandlers={{
-                    mouseover: () => setHoveredShiftId(shift.id),
+                    mouseover: () => setHoveredShiftId(shift._id),
                     mouseout: () => setHoveredShiftId(null),
                   }}
                 >
                   <Popup>
-                    <strong>{shift.title}</strong> <br />
-                    {shift.employer} <br />
-                    Pay: ${shift.rate}/hr <br />
-                    {shift.location} <br />
+                    <strong>{shift.name}</strong> <br />
+                    {shift.company} <br />
+                    Pay: ${shift.pay}/hr <br />
+                    {shift.location.latitude}, {shift.location.longitude} <br />
                     Skills: {shift.tags.join(", ")} <br />
                     <button
                       onClick={() => openShiftDetails(shift)}
@@ -253,14 +245,13 @@ export default function Dashboard() {
                             <Card>
                               <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
                                 <span className="text-3xl font-semibold">
-                                  {shift.title}
+                                  {shift.name}
                                 </span>
                                 <span className="text-xl">
-                                  {shift.location}
+                                  {shift.location.latitude},{" "}
+                                  {shift.location.longitude}
                                 </span>
-                                <span className="text-xl">
-                                  ${shift.rate}/hr
-                                </span>
+                                <span className="text-xl">${shift.pay}/hr</span>
                                 <br />
                                 <span className="text-m">
                                   {shift.tags.join(", ")}
@@ -341,18 +332,20 @@ export default function Dashboard() {
                   <TableBody>
                     {filteredShifts.map((shift) => (
                       <TableRow
-                        key={shift.id}
+                        key={shift._id}
                         className={`cursor-pointer transition ${
-                          hoveredShiftId === shift.id ? "bg-gray-100" : ""
+                          hoveredShiftId === shift._id ? "bg-gray-100" : ""
                         }`}
-                        onMouseEnter={() => setHoveredShiftId(shift.id)}
+                        onMouseEnter={() => setHoveredShiftId(shift._id)}
                         onMouseLeave={() => setHoveredShiftId(null)}
                         onClick={() => openShiftDetails(shift)}
                       >
-                        <TableCell>{shift.title}</TableCell>
-                        <TableCell>{shift.employer}</TableCell>
-                        <TableCell>${shift.rate}/hr</TableCell>
-                        <TableCell>{shift.location}</TableCell>
+                        <TableCell>{shift.name}</TableCell>
+                        <TableCell>{shift.company}</TableCell>
+                        <TableCell>${shift.pay}/hr</TableCell>
+                        <TableCell>
+                          {shift.location.latitude}, {shift.location.longitude}
+                        </TableCell>
                         <TableCell>
                           {new Date(shift.startTime).toDateString()}
                         </TableCell>
@@ -368,15 +361,16 @@ export default function Dashboard() {
       {showModal && selectedShift && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-lg shadow-xl">
-            <h2 className="text-2xl font-bold mb-2">{selectedShift.title}</h2>
+            <h2 className="text-2xl font-bold mb-2">{selectedShift.name}</h2>
             <p className="text-gray-700 mb-1">
-              <strong>Company:</strong> {selectedShift.employer}
+              <strong>Company:</strong> {selectedShift.company}
             </p>
             <p className="text-gray-700 mb-1">
-              <strong>Pay:</strong> ${selectedShift.rate}/hr
+              <strong>Pay:</strong> ${selectedShift.pay}/hr
             </p>
             <p className="text-gray-700 mb-1">
-              <strong>Location:</strong> {selectedShift.location}
+              <strong>Location:</strong> {selectedShift.location.latitude},{" "}
+              {selectedShift.location.longitude}
             </p>
             <p className="text-gray-700 mb-3">
               <strong>Required Skills:</strong> {selectedShift.tags.join(", ")}
@@ -393,10 +387,10 @@ export default function Dashboard() {
                 onClick={() => {
                   // Use the BackendAPI's shiftApi to apply for the shift
                   BackendAPI.shiftApi
-                    .applyToShift(selectedShift.id)
+                    .applyToShift(selectedShift._id)
                     .then(() => {
                       alert(
-                        `You have applied for the job: ${selectedShift.title}`
+                        `You have applied for the job: ${selectedShift.name}`
                       );
                       closeModal();
                     })
