@@ -26,6 +26,8 @@ import type { CreateShiftRequest } from '../models';
 // @ts-ignore
 import type { Get200Response } from '../models';
 // @ts-ignore
+import type { GetCompanyOpenShifts200Response } from '../models';
+// @ts-ignore
 import type { GetPendingApplications200Response } from '../models';
 /**
  * ShiftApi - axios parameter creator
@@ -312,6 +314,42 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
 
             if (tags) {
                 localVarQueryParameter['tags'] = tags;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} companyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompanyOpenShifts: async (companyId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'companyId' is not null or undefined
+            assertParamExists('getCompanyOpenShifts', 'companyId', companyId)
+            const localVarPath = `/Shift/CompanyOpenShifts`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
             }
 
 
@@ -616,6 +654,18 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} companyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCompanyOpenShifts(companyId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetCompanyOpenShifts200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCompanyOpenShifts(companyId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.getCompanyOpenShifts']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -760,6 +810,15 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {string} companyId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCompanyOpenShifts(companyId: string, options?: RawAxiosRequestConfig): AxiosPromise<GetCompanyOpenShifts200Response> {
+            return localVarFp.getCompanyOpenShifts(companyId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -885,6 +944,15 @@ export interface ShiftApiInterface {
      * @memberof ShiftApiInterface
      */
     getAvailableShifts(tags?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+
+    /**
+     * 
+     * @param {string} companyId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    getCompanyOpenShifts(companyId: string, options?: RawAxiosRequestConfig): AxiosPromise<GetCompanyOpenShifts200Response>;
 
     /**
      * 
@@ -1028,6 +1096,17 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
      */
     public getAvailableShifts(tags?: Array<string>, options?: RawAxiosRequestConfig) {
         return ShiftApiFp(this.configuration).getAvailableShifts(tags, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} companyId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public getCompanyOpenShifts(companyId: string, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getCompanyOpenShifts(companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -12,6 +12,7 @@ index.ts
 models/company-dto.ts
 models/create-company-request.ts
 models/create-shift-request.ts
+models/get-company-open-shifts200-response.ts
 models/get-pending-applications200-response.ts
 models/get-requesting-user-company200-response.ts
 models/get200-response.ts

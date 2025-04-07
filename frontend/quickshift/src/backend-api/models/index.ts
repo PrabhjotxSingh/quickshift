@@ -2,6 +2,7 @@ export * from './company-dto';
 export * from './create-company-request';
 export * from './create-shift-request';
 export * from './get200-response';
+export * from './get-company-open-shifts200-response';
 export * from './get-pending-applications200-response';
 export * from './get-requesting-user-company200-response';
 export * from './location';
