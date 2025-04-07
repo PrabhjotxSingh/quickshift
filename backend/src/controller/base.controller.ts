@@ -116,12 +116,25 @@ export class BaseController extends Controller {
 			if (!req) {
 				throw new UnauthorizedError("Request context is missing");
 			}
-			const { cookies, signedCookies } = req;
+			const { cookies, signedCookies, headers } = req;
 
 			const accessToken = signedCookies?.[BaseController.ACCESS_TOKEN_COOKIE_HEADER];
 			const refreshToken = cookies?.[BaseController.REFRESH_TOKEN_COOKIE_HEADER];
 
-			const decoded = verify(accessToken, process.env.SECRET!) as any;
+			// Check for Authorization header
+			const authHeader = headers?.authorization;
+			let token = accessToken;
+
+			// If no cookie token, try the Authorization header
+			if (!token && authHeader && authHeader.startsWith("Bearer ")) {
+				token = authHeader.substring(7);
+			}
+
+			if (!token) {
+				throw new UnauthorizedError("Invalid access token");
+			}
+
+			const decoded = verify(token, process.env.SECRET!) as any;
 			if (!decoded) {
 				throw new UnauthorizedError("Invalid access token");
 			}

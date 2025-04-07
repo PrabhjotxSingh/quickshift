@@ -40,16 +40,31 @@ export function Authenticate(role: UserRole) {
 				throw new UnauthorizedError("Request context is missing");
 			}
 
-			const { cookies, signedCookies } = req;
+			const { cookies, signedCookies, headers } = req;
 			const accessToken = signedCookies?.[BaseController.ACCESS_TOKEN_COOKIE_HEADER];
 			const refreshToken = cookies?.[BaseController.REFRESH_TOKEN_COOKIE_HEADER];
 
-			if (!accessToken || !refreshToken) {
+			// Check for Authorization header
+			const authHeader = headers?.authorization;
+			let bearerToken = null;
+			if (authHeader && authHeader.startsWith("Bearer ")) {
+				bearerToken = authHeader.substring(7);
+			}
+
+			// Use either cookie tokens or Authorization header bearer token
+			if ((!accessToken || !refreshToken) && !bearerToken) {
 				throw new UnauthorizedError("Missing authentication tokens");
 			}
 
 			try {
-				const decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
+				let decoded;
+				if (bearerToken) {
+					// If using bearer token, verify it directly
+					decoded = verify(bearerToken, process.env.SECRET!);
+				} else {
+					// Otherwise use the cookie-based tokens
+					decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
+				}
 
 				const user = await controller.getUserFromUsername(decoded.username);
 				if (!user || !user.roles.map((role) => role.toUpperCase()).includes(role.toUpperCase())) {
@@ -78,16 +93,31 @@ export function AuthenticateAny(roles: UserRole[]) {
 				throw new UnauthorizedError("Request context is missing");
 			}
 
-			const { cookies, signedCookies } = req;
+			const { cookies, signedCookies, headers } = req;
 			const accessToken = signedCookies?.[BaseController.ACCESS_TOKEN_COOKIE_HEADER];
 			const refreshToken = cookies?.[BaseController.REFRESH_TOKEN_COOKIE_HEADER];
 
-			if (!accessToken || !refreshToken) {
+			// Check for Authorization header
+			const authHeader = headers?.authorization;
+			let bearerToken = null;
+			if (authHeader && authHeader.startsWith("Bearer ")) {
+				bearerToken = authHeader.substring(7);
+			}
+
+			// Use either cookie tokens or Authorization header bearer token
+			if ((!accessToken || !refreshToken) && !bearerToken) {
 				throw new UnauthorizedError("Missing authentication tokens");
 			}
 
 			try {
-				const decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
+				let decoded;
+				if (bearerToken) {
+					// If using bearer token, verify it directly
+					decoded = verify(bearerToken, process.env.SECRET!);
+				} else {
+					// Otherwise use the cookie-based tokens
+					decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
+				}
 
 				const user = await controller.getUserFromUsername(decoded.username);
 				if (
