@@ -34,6 +34,12 @@ export interface ShiftDto {
      * @type {string}
      * @memberof ShiftDto
      */
+    'companyName': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ShiftDto
+     */
     'name': string;
     /**
      * 

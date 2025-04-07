@@ -37,6 +37,12 @@ export interface Get200Response {
      * @type {string}
      * @memberof Get200Response
      */
+    'companyName': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Get200Response
+     */
     'name': string;
     /**
      * 

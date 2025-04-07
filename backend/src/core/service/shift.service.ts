@@ -36,7 +36,7 @@ export class ShiftService {
 	) {}
 
 	public async createShift(request: CreateShiftRequest): Promise<ShiftDto> {
-		const company = this.companyRepository.get(request.company);
+		const company = await this.companyRepository.get(request.company);
 		if (company == null) {
 			throw new NotFoundError("Company not found");
 		}
@@ -44,7 +44,13 @@ export class ShiftService {
 		const newShift = mapper.map(request, CreateShiftRequest, ShiftModel);
 		newShift.isOpen = true;
 
-		return mapper.map(await this.shiftRepository.create(newShift), ShiftModel, ShiftDto);
+		const createdShift = await this.shiftRepository.create(newShift);
+		const shiftDto = mapper.map(createdShift, ShiftModel, ShiftDto);
+
+		// Populate the company name
+		shiftDto.companyName = company.name;
+
+		return shiftDto;
 	}
 
 	public async getShiftById(id: string): Promise<ShiftDto> {
@@ -53,7 +59,15 @@ export class ShiftService {
 			throw new NotFoundError("Shift not found");
 		}
 
-		return mapper.map(Shift, ShiftModel, ShiftDto);
+		const shiftDto = mapper.map(Shift, ShiftModel, ShiftDto);
+
+		// Populate the company name
+		const company = await this.companyRepository.get(Shift.company);
+		if (company) {
+			shiftDto.companyName = company.name;
+		}
+
+		return shiftDto;
 	}
 
 	public async deleteShift(id: string): Promise<void> {
@@ -67,8 +81,21 @@ export class ShiftService {
 		}
 
 		const updatedShift = mapper.map(request, CreateShiftRequest, ShiftModel);
+		const updatedShiftDoc = await this.shiftRepository.update(Shift.id, updatedShift);
 
-		return mapper.map(await this.shiftRepository.update(Shift.id, updatedShift), ShiftModel, ShiftDto);
+		if (!updatedShiftDoc) {
+			throw new NotFoundError("Failed to update shift");
+		}
+
+		const shiftDto = mapper.map(updatedShiftDoc, ShiftModel, ShiftDto);
+
+		// Populate the company name
+		const company = await this.companyRepository.get(updatedShiftDoc.company);
+		if (company) {
+			shiftDto.companyName = company.name;
+		}
+
+		return shiftDto;
 	}
 
 	public async getUserShift(user: CompanyDocument): Promise<ShiftDto> {
@@ -77,39 +104,74 @@ export class ShiftService {
 			throw new NotFoundError("Shift not found");
 		}
 
-		return mapper.map(Shift, ShiftModel, ShiftDto);
-	}
+		const shiftDto = mapper.map(Shift, ShiftModel, ShiftDto);
 
-	public async getAvailableShifts(tags?: string[]): Promise<ShiftDocument[] | undefined> {
-		let result;
-		if (!tags || tags.length === 0) {
-			result = await this.shiftRepository.getManyByQuery({ isOpen: true });
-		} else {
-			result = await this.shiftRepository.getManyByQuery({
-				isOpen: true,
-				tags: { $in: tags },
-			});
+		// Populate the company name
+		const company = await this.companyRepository.get(Shift.company);
+		if (company) {
+			shiftDto.companyName = company.name;
 		}
 
-		return result;
+		return shiftDto;
+	}
+
+	public async getAvailableShifts(tags?: string[]): Promise<ShiftDto[]> {
+		let query: FilterQuery<ShiftDocument> = { isOpen: true };
+
+		if (tags && tags.length > 0) {
+			query.tags = { $in: tags };
+		}
+
+		const shifts = await this.shiftRepository.getManyByQuery(query);
+
+		// Map to DTOs and populate company names
+		const shiftDtos: ShiftDto[] = [];
+
+		for (const shift of shifts) {
+			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+
+			// Populate the company name
+			const company = await this.companyRepository.get(shift.company);
+			if (company) {
+				shiftDto.companyName = company.name;
+			}
+
+			shiftDtos.push(shiftDto);
+		}
+
+		return shiftDtos;
 	}
 
 	// Gets users shifts.
 	// onlyUpcoming:
 	//				true -> return only upcoming shifts
 	//			 	false -> return all shifts
-	public async getUsersShifts(userId: string, onlyUpcoming: boolean = false) {
-		let query: FilterQuery<ShiftDocument>;
+	public async getUsersShifts(userId: string, onlyUpcoming: boolean = false): Promise<ShiftDto[]> {
+		let query: FilterQuery<ShiftDocument> = { userHired: new Types.ObjectId(userId) };
+
 		if (onlyUpcoming) {
-			const currentTime = new Date();
-			query = {
-				userHired: userId,
-				startTime: { $gt: currentTime },
-			};
-		} else {
-			query = { userHired: userId };
+			const now = new Date();
+			query.startTime = { $gt: now };
 		}
-		return this.shiftRepository.getByQuery(query);
+
+		const shifts = await this.shiftRepository.getManyByQuery(query);
+
+		// Map to DTOs and populate company names
+		const shiftDtos: ShiftDto[] = [];
+
+		for (const shift of shifts) {
+			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+
+			// Populate the company name
+			const company = await this.companyRepository.get(shift.company);
+			if (company) {
+				shiftDto.companyName = company.name;
+			}
+
+			shiftDtos.push(shiftDto);
+		}
+
+		return shiftDtos;
 	}
 
 	public async getShiftApplications(shiftId: string): Promise<ShiftApplicantDocument[]> {
@@ -163,7 +225,20 @@ export class ShiftService {
 		shift.userHired = new mongoose.Types.ObjectId(userId);
 		shift.isOpen = false;
 
-		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);
+		const updatedShift = await this.shiftRepository.update(shiftId, shift);
+		if (!updatedShift) {
+			throw new NotFoundError("Failed to update shift");
+		}
+
+		const shiftDto = mapper.map(updatedShift, ShiftModel, ShiftDto);
+
+		// Populate the company name
+		const company = await this.companyRepository.get(updatedShift.company);
+		if (company) {
+			shiftDto.companyName = company.name;
+		}
+
+		return shiftDto;
 	}
 
 	public async completeShiftWithRating(shiftId: string, rating: number): Promise<ShiftDto> {
@@ -183,7 +258,20 @@ export class ShiftService {
 		shift.isComplete = true;
 		shift.rating = rating;
 
-		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);
+		const updatedShift = await this.shiftRepository.update(shiftId, shift);
+		if (!updatedShift) {
+			throw new NotFoundError("Failed to update shift");
+		}
+
+		const shiftDto = mapper.map(updatedShift, ShiftModel, ShiftDto);
+
+		// Populate the company name
+		const company = await this.companyRepository.get(updatedShift.company);
+		if (company) {
+			shiftDto.companyName = company.name;
+		}
+
+		return shiftDto;
 	}
 
 	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDocument[]> {

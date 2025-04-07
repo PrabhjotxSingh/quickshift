@@ -203,7 +203,7 @@ export default function Dashboard() {
                 >
                   <Popup>
                     <strong>{shift.name}</strong> <br />
-                    {shift.company} <br />
+                    {shift.companyName} <br />
                     Pay: ${shift.pay}/hr <br />
                     {shift.location.latitude}, {shift.location.longitude} <br />
                     Skills: {shift.tags.join(", ")} <br />
@@ -341,7 +341,7 @@ export default function Dashboard() {
                         onClick={() => openShiftDetails(shift)}
                       >
                         <TableCell>{shift.name}</TableCell>
-                        <TableCell>{shift.company}</TableCell>
+                        <TableCell>{shift.companyName}</TableCell>
                         <TableCell>${shift.pay}/hr</TableCell>
                         <TableCell>
                           {shift.location.latitude}, {shift.location.longitude}
@@ -363,7 +363,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-lg shadow-xl">
             <h2 className="text-2xl font-bold mb-2">{selectedShift.name}</h2>
             <p className="text-gray-700 mb-1">
-              <strong>Company:</strong> {selectedShift.company}
+              <strong>Company:</strong> {selectedShift.companyName}
             </p>
             <p className="text-gray-700 mb-1">
               <strong>Pay:</strong> ${selectedShift.pay}/hr

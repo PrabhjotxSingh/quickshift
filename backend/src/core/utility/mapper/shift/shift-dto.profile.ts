@@ -2,6 +2,7 @@ import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core"
 import mongoose, { Types } from "mongoose";
 import { ShiftDto } from "../../../dto/models/shift.dto";
 import { ShiftModel } from "../../../model/shift.model";
+import { CompanyModel } from "../../../model/company.model";
 
 export const shiftDtoProfile: MappingProfile = (mapper) => {
 	// Map from ShiftModel to ShiftDto
@@ -12,6 +13,14 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company.toString()),
+		),
+		forMember(
+			(dest) => dest.companyName,
+			mapFrom((src) => {
+				// We'll set this to an empty string initially
+				// The actual company name will be populated in the service layer
+				return "";
+			}),
 		),
 		forMember(
 			(dest) => dest.name,
