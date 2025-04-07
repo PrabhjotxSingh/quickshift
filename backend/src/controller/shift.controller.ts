@@ -140,6 +140,29 @@ export class ShiftController extends BaseController {
 		}
 	}
 
+	@Get("PendingApplications")
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
+	public async getPendingApplications() {
+		try {
+			const user = await this.getUser();
+			return await this.shiftService.getPendingApplications(user);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Get("Earnings")
+	@Authenticate(UserRole.WORKER)
+	public async getUserEarnings() {
+		try {
+			const user = await this.getUser();
+			const totalEarnings = await this.shiftService.getUserTotalEarnings(user.id);
+			return { totalEarnings };
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
 	@Post("Apply")
 	@Authenticate(UserRole.WORKER)
 	public async applyToShift(@Query() shiftId: string) {

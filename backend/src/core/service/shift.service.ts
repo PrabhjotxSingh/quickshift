@@ -185,4 +185,67 @@ export class ShiftService {
 
 		return mapper.map(await this.shiftRepository.update(shiftId, shift), ShiftModel, ShiftDto);
 	}
+
+	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDocument[]> {
+		// Get all open shifts
+		const openShifts = await this.shiftRepository.getManyByQuery({ isOpen: true });
+		if (!openShifts || openShifts.length === 0) {
+			return [];
+		}
+
+		// Get all applications for these open shifts
+		const shiftIds = openShifts.map((shift) => shift._id);
+		const applications = await this.shiftApplicantRepository.getManyByQuery({
+			shiftId: { $in: shiftIds },
+		});
+
+		// Filter applications to only those for companies the user has access to
+		const filteredApplications = [];
+		for (const application of applications) {
+			try {
+				const company = await this.companyRepository.get(application.company);
+				if (!company) {
+					continue;
+				}
+
+				const isAdmin = user.roles.includes(UserRole.ADMIN);
+				if (isAdmin) {
+					filteredApplications.push(application);
+					continue;
+				}
+
+				const isOwner = company.owner.toString() === user.id;
+				const isCompanyAdmin = company.companyAdmins.some((adminId) => adminId.toString() === user.id);
+				const isEmployer = user.roles.includes(UserRole.EMPLOYER);
+
+				if (isOwner || isCompanyAdmin || isEmployer) {
+					filteredApplications.push(application);
+				}
+			} catch (error) {
+				// Skip applications for companies the user doesn't have access to
+				continue;
+			}
+		}
+
+		return filteredApplications;
+	}
+
+	public async getUserTotalEarnings(userId: string): Promise<number> {
+		// Get all completed shifts where the user was hired
+		const completedShifts = await this.shiftRepository.getManyByQuery({
+			userHired: userId,
+			isComplete: true,
+		});
+
+		if (!completedShifts || completedShifts.length === 0) {
+			return 0;
+		}
+
+		// Calculate total earnings
+		const totalEarnings = completedShifts.reduce((total, shift) => {
+			return total + shift.pay;
+		}, 0);
+
+		return totalEarnings;
+	}
 }

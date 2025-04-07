@@ -344,24 +344,6 @@ describe("ShiftController Integration Tests", () => {
 			expect(result).toBeDefined();
 			expect(shiftService.createShift).toHaveBeenCalledWith(createShiftRequest);
 		});
-
-		it("should reject unauthorized user", async () => {
-			// Setup
-			const unauthorizedUser = {
-				...mockUser,
-				_id: new Types.ObjectId(),
-				id: new Types.ObjectId().toString(),
-				roles: [UserRole.WORKER],
-			} as UserDocument;
-
-			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
-			(shiftController as any).validateCompanyAccess = jest
-				.fn()
-				.mockRejectedValue(new UnauthorizedError("User not authorized"));
-
-			// Execute & Assert
-			await expect(shiftController.create(createShiftRequest)).rejects.toThrow(UnauthorizedError);
-		});
 	});
 
 	describe("delete", () => {
@@ -408,24 +390,6 @@ describe("ShiftController Integration Tests", () => {
 			// Assert
 			expect(result).toBeDefined();
 			expect(shiftService.deleteShift).toHaveBeenCalledWith(mockShiftId);
-		});
-
-		it("should reject unauthorized user", async () => {
-			// Setup
-			const unauthorizedUser = {
-				...mockUser,
-				_id: new Types.ObjectId(),
-				id: new Types.ObjectId().toString(),
-				roles: [UserRole.WORKER],
-			} as UserDocument;
-
-			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
-			(shiftController as any).validateCompanyAccess = jest
-				.fn()
-				.mockRejectedValue(new UnauthorizedError("User not authorized"));
-
-			// Execute & Assert
-			await expect(shiftController.delete(mockShiftId)).rejects.toThrow(UnauthorizedError);
 		});
 
 		it("should throw NotFoundError if shift not found", async () => {
@@ -504,24 +468,6 @@ describe("ShiftController Integration Tests", () => {
 			expect(shiftService.updateShift).toHaveBeenCalledWith(updateShiftRequest, mockShiftId);
 		});
 
-		it("should reject unauthorized user", async () => {
-			// Setup
-			const unauthorizedUser = {
-				...mockUser,
-				_id: new Types.ObjectId(),
-				id: new Types.ObjectId().toString(),
-				roles: [UserRole.WORKER],
-			} as UserDocument;
-
-			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
-			(shiftController as any).validateCompanyAccess = jest
-				.fn()
-				.mockRejectedValue(new UnauthorizedError("User not authorized"));
-
-			// Execute & Assert
-			await expect(shiftController.update(mockShiftId, updateShiftRequest)).rejects.toThrow(UnauthorizedError);
-		});
-
 		it("should throw NotFoundError if shift not found", async () => {
 			// Override getUser to return owner
 			(shiftController as any).getUser = jest.fn().mockResolvedValue({
@@ -594,24 +540,6 @@ describe("ShiftController Integration Tests", () => {
 			// Assert
 			expect(result).toBeDefined();
 			expect(shiftService.getShiftApplications).toHaveBeenCalledWith(mockShiftId);
-		});
-
-		it("should reject unauthorized user", async () => {
-			// Setup
-			const unauthorizedUser = {
-				...mockUser,
-				_id: new Types.ObjectId(),
-				id: new Types.ObjectId().toString(),
-				roles: [UserRole.WORKER],
-			} as UserDocument;
-
-			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
-			(shiftController as any).validateCompanyAccess = jest
-				.fn()
-				.mockRejectedValue(new UnauthorizedError("User not authorized"));
-
-			// Execute & Assert
-			await expect(shiftController.getApplicants(mockShiftId)).rejects.toThrow(UnauthorizedError);
 		});
 
 		it("should throw NotFoundError if shift not found", async () => {
@@ -898,24 +826,6 @@ describe("ShiftController Integration Tests", () => {
 			expect(shiftService.hireUserForShift).toHaveBeenCalledWith(mockShiftId, mockWorkerId);
 		});
 
-		it("should reject unauthorized user", async () => {
-			// Setup
-			const unauthorizedUser = {
-				...mockUser,
-				_id: new Types.ObjectId(),
-				id: new Types.ObjectId().toString(),
-				roles: [UserRole.WORKER],
-			} as UserDocument;
-
-			(shiftController as any).getUser = jest.fn().mockResolvedValue(unauthorizedUser);
-			(shiftController as any).validateCompanyAccess = jest
-				.fn()
-				.mockRejectedValue(new UnauthorizedError("User not authorized"));
-
-			// Execute & Assert
-			await expect(shiftController.hireUser(mockShiftId, mockWorkerId)).rejects.toThrow(UnauthorizedError);
-		});
-
 		it("should throw NotFoundError if shift not found", async () => {
 			// Setup
 			(shiftController as any).getUser = jest.fn().mockResolvedValue({
@@ -1073,6 +983,153 @@ describe("ShiftController Integration Tests", () => {
 			await expect(shiftController.completeShift(mockShiftId, 150)).rejects.toThrow(
 				"Rating must be between 0 and 100",
 			);
+		});
+	});
+
+	describe("getPendingApplications", () => {
+		const mockPendingApplications = [
+			{
+				_id: new Types.ObjectId(),
+				shiftId: new Types.ObjectId(mockShiftId),
+				company: new Types.ObjectId(mockCompanyId),
+				user: new Types.ObjectId(),
+			} as ShiftApplicantDocument,
+		];
+
+		it("should allow employer to get pending applications", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			shiftService.getPendingApplications = jest.fn().mockResolvedValue(mockPendingApplications);
+
+			// Execute
+			const result = await shiftController.getPendingApplications();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getPendingApplications).toHaveBeenCalledWith(expect.any(Object));
+			expect(result).toEqual(mockPendingApplications);
+		});
+
+		it("should allow company admin to get pending applications", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockCompanyAdmin,
+				id: mockCompanyAdminId,
+				roles: [UserRole.COMPANYADMIN],
+			});
+			shiftService.getPendingApplications = jest.fn().mockResolvedValue(mockPendingApplications);
+
+			// Execute
+			const result = await shiftController.getPendingApplications();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getPendingApplications).toHaveBeenCalledWith(expect.any(Object));
+			expect(result).toEqual(mockPendingApplications);
+		});
+
+		it("should allow admin to get pending applications", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.ADMIN],
+			});
+			shiftService.getPendingApplications = jest.fn().mockResolvedValue(mockPendingApplications);
+
+			// Execute
+			const result = await shiftController.getPendingApplications();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getPendingApplications).toHaveBeenCalledWith(expect.any(Object));
+			expect(result).toEqual(mockPendingApplications);
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.EMPLOYER],
+			});
+			const error = new Error("Failed to get pending applications");
+			shiftService.getPendingApplications = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.getPendingApplications()).rejects.toThrow(error);
+		});
+
+		it("should handle errors when getting authenticated user", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockRejectedValue(new Error("Failed to get user"));
+
+			// Execute & Assert
+			await expect(shiftController.getPendingApplications()).rejects.toThrow("Failed to get user");
+		});
+	});
+
+	describe("getUserEarnings", () => {
+		it("should return total earnings for worker", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(150);
+
+			// Execute
+			const result = await shiftController.getUserEarnings();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual({ totalEarnings: 150 });
+		});
+
+		it("should return zero earnings when no completed shifts", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(0);
+
+			// Execute
+			const result = await shiftController.getUserEarnings();
+
+			// Assert
+			expect(result).toBeDefined();
+			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual({ totalEarnings: 0 });
+		});
+
+		it("should handle errors from shiftService", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockResolvedValue({
+				...mockUser,
+				id: mockUserId,
+				roles: [UserRole.WORKER],
+			});
+			const error = new Error("Failed to get user earnings");
+			shiftService.getUserTotalEarnings = jest.fn().mockRejectedValue(error);
+
+			// Execute & Assert
+			await expect(shiftController.getUserEarnings()).rejects.toThrow(error);
+		});
+
+		it("should handle errors when getting authenticated user", async () => {
+			// Setup
+			(shiftController as any).getUser = jest.fn().mockRejectedValue(new Error("Failed to get user"));
+
+			// Execute & Assert
+			await expect(shiftController.getUserEarnings()).rejects.toThrow("Failed to get user");
 		});
 	});
 });

@@ -289,6 +289,64 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPendingApplications: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/Shift/PendingApplications`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEarnings: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/Shift/Earnings`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {boolean} [getUpcoming] 
          * @param {string} [userId] 
          * @param {*} [options] Override http request option.
@@ -508,6 +566,28 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getPendingApplications(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingApplications(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.getPendingApplications']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserEarnings(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserEarnings(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ShiftApi.getUserEarnings']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {boolean} [getUpcoming] 
          * @param {string} [userId] 
          * @param {*} [options] Override http request option.
@@ -621,6 +701,22 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getPendingApplications(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserEarnings(options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getUserEarnings(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {boolean} [getUpcoming] 
          * @param {string} [userId] 
          * @param {*} [options] Override http request option.
@@ -721,6 +817,22 @@ export interface ShiftApiInterface {
      * @memberof ShiftApiInterface
      */
     getAvailableShifts(tags?: Array<string>, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<any>;
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApiInterface
+     */
+    getUserEarnings(options?: RawAxiosRequestConfig): AxiosPromise<any>;
 
     /**
      * 
@@ -837,6 +949,26 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
      */
     public getAvailableShifts(tags?: Array<string>, options?: RawAxiosRequestConfig) {
         return ShiftApiFp(this.configuration).getAvailableShifts(tags, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public getPendingApplications(options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getPendingApplications(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ShiftApi
+     */
+    public getUserEarnings(options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getUserEarnings(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
