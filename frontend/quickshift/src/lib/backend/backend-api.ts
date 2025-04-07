@@ -7,10 +7,9 @@ import {
   RefreshRequest,
 } from "../../backend-api";
 
-const API_BASE_URL =
-  process.env.PROD === "1"
-    ? "https://11976zm8eb.execute-api.us-east-2.amazonaws.com/dev/"
-    : "http://localhost:3000";
+const API_BASE_URL = process.env.PROD
+  ? "https://11976zm8eb.execute-api.us-east-2.amazonaws.com/dev/"
+  : "http://localhost:3000";
 export const ACCESS_TOKEN_KEY = "quickshift_access_token";
 export const REFRESH_TOKEN_KEY = "quickshift_refresh_token";
 
