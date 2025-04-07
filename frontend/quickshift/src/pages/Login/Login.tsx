@@ -61,35 +61,7 @@ export default function Login() {
         console.log("Login successful, navigating to dashboard");
         // Force a longer delay to ensure cookies are set
         setTimeout(() => {
-          // Verify cookies are set before navigating
-          const hasAccessTokenCookie =
-            !!BackendAPI.getCookie(ACCESS_TOKEN_COOKIE);
-          const hasRefreshTokenCookie =
-            !!BackendAPI.getCookie(REFRESH_TOKEN_COOKIE);
-          console.log(
-            "Before navigation - Access Token Cookie:",
-            hasAccessTokenCookie,
-            "Refresh Token Cookie:",
-            hasRefreshTokenCookie
-          );
-
-          if (hasAccessTokenCookie && hasRefreshTokenCookie) {
-            navigate("/dashboard", { replace: true });
-          } else {
-            console.error(
-              "Cookies not set after login, cannot navigate to dashboard"
-            );
-            // Show error message
-            Swal.fire({
-              icon: "error",
-              title: "Authentication Error",
-              text: "Unable to set authentication cookies. Please try again.",
-              confirmButtonText: "OK",
-              customClass: {
-                confirmButton: "swal2-black-button",
-              },
-            });
-          }
+          navigate("/dashboard", { replace: true });
         }, 500); // Increased delay to 500ms
       }
     } catch (error) {
