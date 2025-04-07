@@ -29,6 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { ShiftApi } from "@/backend-api/api/shift-api";
 
 const customIcon = new L.Icon({
   iconUrl: markerIcon,
@@ -44,7 +45,7 @@ const customIconLarge = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-type Jobs = {
+type Job = {
   id: string;
   name: string;
   company: string;
@@ -57,77 +58,8 @@ type Jobs = {
 
 const userSkills = ["driving"];
 
-const jobs: Jobs[] = [
-  {
-    id: "1",
-    name: "Dishwasher",
-    company: "Downtown Diner",
-    pay: 15,
-    location: "14 E 47th St, New York, NY 10017",
-    skills: ["Cleaning", "Teamwork", "Time Management"],
-    date: new Date("2025-03-01"),
-    coords: [40.755, -73.981],
-  },
-  {
-    id: "2",
-    name: "Warehouse Worker",
-    company: "LogiCorp",
-    pay: 18,
-    location: "1100 Fillmore St, San Francisco, CA 94102",
-    skills: ["Lifting", "Packing", "Inventory Management"],
-    date: new Date("2025-02-20"),
-    coords: [37.779, -122.426],
-  },
-  {
-    id: "3",
-    name: "Cashier",
-    company: "SuperMart",
-    pay: 14,
-    location: "Remote",
-    skills: ["Customer Service", "POS System", "Math Skills"],
-    date: new Date("2025-03-15"),
-  },
-  {
-    id: "4",
-    name: "Janitor",
-    company: "SecureNet",
-    pay: 16,
-    location: "1235 New York Ave NW, Washington, DC 20005",
-    skills: ["Cleaning", "Maintenance", "Organization"],
-    date: new Date("2025-03-10"),
-    coords: [38.9, -77.028],
-  },
-  {
-    id: "5",
-    name: "Delivery Driver",
-    company: "FastTrack Deliveries",
-    pay: 20,
-    location: "2810 S Figueroa St, Los Angeles, CA 90007",
-    skills: ["Driving", "Navigation", "Customer Service"],
-    date: new Date("2025-02-28"),
-    coords: [34.022, -118.282],
-  },
-  {
-    id: "6",
-    name: "Hotel Room Cleaner",
-    company: "Holiday Inn",
-    pay: 20,
-    location: "123 Ohio rd",
-    skills: ["Driving", "Navigation", "Customer Service"],
-    date: new Date("2025-02-28"),
-    coords: [39.103119, -84.512016],
-  },
-  {
-    id: "7",
-    name: "Dishwasher",
-    company: "Downtown Diner",
-    pay: 20,
-    location: "1234 Ohio rd",
-    skills: ["Driving", "Navigation", "Customer Service"],
-    date: new Date("2025-02-28"),
-    coords: [39.1753, -84.2944],
-  },
-];
+// Initialize the ShiftApi
+const shiftApi = new ShiftApi();
 
 function getDistanceFromLatLonInMiles(
   lat1: number,
@@ -148,7 +80,7 @@ function getDistanceFromLatLonInMiles(
   return R * c;
 }
 
-function matchesUserSkills(job: Jobs, skills: string[]) {
+function matchesUserSkills(job: Job, skills: string[]) {
   return job.skills.some((skill) =>
     skills.some((userSkill) => userSkill.toLowerCase() === skill.toLowerCase())
   );
@@ -156,14 +88,17 @@ function matchesUserSkills(job: Jobs, skills: string[]) {
 
 export default function Dashboard() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
-  const [filteredJobs, setFilteredJobs] = useState<Jobs[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
-  const [selectedJob, setSelectedJob] = useState<Jobs | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const openJobDetails = (job: Jobs) => {
+  const openJobDetails = (job: Job) => {
     setSelectedJob(job);
     setShowModal(true);
   };
@@ -172,6 +107,45 @@ export default function Dashboard() {
     setSelectedJob(null);
     setShowModal(false);
   };
+
+  // Fetch available shifts from the API
+  useEffect(() => {
+    const fetchAvailableShifts = async () => {
+      try {
+        setLoading(true);
+        const response = await shiftApi.getAvailableShifts();
+
+        // Transform API response to match our Job type
+        // This transformation will depend on the actual structure of the API response
+        const transformedJobs: Job[] = response.data.map((shift: any) => ({
+          id: shift.id,
+          name: shift.title || shift.name,
+          company: shift.company || shift.employer,
+          pay: shift.pay || shift.rate,
+          location: shift.location,
+          skills: shift.skills || shift.tags || [],
+          date: new Date(shift.date || shift.startTime),
+          coords:
+            shift.coordinates || shift.location
+              ? [
+                  parseFloat(shift.coordinates.lat || shift.location.lat),
+                  parseFloat(shift.coordinates.lng || shift.location.lng),
+                ]
+              : undefined,
+        }));
+
+        setJobs(transformedJobs);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching available shifts:", err);
+        setError("Failed to load available shifts. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailableShifts();
+  }, []);
 
   useEffect(() => {
     // Get user location
@@ -203,7 +177,7 @@ export default function Dashboard() {
           : []
       );
     }
-  }, [userCoords, radius, includeRemote]);
+  }, [userCoords, radius, includeRemote, jobs]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -275,8 +249,13 @@ export default function Dashboard() {
               </h1>
               <p>These jobs are found based on your location and skills.</p>
               <br />
-              {filteredJobs.filter((job) => matchesUserSkills(job, userSkills))
-                .length > 0 ? (
+              {loading ? (
+                <p className="text-gray-600">Loading available shifts...</p>
+              ) : error ? (
+                <p className="text-red-600">{error}</p>
+              ) : filteredJobs.filter((job) =>
+                  matchesUserSkills(job, userSkills)
+                ).length > 0 ? (
                 <Carousel className="w-full max-w-xs">
                   <CarouselContent>
                     {filteredJobs
@@ -353,36 +332,42 @@ export default function Dashboard() {
                   All Available Jobs
                 </h1>
               </center>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Pay</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredJobs.map((job) => (
-                    <TableRow
-                      key={job.id}
-                      className={`cursor-pointer transition ${
-                        hoveredJobId === job.id ? "bg-gray-100" : ""
-                      }`}
-                      onMouseEnter={() => setHoveredJobId(job.id)}
-                      onMouseLeave={() => setHoveredJobId(null)}
-                      onClick={() => openJobDetails(job)}
-                    >
-                      <TableCell>{job.name}</TableCell>
-                      <TableCell>{job.company}</TableCell>
-                      <TableCell>${job.pay}/hr</TableCell>
-                      <TableCell>{job.location}</TableCell>
-                      <TableCell>{job.date.toDateString()}</TableCell>
+              {loading ? (
+                <p className="text-center py-4">Loading available shifts...</p>
+              ) : error ? (
+                <p className="text-center py-4 text-red-600">{error}</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Pay</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Date</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredJobs.map((job) => (
+                      <TableRow
+                        key={job.id}
+                        className={`cursor-pointer transition ${
+                          hoveredJobId === job.id ? "bg-gray-100" : ""
+                        }`}
+                        onMouseEnter={() => setHoveredJobId(job.id)}
+                        onMouseLeave={() => setHoveredJobId(null)}
+                        onClick={() => openJobDetails(job)}
+                      >
+                        <TableCell>{job.name}</TableCell>
+                        <TableCell>{job.company}</TableCell>
+                        <TableCell>${job.pay}/hr</TableCell>
+                        <TableCell>{job.location}</TableCell>
+                        <TableCell>{job.date.toDateString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </div>
         </div>
@@ -413,8 +398,19 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => {
-                  alert(`You have applied the job: ${selectedJob.name}`);
-                  closeModal();
+                  // Use the ShiftApi to apply for the job
+                  shiftApi
+                    .applyToShift(selectedJob.id)
+                    .then(() => {
+                      alert(
+                        `You have applied for the job: ${selectedJob.name}`
+                      );
+                      closeModal();
+                    })
+                    .catch((err) => {
+                      console.error("Error applying for job:", err);
+                      alert("Failed to apply for the job. Please try again.");
+                    });
                 }}
                 className="px-4 py-2 rounded bg-black text-white hover:bg-gray-700"
               >
