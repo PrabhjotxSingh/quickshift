@@ -29,7 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { ShiftApi } from "@/backend-api/api/shift-api";
+import { BackendAPI } from "@/lib/backend/backend-api";
 
 const customIcon = new L.Icon({
   iconUrl: markerIcon,
@@ -45,21 +45,22 @@ const customIconLarge = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-type Job = {
+// Define the Shift interface based on the API response
+interface Shift {
   id: string;
-  name: string;
-  company: string;
-  pay: number;
+  title: string;
+  employer: string;
+  rate: number;
   location: string;
-  skills: string[];
-  date: Date;
-  coords?: [number, number];
-};
+  tags: string[];
+  startTime: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
 
 const userSkills = ["driving"];
-
-// Initialize the ShiftApi
-const shiftApi = new ShiftApi();
 
 function getDistanceFromLatLonInMiles(
   lat1: number,
@@ -80,31 +81,31 @@ function getDistanceFromLatLonInMiles(
   return R * c;
 }
 
-function matchesUserSkills(job: Job, skills: string[]) {
-  return job.skills.some((skill) =>
-    skills.some((userSkill) => userSkill.toLowerCase() === skill.toLowerCase())
+function matchesUserSkills(shift: Shift, skills: string[]) {
+  return shift.tags.some((tag) =>
+    skills.some((userSkill) => userSkill.toLowerCase() === tag.toLowerCase())
   );
 }
 
 export default function Dashboard() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [filteredShifts, setFilteredShifts] = useState<Shift[]>([]);
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
-  const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [hoveredShiftId, setHoveredShiftId] = useState<string | null>(null);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const openJobDetails = (job: Job) => {
-    setSelectedJob(job);
+  const openShiftDetails = (shift: Shift) => {
+    setSelectedShift(shift);
     setShowModal(true);
   };
 
   const closeModal = () => {
-    setSelectedJob(null);
+    setSelectedShift(null);
     setShowModal(false);
   };
 
@@ -113,28 +114,12 @@ export default function Dashboard() {
     const fetchAvailableShifts = async () => {
       try {
         setLoading(true);
-        const response = await shiftApi.getAvailableShifts();
+        // Use BackendAPI's shiftApi instead of directly instantiating ShiftApi
+        console.log(`Authenticated is ${BackendAPI.isAuthenticated}`);
+        const response = await BackendAPI.shiftApi.getAvailableShifts();
 
-        // Transform API response to match our Job type
-        // This transformation will depend on the actual structure of the API response
-        const transformedJobs: Job[] = response.data.map((shift: any) => ({
-          id: shift.id,
-          name: shift.title || shift.name,
-          company: shift.company || shift.employer,
-          pay: shift.pay || shift.rate,
-          location: shift.location,
-          skills: shift.skills || shift.tags || [],
-          date: new Date(shift.date || shift.startTime),
-          coords:
-            shift.coordinates || shift.location
-              ? [
-                  parseFloat(shift.coordinates.lat || shift.location.lat),
-                  parseFloat(shift.coordinates.lng || shift.location.lng),
-                ]
-              : undefined,
-        }));
-
-        setJobs(transformedJobs);
+        // The API response should already match our Shift interface
+        setShifts(response.data);
         setError(null);
       } catch (err) {
         console.error("Error fetching available shifts:", err);
@@ -159,25 +144,25 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (userCoords) {
-      const nearbyJobs = jobs.filter((job) =>
-        job.coords
+      const nearbyShifts = shifts.filter((shift) =>
+        shift.coordinates
           ? getDistanceFromLatLonInMiles(
               userCoords[0],
               userCoords[1],
-              job.coords[0],
-              job.coords[1]
+              shift.coordinates.lat,
+              shift.coordinates.lng
             ) <= radius
-          : includeRemote && job.location.toLowerCase() === "remote"
+          : includeRemote && shift.location.toLowerCase() === "remote"
       );
-      setFilteredJobs(nearbyJobs);
+      setFilteredShifts(nearbyShifts);
     } else {
-      setFilteredJobs(
+      setFilteredShifts(
         includeRemote
-          ? jobs.filter((job) => job.location.toLowerCase() === "remote")
+          ? shifts.filter((shift) => shift.location.toLowerCase() === "remote")
           : []
       );
     }
-  }, [userCoords, radius, includeRemote, jobs]);
+  }, [userCoords, radius, includeRemote, shifts]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -209,27 +194,29 @@ export default function Dashboard() {
               />
             )}
 
-            {/* Job markers */}
-            {filteredJobs
-              .filter((job) => job.coords)
-              .map((job) => (
+            {/* Shift markers */}
+            {filteredShifts
+              .filter((shift) => shift.coordinates)
+              .map((shift) => (
                 <Marker
-                  key={job.id}
-                  position={job.coords!}
-                  icon={hoveredJobId === job.id ? customIconLarge : customIcon}
+                  key={shift.id}
+                  position={[shift.coordinates!.lat, shift.coordinates!.lng]}
+                  icon={
+                    hoveredShiftId === shift.id ? customIconLarge : customIcon
+                  }
                   eventHandlers={{
-                    mouseover: () => setHoveredJobId(job.id),
-                    mouseout: () => setHoveredJobId(null),
+                    mouseover: () => setHoveredShiftId(shift.id),
+                    mouseout: () => setHoveredShiftId(null),
                   }}
                 >
                   <Popup>
-                    <strong>{job.name}</strong> <br />
-                    {job.company} <br />
-                    Pay: ${job.pay}/hr <br />
-                    {job.location} <br />
-                    Skills: {job.skills.join(", ")} <br />
+                    <strong>{shift.title}</strong> <br />
+                    {shift.employer} <br />
+                    Pay: ${shift.rate}/hr <br />
+                    {shift.location} <br />
+                    Skills: {shift.tags.join(", ")} <br />
                     <button
-                      onClick={() => openJobDetails(job)}
+                      onClick={() => openShiftDetails(shift)}
                       className="mt-2 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800"
                     >
                       View
@@ -253,26 +240,30 @@ export default function Dashboard() {
                 <p className="text-gray-600">Loading available shifts...</p>
               ) : error ? (
                 <p className="text-red-600">{error}</p>
-              ) : filteredJobs.filter((job) =>
-                  matchesUserSkills(job, userSkills)
+              ) : filteredShifts.filter((shift) =>
+                  matchesUserSkills(shift, userSkills)
                 ).length > 0 ? (
                 <Carousel className="w-full max-w-xs">
                   <CarouselContent>
-                    {filteredJobs
-                      .filter((job) => matchesUserSkills(job, userSkills))
-                      .map((job, index) => (
+                    {filteredShifts
+                      .filter((shift) => matchesUserSkills(shift, userSkills))
+                      .map((shift, index) => (
                         <CarouselItem key={index}>
                           <div className="p-1">
                             <Card>
                               <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
                                 <span className="text-3xl font-semibold">
-                                  {job.name}
+                                  {shift.title}
                                 </span>
-                                <span className="text-xl">{job.location}</span>
-                                <span className="text-xl">${job.pay}/hr</span>
+                                <span className="text-xl">
+                                  {shift.location}
+                                </span>
+                                <span className="text-xl">
+                                  ${shift.rate}/hr
+                                </span>
                                 <br />
                                 <span className="text-m">
-                                  {job.skills.join(", ")}
+                                  {shift.tags.join(", ")}
                                 </span>
                               </CardContent>
                             </Card>
@@ -348,21 +339,23 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredJobs.map((job) => (
+                    {filteredShifts.map((shift) => (
                       <TableRow
-                        key={job.id}
+                        key={shift.id}
                         className={`cursor-pointer transition ${
-                          hoveredJobId === job.id ? "bg-gray-100" : ""
+                          hoveredShiftId === shift.id ? "bg-gray-100" : ""
                         }`}
-                        onMouseEnter={() => setHoveredJobId(job.id)}
-                        onMouseLeave={() => setHoveredJobId(null)}
-                        onClick={() => openJobDetails(job)}
+                        onMouseEnter={() => setHoveredShiftId(shift.id)}
+                        onMouseLeave={() => setHoveredShiftId(null)}
+                        onClick={() => openShiftDetails(shift)}
                       >
-                        <TableCell>{job.name}</TableCell>
-                        <TableCell>{job.company}</TableCell>
-                        <TableCell>${job.pay}/hr</TableCell>
-                        <TableCell>{job.location}</TableCell>
-                        <TableCell>{job.date.toDateString()}</TableCell>
+                        <TableCell>{shift.title}</TableCell>
+                        <TableCell>{shift.employer}</TableCell>
+                        <TableCell>${shift.rate}/hr</TableCell>
+                        <TableCell>{shift.location}</TableCell>
+                        <TableCell>
+                          {new Date(shift.startTime).toDateString()}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -372,21 +365,21 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      {showModal && selectedJob && (
+      {showModal && selectedShift && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-lg shadow-xl">
-            <h2 className="text-2xl font-bold mb-2">{selectedJob.name}</h2>
+            <h2 className="text-2xl font-bold mb-2">{selectedShift.title}</h2>
             <p className="text-gray-700 mb-1">
-              <strong>Company:</strong> {selectedJob.company}
+              <strong>Company:</strong> {selectedShift.employer}
             </p>
             <p className="text-gray-700 mb-1">
-              <strong>Pay:</strong> ${selectedJob.pay}/hr
+              <strong>Pay:</strong> ${selectedShift.rate}/hr
             </p>
             <p className="text-gray-700 mb-1">
-              <strong>Location:</strong> {selectedJob.location}
+              <strong>Location:</strong> {selectedShift.location}
             </p>
             <p className="text-gray-700 mb-3">
-              <strong>Required Skills:</strong> {selectedJob.skills.join(", ")}
+              <strong>Required Skills:</strong> {selectedShift.tags.join(", ")}
             </p>
 
             <div className="flex justify-end gap-2">
@@ -398,12 +391,12 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => {
-                  // Use the ShiftApi to apply for the job
-                  shiftApi
-                    .applyToShift(selectedJob.id)
+                  // Use the BackendAPI's shiftApi to apply for the shift
+                  BackendAPI.shiftApi
+                    .applyToShift(selectedShift.id)
                     .then(() => {
                       alert(
-                        `You have applied for the job: ${selectedJob.name}`
+                        `You have applied for the job: ${selectedShift.title}`
                       );
                       closeModal();
                     })

@@ -52,7 +52,7 @@ export function Authenticate(role: UserRole) {
 				const decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
 
 				const user = await controller.getUserFromUsername(decoded.username);
-				if (!user || !user.roles.includes(role)) {
+				if (!user || !user.roles.map((role) => role.toUpperCase()).includes(role.toUpperCase())) {
 					throw new ForbiddenError("Insufficient permissions");
 				}
 
@@ -90,7 +90,10 @@ export function AuthenticateAny(roles: UserRole[]) {
 				const decoded = await getValidDecodedToken(controller, accessToken, refreshToken);
 
 				const user = await controller.getUserFromUsername(decoded.username);
-				if (!user || !roles.some((role) => user.roles.includes(role))) {
+				if (
+					!user ||
+					!roles.some((role) => user.roles.map((r) => r.toUpperCase()).includes(role.toUpperCase()))
+				) {
 					throw new ForbiddenError("Insufficient permissions");
 				}
 

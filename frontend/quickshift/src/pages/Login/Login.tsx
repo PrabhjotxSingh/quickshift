@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend/backend-api";
+import { BackendAPI } from "../../lib/backend/backend-api";
 import { useEffect, useState, useRef } from "react";
 import { LoginRequest } from "../../backend-api";
 
@@ -32,12 +32,10 @@ export default function Login() {
       BackendAPI.initialize();
 
       try {
-        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-        if (token) {
-          const isValid = await BackendAPI.checkAuth(false); // Check without refresh first
-          if (isValid) {
-            navigate("/dashboard");
-          }
+        // Check for cookies first, then localStorage as fallback
+        const isValid = await BackendAPI.checkAuth(false); // Check without refresh first
+        if (isValid) {
+          navigate("/dashboard");
         }
       } catch (error) {
         console.log("Error checking authentication status:", error);
@@ -53,8 +51,10 @@ export default function Login() {
         username: email,
         password: password,
       };
-      await BackendAPI.login(loginRequest);
-      navigate("/dashboard");
+      const success = await BackendAPI.login(loginRequest);
+      if (success) {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       Swal.fire({
