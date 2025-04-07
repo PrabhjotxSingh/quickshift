@@ -18,7 +18,7 @@ import { LoginRequest } from "../../backend-api";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const initialCheckDone = useRef(false);
 
@@ -50,7 +50,7 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const loginRequest: LoginRequest = {
-        username: email,
+        username: username,
         password: password,
       };
       await BackendAPI.login(loginRequest);
@@ -88,12 +88,12 @@ export default function Login() {
             >
               <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    placeholder="Your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    placeholder="Your username address"
+                    value={username}
+                    onChange={(e) => setusername(e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
