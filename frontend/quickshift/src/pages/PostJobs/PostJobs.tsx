@@ -397,9 +397,15 @@ export default function PostJobs() {
       const response = await BackendAPI.shiftApi.denyApplicant(applicationId);
 
       if (response.status === 200) {
-        // Refresh the job list to update the applicants
-        const updatedJobs = [...postedJobs];
-        setPostedJobs(updatedJobs);
+        // Update the local state to remove the denied applicant
+        setPostedJobs((prevJobs) =>
+          prevJobs.map((job) => ({
+            ...job,
+            applicants: job.applicants.filter(
+              (applicant) => applicant.id !== applicationId
+            ),
+          }))
+        );
 
         Swal.fire({
           title: "Applicant Denied",
