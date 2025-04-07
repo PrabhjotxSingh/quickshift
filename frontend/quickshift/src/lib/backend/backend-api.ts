@@ -7,7 +7,7 @@ import {
   RefreshRequest,
 } from "../../backend-api";
 
-const API_BASE_URL = process.env.PROD
+const API_BASE_URL = import.meta.env.VITE_PROD
   ? "https://11976zm8eb.execute-api.us-east-2.amazonaws.com/dev/"
   : "http://localhost:3000";
 export const ACCESS_TOKEN_KEY = "quickshift_access_token";
