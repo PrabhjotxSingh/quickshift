@@ -12,7 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN_KEY, BackendAPI } from "../../lib/backend/backend-api";
+import {
+  BackendAPI,
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+} from "../../lib/backend/backend-api";
 import { useEffect, useState, useRef } from "react";
 import { LoginRequest } from "../../backend-api";
 
@@ -27,17 +31,13 @@ export default function Login() {
     if (initialCheckDone.current) return;
     initialCheckDone.current = true;
 
-    // Initialize API and check if already logged in
+    // Check if already logged in
     const checkExistingAuth = async () => {
-      BackendAPI.initialize();
-
       try {
-        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-        if (token) {
-          const isValid = await BackendAPI.checkAuth(false); // Check without refresh first
-          if (isValid) {
-            navigate("/dashboard");
-          }
+        // Check for cookies without refresh
+        const isValid = await BackendAPI.checkAuth(false);
+        if (isValid) {
+          navigate("/dashboard");
         }
       } catch (error) {
         console.log("Error checking authentication status:", error);
@@ -49,12 +49,49 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
+      // Ensure BackendAPI is initialized before attempting to log in
+      BackendAPI.initialize();
+
       const loginRequest: LoginRequest = {
         username: username,
         password: password,
       };
-      await BackendAPI.login(loginRequest);
-      navigate("/dashboard");
+      const success = await BackendAPI.login(loginRequest);
+      if (success) {
+        console.log("Login successful, navigating to dashboard");
+        // Force a longer delay to ensure cookies are set
+        setTimeout(() => {
+          // Verify cookies are set before navigating
+          const hasAccessTokenCookie =
+            !!BackendAPI.getCookie(ACCESS_TOKEN_COOKIE);
+          const hasRefreshTokenCookie =
+            !!BackendAPI.getCookie(REFRESH_TOKEN_COOKIE);
+          console.log(
+            "Before navigation - Access Token Cookie:",
+            hasAccessTokenCookie,
+            "Refresh Token Cookie:",
+            hasRefreshTokenCookie
+          );
+
+          if (hasAccessTokenCookie && hasRefreshTokenCookie) {
+            navigate("/dashboard", { replace: true });
+          } else {
+            console.error(
+              "Cookies not set after login, cannot navigate to dashboard"
+            );
+            // Show error message
+            Swal.fire({
+              icon: "error",
+              title: "Authentication Error",
+              text: "Unable to set authentication cookies. Please try again.",
+              confirmButtonText: "OK",
+              customClass: {
+                confirmButton: "swal2-black-button",
+              },
+            });
+          }
+        }, 500); // Increased delay to 500ms
+      }
     } catch (error) {
       console.error("Login failed:", error);
       Swal.fire({

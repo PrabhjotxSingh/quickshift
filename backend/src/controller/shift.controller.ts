@@ -31,12 +31,15 @@ export class ShiftController extends BaseController {
 			throw new Error("Company not found");
 		}
 		if (
+			!user.roles ||
 			!user.roles.some((role) => {
-				return role === UserRole.ADMIN;
+				return role.toUpperCase() === UserRole.ADMIN;
 			})
 		) {
 			const isOwner = company.owner.toString() === user.id;
-			const isCompanyAdmin = company.companyAdmins.some((adminId) => adminId.toString() === user.id);
+			const isCompanyAdmin = company.companyAdmins
+				? company.companyAdmins.some((adminId) => adminId.toString() === user.id)
+				: false;
 			const isEmployer = (await this.getUser())?.roles.includes(UserRole.EMPLOYER);
 			if (!isOwner && !isCompanyAdmin && !isEmployer) {
 				throw new ForbiddenError("User does not have permission to manage this company");
@@ -49,7 +52,7 @@ export class ShiftController extends BaseController {
 	public async create(@Body() request: CreateShiftRequest): Promise<ShiftDto | string> {
 		try {
 			const user = await this.getUser();
-			await this.validateCompanyAccess(request.company, user.id);
+			await this.validateCompanyAccess(request.company, user);
 			return await this.shiftService.createShift(request);
 		} catch (ex: any) {
 			return this.handleError(ex);
@@ -118,7 +121,7 @@ export class ShiftController extends BaseController {
 	public async getAvailableShifts(@Query() tags?: string[]) {
 		try {
 			const user = await this.getUser();
-			return await this.shiftService.getAvailableShifts(tags);
+			return await this.shiftService.getAvailableShifts(tags, user.id);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}

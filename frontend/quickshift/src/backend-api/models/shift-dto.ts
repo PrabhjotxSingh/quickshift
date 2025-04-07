@@ -28,7 +28,19 @@ export interface ShiftDto {
      * @type {string}
      * @memberof ShiftDto
      */
+    '_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ShiftDto
+     */
     'company': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ShiftDto
+     */
+    'companyName': string;
     /**
      * 
      * @type {string}
