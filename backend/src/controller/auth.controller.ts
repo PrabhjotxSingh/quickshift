@@ -1,4 +1,4 @@
-import { Route, Post, Tags, Put, Body, Request, Path, Query } from "tsoa";
+import { Route, Post, Tags, Put, Body, Request, Path, Query, Get, Delete } from "tsoa";
 import { LoginRequest } from "../core/dto/request/auth/login.request";
 import { LoginResponse } from "../core/dto/response/auth/login.response";
 import { RefreshRequest } from "../core/dto/request/auth/refresh.request";
@@ -12,6 +12,7 @@ import { Request as ExpressRequest } from "express";
 import { DebugUtil } from "../core/utility/misc/debug.util";
 import { Service } from "typedi";
 import { UserRepository } from "../core/repository/user.repository";
+import { UserDocument } from "../core/model/user.model";
 
 @Route("Auth")
 @Tags("Auth")
@@ -60,6 +61,42 @@ export class AuthController extends BaseController {
 	public async registerAdmin(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
 			const result = await this.authService.register(request, true);
+			return this.ok(result);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Post("Skills/Add")
+	@Authenticate(UserRole.WORKER)
+	public async addSkills(@Body() skills: string[]): Promise<UserDto | string> {
+		try {
+			const user = await this.getUser();
+			const result = await this.authService.addUserSkills(user._id.toString(), skills);
+			return this.ok(result);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Get("User")
+	@Authenticate(UserRole.WORKER)
+	public async getCurrentUser(): Promise<UserDto | string> {
+		try {
+			const user = await this.getUser();
+			const userDto = await this.authService.getUserDto(user._id.toString());
+			return this.ok(userDto);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
+	@Delete("Skills")
+	@Authenticate(UserRole.WORKER)
+	public async deleteSkills(@Body() skills: string[]): Promise<UserDto | string> {
+		try {
+			const user = await this.getUser();
+			const result = await this.authService.deleteUserSkills(user._id.toString(), skills);
 			return this.ok(result);
 		} catch (ex: any) {
 			return this.handleError(ex);
