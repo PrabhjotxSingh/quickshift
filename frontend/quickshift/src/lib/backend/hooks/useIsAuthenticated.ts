@@ -19,8 +19,26 @@ export const useIsAuthenticated = () => {
 
     const checkAuth = async () => {
       try {
+        // First try to load from localStorage on initial render
+        if (!BackendAPI.isAuthenticated) {
+          const hasStoredTokens = BackendAPI.loadTokensFromStorage();
+          if (hasStoredTokens) {
+            console.log("useIsAuthenticated: Found stored tokens");
+          }
+        }
+
+        // Check if BackendAPI has an in-memory authentication state
+        if (BackendAPI.isAuthenticated) {
+          console.log("BackendAPI already reports authenticated");
+          setIsAuthenticated(true);
+          setIsLoading(false);
+          checkCompleted.current = true;
+          return;
+        }
+
         // Skip refresh to avoid loops
         const isAuthed = await BackendAPI.checkAuth(false);
+        console.log("useIsAuthenticated check result:", isAuthed);
         setIsAuthenticated(isAuthed);
       } finally {
         setIsLoading(false);
