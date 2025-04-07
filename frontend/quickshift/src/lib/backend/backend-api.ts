@@ -23,6 +23,13 @@ export class BackendAPI {
       token = localStorage.getItem(ACCESS_TOKEN_KEY) || undefined;
     }
 
+    // Extra logging to help debug token issues
+    if (token) {
+      console.log(`Token found, initializing API with token: ${token.substring(0, 10)}...`);
+    } else {
+      console.warn("No token found during API initialization");
+    }
+
     const config = new Configuration({
       basePath: API_BASE_URL,
       baseOptions: token
@@ -33,6 +40,7 @@ export class BackendAPI {
           }
         : undefined,
     });
+    
     this.shiftApi = new ShiftApi(config);
     this.companyApi = new CompanyApi(config);
     this.authApi = new AuthApi(config);
@@ -44,8 +52,10 @@ export class BackendAPI {
   };
 
   static async login(loginRequest: LoginRequest) {
+    console.log("Attempting login for:", loginRequest.username);
     const result = await this.authApi.login(loginRequest);
     if (result.status === 200 && result.data.accessToken != null) {
+      console.log("Login successful, storing tokens");
       // Save tokens to localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem(ACCESS_TOKEN_KEY, result.data.accessToken);
@@ -128,6 +138,12 @@ export class BackendAPI {
   }
 
   static updateAuthToken = (token: string) => {
+    console.log(`Updating auth token: ${token.substring(0, 10)}...`);
+    // First store the token in localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    }
+    // Then initialize the API with the new token
     this.initialize(token);
   };
 

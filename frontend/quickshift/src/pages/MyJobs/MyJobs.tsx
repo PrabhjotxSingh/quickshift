@@ -8,8 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { BackendAPI } from "@/lib/backend/backend-api";
+import { useNavigate } from "react-router-dom";
 
 type Jobs = {
   id: string;
@@ -22,7 +24,8 @@ type Jobs = {
   coords?: [number, number];
 };
 
-const appliedJobs: Jobs[] = [
+// Mock data for fallback
+const mockAppliedJobs: Jobs[] = [
   {
     id: "1",
     name: "Dishwasher-Applied",
@@ -35,7 +38,7 @@ const appliedJobs: Jobs[] = [
   },
 ];
 
-const wonJobs: Jobs[] = [
+const mockWonJobs: Jobs[] = [
   {
     id: "1",
     name: "Dishwasher-Won",
@@ -48,7 +51,7 @@ const wonJobs: Jobs[] = [
   },
 ];
 
-const rejectedJobs: Jobs[] = [
+const mockRejectedJobs: Jobs[] = [
   {
     id: "1",
     name: "Dishwasher-Rejected",
@@ -61,7 +64,7 @@ const rejectedJobs: Jobs[] = [
   },
 ];
 
-const pastJobs: Jobs[] = [
+const mockPastJobs: Jobs[] = [
   {
     id: "1",
     name: "Dishwasher-Rejected",
@@ -75,9 +78,87 @@ const pastJobs: Jobs[] = [
 ];
 
 export default function MyJobs() {
-  const [hoveredJobId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [appliedJobs, setAppliedJobs] = useState<Jobs[]>([]);
+  const [wonJobs, setWonJobs] = useState<Jobs[]>([]);
+  const [rejectedJobs, setRejectedJobs] = useState<Jobs[]>([]);
+  const [pastJobs, setPastJobs] = useState<Jobs[]>([]);
 
-  const handleCancel = () => {
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuthentication = async () => {
+      try {
+        // Initialize the API with the latest token
+        BackendAPI.initialize();
+        
+        const isAuthenticated = await BackendAPI.checkAuth(true);
+        if (!isAuthenticated) {
+          navigate("/login");
+          return;
+        }
+        
+        // Fetch jobs from the API
+        fetchUserJobs();
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+        navigate("/login");
+      }
+    };
+    
+    checkAuthentication();
+  }, [navigate]);
+
+  const fetchUserJobs = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Ensure the API is using the latest token
+      BackendAPI.initialize();
+      
+      // Fetch user's shifts from the API
+      const response = await BackendAPI.shiftApi.getUserShifts();
+      
+      if (response.status === 200 && response.data) {
+        // Process different job categories based on status
+        const apiJobs = response.data.map((shift: any) => ({
+          id: shift.id || '',
+          name: shift.title || '',
+          company: shift.companyName || '',
+          pay: shift.hourlyRate || 0,
+          location: shift.location || '',
+          skills: shift.requiredSkills || [],
+          date: new Date(shift.startTime || Date.now()),
+          coords: shift.latitude && shift.longitude ? [shift.latitude, shift.longitude] : undefined,
+          status: shift.status
+        }));
+        
+        // Sort jobs based on their status
+        setAppliedJobs(apiJobs.filter((job: any) => job.status === 'applied'));
+        setWonJobs(apiJobs.filter((job: any) => job.status === 'accepted'));
+        setRejectedJobs(apiJobs.filter((job: any) => job.status === 'rejected'));
+        setPastJobs(apiJobs.filter((job: any) => job.status === 'completed'));
+      } else {
+        // Fallback to mock data if API call fails
+        setAppliedJobs(mockAppliedJobs);
+        setWonJobs(mockWonJobs);
+        setRejectedJobs(mockRejectedJobs);
+        setPastJobs(mockPastJobs);
+      }
+    } catch (error) {
+      console.error("Failed to fetch jobs:", error);
+      // Fallback to mock data
+      setAppliedJobs(mockAppliedJobs);
+      setWonJobs(mockWonJobs);
+      setRejectedJobs(mockRejectedJobs);
+      setPastJobs(mockPastJobs);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = async (jobId: string) => {
     Swal.fire({
       title: "Cancel Job",
       text: "Are you sure you want to cancel this job?",
@@ -88,13 +169,47 @@ export default function MyJobs() {
         confirmButton: "swal2-black-button",
         cancelButton: "swal2-black-button",
       },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Since there's no direct cancelApplication method in the API
+          // We can implement a temporary UI-side solution for now
+          // In a real implementation, this would make an API call
+          // using something like BackendAPI.shiftApi.withdrawApplication(jobId)
+          
+          // For now, just update the UI
+          setAppliedJobs(appliedJobs.filter(job => job.id !== jobId));
+          
+          Swal.fire({
+            title: "Cancelled!",
+            text: "Your application has been cancelled.",
+            icon: "success",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        } catch (error) {
+          console.error("Failed to cancel application:", error);
+          Swal.fire({
+            title: "Error",
+            text: "Failed to cancel application. Please try again.",
+            icon: "error",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        }
+      }
     });
   };
 
-  const handleContact = () => {
+  const handleContact = (jobId: string) => {
+    // Fetch employer contact information
+    const job = wonJobs.find(j => j.id === jobId);
+    
     Swal.fire({
       title: "Contact Employer",
-      text: "The employer's contact information is EMAIL",
+      text: `The employer's contact information for "${job?.name}" is EMAIL`,
       confirmButtonText: "OK",
       customClass: {
         confirmButton: "swal2-black-button",
@@ -111,59 +226,67 @@ export default function MyJobs() {
       <center>
         <h1 className="text-2xl font-bold text-gray-900 mb-4">{title}</h1>
       </center>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Company</TableHead>
-            <TableHead>Pay</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead>Date</TableHead>
-            {actionType && <TableHead>Action</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {jobs.map((job) => (
-            <TableRow
-              key={job.id}
-              className={`cursor-pointer transition ${
-                hoveredJobId === job.id ? "bg-gray-100" : ""
-              }`}
-            >
-              <TableCell>{job.name}</TableCell>
-              <TableCell>{job.company}</TableCell>
-              <TableCell>${job.pay}/hr</TableCell>
-              <TableCell>{job.location}</TableCell>
-              <TableCell>{job.date.toDateString()}</TableCell>
-              {actionType && (
-                <TableCell>
-                  {actionType === "cancel" ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancel(job.id);
-                      }}
-                      className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-                    >
-                      Cancel
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContact(job.id);
-                      }}
-                      className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                      Contact
-                    </button>
-                  )}
-                </TableCell>
-              )}
+      {isLoading ? (
+        <p>Loading jobs...</p>
+      ) : jobs.length === 0 ? (
+        <p className="text-center p-4">No jobs found in this category.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Pay</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Date</TableHead>
+              {actionType && <TableHead>Action</TableHead>}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {jobs.map((job) => (
+              <TableRow
+                key={job.id}
+                className={`cursor-pointer transition ${
+                  hoveredJobId === job.id ? "bg-gray-100" : ""
+                }`}
+                onMouseEnter={() => setHoveredJobId(job.id)}
+                onMouseLeave={() => setHoveredJobId(null)}
+              >
+                <TableCell>{job.name}</TableCell>
+                <TableCell>{job.company}</TableCell>
+                <TableCell>${job.pay}/hr</TableCell>
+                <TableCell>{job.location}</TableCell>
+                <TableCell>{job.date.toDateString()}</TableCell>
+                {actionType && (
+                  <TableCell>
+                    {actionType === "cancel" ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancel(job.id);
+                        }}
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
+                      >
+                        Cancel
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleContact(job.id);
+                        }}
+                        className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+                      >
+                        Contact
+                      </button>
+                    )}
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 

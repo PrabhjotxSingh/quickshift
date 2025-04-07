@@ -20,53 +20,129 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const initialCheckDone = useRef(false);
 
+  // Check if user is already logged in
   useEffect(() => {
-    // Prevent multiple initialization
     if (initialCheckDone.current) return;
     initialCheckDone.current = true;
-
-    // Initialize API and check if already logged in
-    const checkExistingAuth = async () => {
-      BackendAPI.initialize();
-
+    
+    const checkAuthAndRedirect = async () => {
       try {
+        // First initialize the API
+        console.log("Login page: Initializing API");
+        BackendAPI.initialize();
+        
+        // Clear any existing login errors
+        localStorage.removeItem('auth_error');
+        
+        // Check if there's a token in storage
         const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-        if (token) {
-          const isValid = await BackendAPI.checkAuth(false); // Check without refresh first
-          if (isValid) {
-            navigate("/dashboard");
-          }
+        if (!token) {
+          console.log("Login page: No token found, staying on login page");
+          return;
+        }
+        
+        console.log("Login page: Token found, validating...");
+        // First check without refresh to avoid unnecessary refresh attempts
+        const initialCheck = await BackendAPI.checkAuth(false);
+        
+        if (initialCheck) {
+          console.log("Login page: Valid token, redirecting to dashboard");
+          navigate("/dashboard");
+          return;
+        }
+        
+        // If initial check fails, try with refresh
+        console.log("Login page: Token may be expired, trying refresh...");
+        const refreshCheck = await BackendAPI.checkAuth(true);
+        
+        if (refreshCheck) {
+          console.log("Login page: Token refreshed successfully, redirecting to dashboard");
+          navigate("/dashboard");
+        } else {
+          console.log("Login page: Token refresh failed, staying on login page");
+          // Clear invalid tokens
+          localStorage.removeItem(ACCESS_TOKEN_KEY);
+          localStorage.removeItem('quickshift_refresh_token');
         }
       } catch (error) {
-        console.log("Error checking authentication status:", error);
+        console.error("Login page: Auth check error:", error);
       }
     };
-
-    checkExistingAuth();
+    
+    checkAuthAndRedirect();
   }, [navigate]);
 
   const handleLogin = async () => {
-    try {
-      const loginRequest: LoginRequest = {
-        username: email,
-        password: password,
-      };
-      await BackendAPI.login(loginRequest);
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
+    // Validate input fields
+    if (!email.trim() || !password.trim()) {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Unable to log in!",
-        footer: '<a href="/signup">Maybe you need to create an account?</a>',
+        title: "Missing Information",
+        text: "Please enter both email and password",
         confirmButtonText: "OK",
         customClass: {
           confirmButton: "swal2-black-button",
         },
       });
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      console.log("Login page: Attempting login with:", email);
+      
+      // Create login request
+      const loginRequest: LoginRequest = {
+        username: email,
+        password: password,
+      };
+      
+      // Call the login API
+      await BackendAPI.login(loginRequest);
+      
+      // Double check we have a token
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (!token) {
+        throw new Error("No token received after login");
+      }
+
+      console.log("Login page: Login successful, token:", token.substring(0, 10) + "...");
+      
+      // Make sure we reinitialize the API with the new token
+      BackendAPI.initialize(token);
+      
+      // Small delay to ensure token is properly set before navigation
+      setTimeout(() => {
+        console.log("Login page: Redirecting to dashboard");
+        navigate("/dashboard");
+      }, 300);
+    } catch (error) {
+      console.error("Login page: Login failed:", error);
+      
+      let errorMessage = "Invalid email or password. Please try again.";
+      if (error instanceof Error) {
+        // Customize error message based on the error
+        if (error.message.includes("Network Error")) {
+          errorMessage = "Could not connect to the server. Please check your internet connection.";
+        }
+      }
+      
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: errorMessage,
+        footer: '<a href="/signup">Need an account? Sign up here</a>',
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,6 +170,7 @@ export default function Login() {
                     placeholder="Your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
                 <div className="flex flex-col space-y-1.5">
@@ -104,6 +181,7 @@ export default function Login() {
                     placeholder="Your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -111,9 +189,11 @@ export default function Login() {
           </CardContent>
           <CardFooter className="flex justify-between">
             <Link to="/signup">
-              <Button variant="outline">Signup</Button>
+              <Button variant="outline" disabled={loading}>Signup</Button>
             </Link>
-            <Button onClick={handleLogin}>Login</Button>
+            <Button onClick={handleLogin} disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </Button>
           </CardFooter>
         </Card>
       </div>

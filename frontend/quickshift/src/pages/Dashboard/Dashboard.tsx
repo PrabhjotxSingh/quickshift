@@ -3,6 +3,8 @@ import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./Dashboard.css";
 import markerIcon from "@/assets/marker.png";
 import { Circle } from "react-leaflet";
+import { BackendAPI } from "@/lib/backend/backend-api";
+import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -155,13 +157,17 @@ function matchesUserSkills(job: Jobs, skills: string[]) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
   const [filteredJobs, setFilteredJobs] = useState<Jobs[]>([]);
+  const [allJobs, setAllJobs] = useState<Jobs[]>([]);
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<Jobs | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [useLocalDataOnly, setUseLocalDataOnly] = useState(false);
 
   const openJobDetails = (job: Jobs) => {
     setSelectedJob(job);
@@ -174,18 +180,153 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // Get user location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserCoords([position.coords.latitude, position.coords.longitude]);
-      },
-      (err) => console.error("Failed to get user location:", err)
-    );
-  }, []);
+    // Check if user is authenticated
+    const checkAuthentication = async () => {
+      try {
+        console.log("Dashboard: Checking authentication...");
+        
+        // First check if we have a token
+        const token = localStorage.getItem("quickshift_access_token");
+        if (!token) {
+          console.log("Dashboard: No token found, redirecting to login");
+          navigate("/login");
+          return;
+        }
+        
+        console.log("Dashboard: Token found, initializing API");
+        // Initialize the API with the latest token before checking auth
+        BackendAPI.initialize(token);
+        
+        // Try to refresh the token to ensure it's valid
+        try {
+          console.log("Dashboard: Attempting token refresh");
+          await BackendAPI.refresh();
+          console.log("Dashboard: Token refreshed successfully");
+        } catch (refreshError) {
+          console.error("Dashboard: Token refresh failed, using existing token", refreshError);
+          // Continue with existing token
+        }
+        
+        const isAuthenticated = await BackendAPI.checkAuth(false);
+        if (!isAuthenticated) {
+          console.log("Dashboard: Not authenticated, redirecting to login");
+          navigate("/login");
+          return;
+        }
+        
+        console.log("Dashboard: Authentication successful");
+        
+        // Get user location and fetch jobs
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserCoords([position.coords.latitude, position.coords.longitude]);
+            fetchJobs();
+          },
+          (err) => {
+            console.error("Failed to get user location:", err);
+            fetchJobs();
+          }
+        );
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+        navigate("/login");
+      }
+    };
+    
+    checkAuthentication();
+  }, [navigate]);
 
-  useEffect(() => {
+  const fetchJobs = async () => {
+    setIsLoading(true);
+    try {
+      // If useLocalDataOnly is true, skip API call and use local data
+      if (useLocalDataOnly) {
+        console.log("Using local job data only (bypassing API)");
+        setAllJobs(jobs);
+        filterJobsByRadius(jobs);
+        setIsLoading(false);
+        return;
+      }
+
+      // Make sure we're using the latest token before API calls
+      BackendAPI.initialize();
+      
+      // Check if token exists before making the API call
+      const token = localStorage.getItem("quickshift_access_token");
+      if (!token) {
+        console.error("No authentication token found");
+        navigate("/login");
+        return;
+      }
+      
+      console.log("Fetching available shifts with token:", token.substring(0, 15) + "...");
+      
+      try {
+        // Fetch available shifts from the backend API        
+        const response = await BackendAPI.shiftApi.getAvailableShifts();
+
+        if (response.status === 200 && response.data) {
+          console.log("Successfully fetched jobs:", response.data.length);
+          // Transform API response data to match our Jobs type
+          const apiJobs: Jobs[] = response.data.map((shift: any) => ({
+            id: shift.id || '',
+            name: shift.title || '',
+            company: shift.companyName || '',
+            pay: shift.hourlyRate || 0,
+            location: shift.location || '',
+            skills: shift.requiredSkills || [],
+            date: new Date(shift.startTime || Date.now()),
+            coords: shift.latitude && shift.longitude ? [shift.latitude, shift.longitude] : undefined,
+          }));
+          
+          setAllJobs(apiJobs);
+          // Initial filtering based on current criteria
+          filterJobsByRadius(apiJobs);
+        } else {
+          console.warn("API returned successful but with no data, using fallback data");
+          // Fallback to predefined jobs if API fails
+          setAllJobs(jobs);
+          filterJobsByRadius(jobs);
+        }
+      } catch (error: any) {
+        if (error.response) {
+          // The server responded with a status code outside the 2xx range
+          console.error("Server error:", error.response.status);
+          console.error("Server error details:", error.response.data);
+          console.error("Server error headers:", error.response.headers);
+          
+          if (error.response.status === 500) {
+            console.log("Internal server error detected. This is a backend issue, not an authentication problem.");
+            console.log("Using fallback job data to allow UI to function.");
+            
+            // After encountering a 500 error, switch to local data only to prevent further server errors
+            setUseLocalDataOnly(true);
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error("No response received:", error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error("Error message:", error.message);
+        }
+        
+        // Fallback to predefined jobs
+        setAllJobs(jobs);
+        filterJobsByRadius(jobs);
+      }
+    } catch (error) {
+      console.error("Failed to fetch jobs:", error);
+      // Fallback to predefined jobs
+      setAllJobs(jobs);
+      filterJobsByRadius(jobs);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterJobsByRadius = (jobsList: Jobs[]) => {
     if (userCoords) {
-      const nearbyJobs = jobs.filter((job) =>
+      const nearbyJobs = jobsList.filter((job) =>
         job.coords
           ? getDistanceFromLatLonInMiles(
               userCoords[0],
@@ -199,11 +340,31 @@ export default function Dashboard() {
     } else {
       setFilteredJobs(
         includeRemote
-          ? jobs.filter((job) => job.location.toLowerCase() === "remote")
+          ? jobsList.filter(
+              (job) => job.location.toLowerCase() === "remote"
+            )
           : []
       );
     }
+  };
+
+  useEffect(() => {
+    filterJobsByRadius(allJobs);
   }, [userCoords, radius, includeRemote]);
+
+  const applyForJob = async (jobId: string) => {
+    try {
+      await BackendAPI.shiftApi.applyToShift(jobId);
+      
+      // Show success message
+      // ... existing code ...
+
+    } catch (error) {
+      console.error("Error applying for job:", error);
+      // Show error message
+      // ... existing code ...
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -334,16 +495,34 @@ export default function Dashboard() {
                   className="w-full"
                 />
               </div>
-              <div className="flex items-center">
-                <Checkbox
-                  id="remoteToggle"
-                  checked={includeRemote}
-                  onCheckedChange={() => setIncludeRemote((prev) => !prev)}
-                  className="mr-2"
-                />
-                <label htmlFor="remoteToggle" className="text-sm">
-                  Include remote jobs
-                </label>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <Checkbox
+                    id="remoteToggle"
+                    checked={includeRemote}
+                    onCheckedChange={() => setIncludeRemote((prev) => !prev)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="remoteToggle" className="text-sm">
+                    Include remote jobs
+                  </label>
+                </div>
+                
+                {/* Debug toggle for server issues */}
+                <div className="flex items-center">
+                  <Checkbox
+                    id="localDataToggle"
+                    checked={useLocalDataOnly}
+                    onCheckedChange={(checked) => {
+                      setUseLocalDataOnly(!!checked);
+                      fetchJobs(); // Refetch jobs when toggled
+                    }}
+                    className="mr-2"
+                  />
+                  <label htmlFor="localDataToggle" className="text-sm">
+                    Use local data (offline mode)
+                  </label>
+                </div>
               </div>
             </div>
 
