@@ -2,7 +2,7 @@ import { UserDto } from "../dto/models/user.dto";
 import { LoginRequest } from "../dto/request/auth/login.request";
 import { RegisterRequest } from "../dto/request/auth/register.request";
 import { LoginResponse } from "../dto/response/auth/login.response";
-import { UserModel } from "../model/user.model";
+import { UserModel, UserDocument } from "../model/user.model";
 import { UserRole } from "../enum/user-role.enum";
 import { RefreshTokenDocument, RefreshTokenModel } from "../model/refresh-token.model";
 import { AlreadyExistsError } from "../error/AlreadyExistsError";
@@ -157,5 +157,141 @@ export class AuthService {
 		});
 
 		return refreshToken;
+	}
+
+	async addSkills(user: UserDocument, skills: string[]): Promise<UserDto> {
+		try {
+			// Filter out duplicates
+			const uniqueSkills = [...new Set([...user.skills, ...skills])];
+
+			// Create update data
+			const updateData = {
+				skills: uniqueSkills,
+			};
+
+			// Update user with new skills
+			const updatedUser = await this.userRepository.update(user.id, updateData);
+
+			// Map to DTO and return
+			return mapper.map(updatedUser, UserModel, UserDto);
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async getSkills(user: UserDocument): Promise<string[]> {
+		try {
+			return user.skills || [];
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async deleteSkills(user: UserDocument, skills: string[]): Promise<UserDto> {
+		try {
+			// Filter out skills to be deleted
+			const updatedSkills = user.skills.filter((skill) => !skills.includes(skill));
+
+			// Create update data
+			const updateData = {
+				skills: updatedSkills,
+			};
+
+			// Update user with new skills list
+			const updatedUser = await this.userRepository.update(user.id, updateData);
+
+			// Map to DTO and return
+			return mapper.map(updatedUser, UserModel, UserDto);
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async addUserSkills(userId: string, skills: string[]): Promise<UserDto> {
+		try {
+			// Get user
+			const user = await this.userRepository.get(userId);
+			if (!user) {
+				throw new NotFoundError("User not found");
+			}
+
+			// Filter out duplicates
+			const uniqueSkills = [...new Set([...(user.skills || []), ...skills])];
+
+			// Create update data
+			const updateData = {
+				skills: uniqueSkills,
+			};
+
+			// Update user with new skills
+			const updatedUser = await this.userRepository.update(userId, updateData);
+
+			// Map to DTO and return
+			return mapper.map(updatedUser, UserModel, UserDto);
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async getUserSkills(userId: string): Promise<string[]> {
+		try {
+			// Get user
+			const user = await this.userRepository.get(userId);
+			if (!user) {
+				throw new NotFoundError("User not found");
+			}
+
+			return user.skills || [];
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async deleteUserSkills(userId: string, skills: string[]): Promise<UserDto> {
+		try {
+			// Get user
+			const user = await this.userRepository.get(userId);
+			if (!user) {
+				throw new NotFoundError("User not found");
+			}
+
+			// Filter out skills to be deleted
+			const updatedSkills = (user.skills || []).filter((skill) => !skills.includes(skill));
+
+			// Create update data
+			const updateData = {
+				skills: updatedSkills,
+			};
+
+			// Update user with new skills list
+			const updatedUser = await this.userRepository.update(userId, updateData);
+
+			// Map to DTO and return
+			return mapper.map(updatedUser, UserModel, UserDto);
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
+	}
+
+	async getUserDto(userId: string): Promise<UserDto> {
+		try {
+			// Get user
+			const user = await this.userRepository.get(userId);
+			if (!user) {
+				throw new NotFoundError("User not found");
+			}
+
+			// Map to DTO and return
+			return mapper.map(user, UserModel, UserDto);
+		} catch (ex: any) {
+			DebugUtil.error(ex);
+			throw ex;
+		}
 	}
 }
