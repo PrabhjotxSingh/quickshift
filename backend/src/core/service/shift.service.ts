@@ -205,6 +205,14 @@ export class ShiftService {
 		return shifts;
 	}
 
+	public async getShiftApplicantById(id: string): Promise<ShiftApplicantDocument> {
+		const application = await this.shiftApplicantRepository.get(id);
+		if (!application) {
+			throw new NotFoundError("Application not found");
+		}
+		return application;
+	}
+
 	public async applyToShift(shiftId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
 		const shift = await this.shiftRepository.get(shiftId);
 		if (!shift) {
@@ -338,6 +346,34 @@ export class ShiftService {
 		}
 
 		return filteredApplications;
+	}
+
+	public async denyShiftApplicant(applicationId: string, user: UserDocument): Promise<ShiftApplicantDocument> {
+		const application = await this.shiftApplicantRepository.get(applicationId);
+		if (!application) {
+			throw new NotFoundError("Application not found");
+		}
+
+		// Get the shift to verify company access
+		const shift = await this.shiftRepository.get(application.shiftId.toString());
+		if (!shift) {
+			throw new NotFoundError("Shift not found");
+		}
+
+		// Verify the shift belongs to the same company as the user
+		if (shift.company.toString() !== application.company.toString()) {
+			throw new Error("Shift and application company mismatch");
+		}
+
+		// Update the application to mark it as rejected
+		application.rejected = true;
+		const updatedApplication = await this.shiftApplicantRepository.update(applicationId, application);
+
+		if (!updatedApplication) {
+			throw new Error("Failed to update application");
+		}
+
+		return updatedApplication;
 	}
 
 	public async getUserTotalEarnings(userId: string): Promise<number> {

@@ -7,6 +7,7 @@ export interface ShiftApplicantDocument extends Document {
 	company: mongoose.Types.ObjectId | CompanyDocument;
 	shiftId: mongoose.Types.ObjectId | ShiftApplicantDocument;
 	user: mongoose.Types.ObjectId | UserDocument;
+	rejected: boolean;
 }
 
 const ShiftApplicantSchema = new Schema<ShiftApplicantDocument>({
@@ -24,6 +25,10 @@ const ShiftApplicantSchema = new Schema<ShiftApplicantDocument>({
 		type: Schema.Types.ObjectId,
 		ref: "User",
 		required: true,
+	},
+	rejected: {
+		type: Boolean,
+		default: false,
 	},
 });
 

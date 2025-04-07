@@ -191,6 +191,22 @@ export class ShiftController extends BaseController {
 		}
 	}
 
+	@Post("Deny")
+	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
+	public async denyApplicant(@Query() applicationId: string) {
+		try {
+			const user = await this.getUser();
+
+			// Get the application to check company access
+			const application = await this.shiftService.getShiftApplicantById(applicationId);
+			await this.validateCompanyAccess(application.company.toString(), user);
+
+			return await this.shiftService.denyShiftApplicant(applicationId, user);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
+
 	@Post("Complete")
 	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
 	public async completeShift(@Query() shiftId: string, @Query() rating: number) {
