@@ -385,6 +385,8 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() => {
+                  console.log(`shift is ${selectedShift}`);
+                  console.log(selectedShift);
                   // Use the BackendAPI's shiftApi to apply for the shift
                   BackendAPI.shiftApi
                     .applyToShift(selectedShift._id)

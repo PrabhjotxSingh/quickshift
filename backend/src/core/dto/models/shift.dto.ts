@@ -3,6 +3,8 @@ import { Location } from "./location";
 
 export class ShiftDto {
 	@AutoMap()
+	_id!: string;
+	@AutoMap()
 	company!: string;
 	@AutoMap()
 	companyName!: string;

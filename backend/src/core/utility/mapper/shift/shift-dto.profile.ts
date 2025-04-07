@@ -1,7 +1,7 @@
 import { MappingProfile, createMap, forMember, mapFrom } from "@automapper/core";
 import mongoose, { Types } from "mongoose";
 import { ShiftDto } from "../../../dto/models/shift.dto";
-import { ShiftModel } from "../../../model/shift.model";
+import { ShiftModel, ShiftDocument } from "../../../model/shift.model";
 import { CompanyModel } from "../../../model/company.model";
 
 export const shiftDtoProfile: MappingProfile = (mapper) => {
@@ -10,6 +10,10 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		mapper,
 		ShiftModel,
 		ShiftDto,
+		forMember(
+			(dest) => dest._id,
+			mapFrom((src: ShiftDocument) => src.id.toString()),
+		),
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => src.company.toString()),
@@ -77,6 +81,10 @@ export const shiftDtoProfile: MappingProfile = (mapper) => {
 		mapper,
 		ShiftDto,
 		ShiftModel,
+		forMember(
+			(dest) => dest._id,
+			mapFrom((src) => new Types.ObjectId(src._id)),
+		),
 		forMember(
 			(dest) => dest.company,
 			mapFrom((src) => new Types.ObjectId(src.company)),

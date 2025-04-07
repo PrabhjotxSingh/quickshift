@@ -31,6 +31,12 @@ export interface Get200Response {
      * @type {string}
      * @memberof Get200Response
      */
+    '_id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Get200Response
+     */
     'company': string;
     /**
      * 
