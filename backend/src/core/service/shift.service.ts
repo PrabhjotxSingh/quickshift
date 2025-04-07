@@ -329,7 +329,6 @@ export class ShiftService {
 		// Get all applications where the user is the applicant
 		const applications = await this.shiftApplicantRepository.getManyByQuery({
 			user: user._id,
-			rejected: false,
 		});
 
 		// Map to DTOs and populate user data
