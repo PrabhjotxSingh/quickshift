@@ -81,11 +81,6 @@ export default function MyJobs() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Initialize BackendAPI if not already initialized
-        if (!BackendAPI.isAuthenticated) {
-          await BackendAPI.checkAuth(true);
-        }
-
         // Fetch pending applications
         const pendingApplicationsResponse =
           await BackendAPI.shiftApi.getPendingApplications();
@@ -121,9 +116,7 @@ export default function MyJobs() {
           name: app.shiftId.name,
           company: app.company.name || "Unknown Company",
           pay: app.shiftId.pay,
-          location: app.shiftId.location
-            ? `${app.shiftId.location.latitude}, ${app.shiftId.location.longitude}`
-            : "Unknown Location",
+          location: `${app.shiftId.location.latitude}, ${app.shiftId.location.longitude}`,
           skills: app.shiftId.tags || [],
           date: new Date(app.shiftId.startTime),
           coords: app.shiftId.location
