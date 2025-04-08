@@ -25,6 +25,7 @@ type Job = {
   acceptedApplicant?: string;
   completed?: boolean;
   tags?: string[];
+  rating?: number;
 };
 
 type Applicant = {
@@ -38,6 +39,11 @@ export default function PostJobs() {
   const [companyId, setCompanyId] = useState<string>("");
   const [jobRatings, setJobRatings] = useState<{ [key: string]: number }>({});
   const [skillsInput, setSkillsInput] = useState("");
+  const [isViewingCompletedJobs, setIsViewingCompletedJobs] = useState(false);
+  const [selectedUserName, setSelectedUserName] = useState("");
+  const [selectedUserCompletedJobs, setSelectedUserCompletedJobs] = useState<
+    Job[]
+  >([]);
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -530,6 +536,43 @@ export default function PostJobs() {
     (job) => job.acceptedApplicant && !job.completed
   );
 
+  const closeCompletedJobsModal = () => {
+    setIsViewingCompletedJobs(false);
+    setSelectedUserName("");
+    setSelectedUserCompletedJobs([]);
+  };
+
+  const handleViewCompletedJobs = async (userId: string, userName: string) => {
+    try {
+      const response = await BackendAPI.shiftApi.getUserCompletedShifts(userId);
+      if (response.status === 200 && response.data) {
+        const completedJobs = response.data.map((shift: ShiftDto) => ({
+          id: shift._id,
+          name: shift.name,
+          company: shift.companyName,
+          pay: shift.pay,
+          location: `${shift.location.latitude}, ${shift.location.longitude}`,
+          rating: shift.rating,
+          completed: true,
+        }));
+        setSelectedUserCompletedJobs(completedJobs);
+        setSelectedUserName(userName);
+        setIsViewingCompletedJobs(true);
+      }
+    } catch (error) {
+      console.error("Error fetching completed jobs:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to fetch completed jobs. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
+    }
+  };
+
   return (
     <>
       <Navbar1 />
@@ -752,6 +795,19 @@ export default function PostJobs() {
                                     {applicant.userData.skills.join(", ")}
                                   </p>
                                 )}
+                              <button
+                                onClick={() => {
+                                  if (applicant.userData) {
+                                    handleViewCompletedJobs(
+                                      applicant.userId,
+                                      `${applicant.userData.firstName} ${applicant.userData.lastName}`
+                                    );
+                                  }
+                                }}
+                                className="text-sm text-blue-500 hover:text-blue-700 mt-1"
+                              >
+                                View Completed Jobs
+                              </button>
                             </div>
                           )}
                         </div>
@@ -826,6 +882,66 @@ export default function PostJobs() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Modal for viewing completed jobs */}
+        {isViewingCompletedJobs && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">
+                  {selectedUserName}'s Completed Jobs
+                </h2>
+                <button
+                  onClick={closeCompletedJobsModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {selectedUserCompletedJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedUserCompletedJobs.map((job) => (
+                    <div key={job.id} className="border p-3 rounded">
+                      <h3 className="font-semibold">{job.name}</h3>
+                      <p>Company: {job.company}</p>
+                      <p>Pay: ${job.pay}/hr</p>
+                      {job.rating !== undefined && (
+                        <p>Rating: {job.rating} / 100</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center italic text-gray-500">
+                  This user has no completed jobs.
+                </p>
+              )}
+
+              <div className="mt-4 text-center">
+                <button
+                  onClick={closeCompletedJobsModal}
+                  className="bg-black text-white px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
