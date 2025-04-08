@@ -67,7 +67,7 @@ export default function Login() {
           // Force a longer delay to ensure cookies are set
           setTimeout(() => {
             navigate("/dashboard", { replace: true });
-          }, 500); // Increased delay to 500ms
+          }, 1000);
         } else {
           console.warn(
             "Login appeared successful but authentication check failed"
@@ -78,7 +78,7 @@ export default function Login() {
           if (BackendAPI._memoryToken) {
             setTimeout(() => {
               navigate("/dashboard", { replace: true });
-            }, 500);
+            }, 1000);
           } else {
             console.error("No memory tokens available, login failed");
             throw new Error("Authentication failed");
