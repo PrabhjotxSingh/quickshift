@@ -147,6 +147,7 @@ export default function Dashboard() {
     fetchAllShifts();
   }, []);
 
+  useEffect(() => {
     // When userSkills are available, fetch recommended shifts
     if (userSkills && userSkills.length > 0) {
       fetchRecommendedShifts();
