@@ -9,6 +9,7 @@ common.ts
 configuration.ts
 git_push.sh
 index.ts
+models/applicant.ts
 models/company-dto.ts
 models/create-company-request.ts
 models/create-shift-request.ts

@@ -15,6 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
+import type { Applicant } from './applicant';
+// May contain unused imports in some cases
+// @ts-ignore
 import type { Location } from './location';
 
 /**
@@ -107,5 +110,11 @@ export interface ShiftDto {
      * @memberof ShiftDto
      */
     'rating'?: number;
+    /**
+     * 
+     * @type {Array<Applicant>}
+     * @memberof ShiftDto
+     */
+    'applicants'?: Array<Applicant>;
 }
 

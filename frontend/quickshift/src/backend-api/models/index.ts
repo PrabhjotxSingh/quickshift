@@ -1,3 +1,4 @@
+export * from './applicant';
 export * from './company-dto';
 export * from './create-company-request';
 export * from './create-shift-request';
