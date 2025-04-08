@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./Dashboard.css";
 import markerIcon from "@/assets/marker.png";
@@ -85,64 +85,64 @@ export default function Dashboard() {
   const [hoveredShiftId, setHoveredShiftId] = useState<string | null>(null);
   const [selectedShift, setSelectedShift] = useState<ShiftWithId | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userSkills, setUserSkills] = useState<string[]>([]);
 
-  const openShiftDetails = (shift: ShiftWithId) => {
-    setSelectedShift(shift);
-    setShowModal(true);
-  };
+  // Dynamic loading with pagination and infinite scroll
+  const limit = 20;
+  const [skip, setSkip] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  const closeModal = () => {
-    setSelectedShift(null);
-    setShowModal(false);
-  };
-
-  // Fetch current user and their skills
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        if (BackendAPI.isAuthenticated) {
-          const response = await BackendAPI.authApi.getCurrentUser();
-          if (response.status === 200 && response.data) {
-            setUserSkills(response.data.skills || []);
-          }
+  const fetchShifts = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      // Pass undefined for tags to fetch all available shifts
+      const response = await BackendAPI.shiftApi.getAvailableShifts(undefined, {
+        skip: skip,
+        limit: limit,
+      } as any);
+      if (response.data && response.data.length > 0) {
+        setShifts((prev) => [...prev, ...response.data]);
+        setSkip((prev) => prev + response.data.length);
+        if (response.data.length < limit) {
+          setHasMore(false);
         }
-      } catch (err) {
-        console.error("Error fetching current user:", err);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
-
-  // Fetch available shifts from the API
-  useEffect(() => {
-    const fetchAvailableShifts = async () => {
-      try {
-        setLoading(true);
-        // Use BackendAPI's shiftApi instead of directly instantiating ShiftApi
-        console.log(`Authenticated is ${BackendAPI.isAuthenticated}`);
-        const response = await BackendAPI.shiftApi.getAvailableShifts();
-        console.log("Shift data:", response.data);
-        // Log the first shift to see its structure
-        if (response.data && response.data.length > 0) {
-          console.log("First shift structure:", response.data[0]);
-        }
-        // The API response should match the ShiftDto interface
-        setShifts(response.data);
         setError(null);
-      } catch (err) {
-        console.error("Error fetching available shifts:", err);
-        setError("Failed to load available shifts. Please try again later.");
-      } finally {
-        setLoading(false);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Error fetching available shifts:", err);
+      setError("Failed to load available shifts. Please try again later.");
+    }
+    setLoadingMore(false);
+  }, [loadingMore, hasMore, skip]);
+
+  useEffect(() => {
+    fetchShifts();
+  }, []);
+
+  const loaderRef = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          fetchShifts();
+        }
+      },
+      { threshold: 1.0 }
+    );
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
       }
     };
-
-    fetchAvailableShifts();
-  }, []);
+  }, [fetchShifts, hasMore, loadingMore]);
 
   useEffect(() => {
     // Get user location
@@ -172,6 +172,34 @@ export default function Dashboard() {
       setFilteredShifts([]);
     }
   }, [userCoords, radius, includeRemote, shifts]);
+
+  const openShiftDetails = (shift: ShiftWithId) => {
+    setSelectedShift(shift);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setSelectedShift(null);
+    setShowModal(false);
+  };
+
+  // Fetch current user and their skills
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        if (BackendAPI.isAuthenticated) {
+          const response = await BackendAPI.authApi.getCurrentUser();
+          if (response.status === 200 && response.data) {
+            setUserSkills(response.data.skills || []);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -245,7 +273,7 @@ export default function Dashboard() {
               </h1>
               <p>These jobs are found based on your location and skills.</p>
               <br />
-              {loading ? (
+              {shifts.length === 0 && loadingMore ? (
                 <p className="text-gray-600">Loading available shifts...</p>
               ) : error ? (
                 <p className="text-red-600">{error}</p>
@@ -337,7 +365,7 @@ export default function Dashboard() {
                   All Available Jobs
                 </h1>
               </center>
-              {loading ? (
+              {shifts.length === 0 && loadingMore ? (
                 <p className="text-center py-4">Loading available shifts...</p>
               ) : error ? (
                 <p className="text-center py-4 text-red-600">{error}</p>
@@ -387,6 +415,13 @@ export default function Dashboard() {
                   </TableBody>
                 </Table>
               )}
+              <div
+                ref={loaderRef}
+                style={{ height: "20px", textAlign: "center" }}
+              >
+                {loadingMore && <p>Loading more jobs...</p>}
+                {!hasMore && <p>No more jobs available</p>}
+              </div>
             </div>
           </div>
         </div>

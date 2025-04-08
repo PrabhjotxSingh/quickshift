@@ -118,7 +118,12 @@ export class ShiftService {
 		return shiftDto;
 	}
 
-	public async getAvailableShifts(tags?: string[], userId?: string): Promise<ShiftDto[]> {
+	public async getAvailableShifts(
+		tags?: string[],
+		userId?: string,
+		skip: number = 0,
+		limit: number = 20,
+	): Promise<ShiftDto[]> {
 		// Get all open shifts
 		let query: FilterQuery<ShiftDocument> = { isOpen: true };
 
@@ -148,6 +153,9 @@ export class ShiftService {
 				}
 			}
 		}
+
+		// Apply pagination by slicing the array
+		availableShifts = availableShifts.slice(skip, skip + limit);
 
 		// Map to DTOs and populate company names
 		const shiftDtos: ShiftDto[] = [];
