@@ -408,11 +408,11 @@ export class ShiftService {
 		return totalEarnings;
 	}
 
-	public async getCompanyOpenShifts(companyId: string): Promise<ShiftDto[]> {
-		// Get all open shifts for the company
+	public async getCompanyIncompleteShifts(companyId: string): Promise<ShiftDto[]> {
+		// Get all open shifts for the company and shifts that are not complete
 		const shifts = await this.shiftRepository.getManyByQuery({
 			company: companyId,
-			isOpen: true,
+			$or: [{ isOpen: true }, { isOpen: false, isComplete: false }],
 		});
 
 		// Map to DTOs and populate company names and applicant data

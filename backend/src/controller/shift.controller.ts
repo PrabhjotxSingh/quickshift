@@ -162,7 +162,7 @@ export class ShiftController extends BaseController {
 		try {
 			const user = await this.getUser();
 			await this.validateCompanyAccess(companyId, user);
-			return await this.shiftService.getCompanyOpenShifts(companyId);
+			return await this.shiftService.getCompanyIncompleteShifts(companyId);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}

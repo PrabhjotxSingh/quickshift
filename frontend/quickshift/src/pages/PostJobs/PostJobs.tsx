@@ -21,6 +21,7 @@ type Job = {
   location: string;
   applicants: Applicant[];
   acceptedApplicant?: string;
+  completed?: boolean;
 };
 
 type Applicant = {
@@ -235,6 +236,7 @@ export default function PostJobs() {
                       userData: app.userData,
                     })),
                     acceptedApplicant: shift.userHired,
+                    completed: shift.isComplete || false,
                   };
                 } catch (error) {
                   console.error(
@@ -249,6 +251,7 @@ export default function PostJobs() {
                     location: `${shift.location.latitude}, ${shift.location.longitude}`,
                     applicants: [],
                     acceptedApplicant: shift.userHired,
+                    completed: false,
                   };
                 }
               })
@@ -461,7 +464,43 @@ export default function PostJobs() {
     }
   };
 
-  const upcomingJobs = postedJobs.filter((job) => job.acceptedApplicant);
+  const handleCompleteJob = async (jobId: string) => {
+    try {
+      const response = await BackendAPI.shiftApi.completeShift(
+        jobId,
+        Date.now()
+      );
+      if (response.status === 200) {
+        setPostedJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job.id === jobId ? { ...job, completed: true } : job
+          )
+        );
+        Swal.fire({
+          title: "Job Completed!",
+          text: "The job has been marked as complete.",
+          icon: "success",
+          confirmButtonText: "Great!",
+          customClass: { confirmButton: "swal2-black-button" },
+        });
+      } else {
+        throw new Error("Failed to complete job");
+      }
+    } catch (error) {
+      console.error("Error completing job:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to complete job. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: { confirmButton: "swal2-black-button" },
+      });
+    }
+  };
+
+  const upcomingJobs = postedJobs.filter(
+    (job) => job.acceptedApplicant && !job.completed
+  );
 
   return (
     <>
@@ -547,7 +586,21 @@ export default function PostJobs() {
                 ${job.pay}/hr — {job.location}
               </p>
 
-              {!job.acceptedApplicant ? (
+              {job.acceptedApplicant ? (
+                <>
+                  <p className="mt-2 text-green-600 font-semibold">
+                    Accepted: {job.acceptedApplicant}
+                  </p>
+                  {!job.completed && (
+                    <button
+                      onClick={() => handleCompleteJob(job.id)}
+                      className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                    >
+                      Complete Job
+                    </button>
+                  )}
+                </>
+              ) : (
                 <>
                   <p className="mt-2 font-medium">Applicants:</p>
                   <ul className="space-y-1">
@@ -605,10 +658,6 @@ export default function PostJobs() {
                     )}
                   </ul>
                 </>
-              ) : (
-                <p className="mt-2 text-green-600 font-semibold">
-                  Accepted: {job.acceptedApplicant}
-                </p>
               )}
             </div>
           ))}
