@@ -92,6 +92,7 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userSkills, setUserSkills] = useState<string[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Dynamic loading with pagination and infinite scroll
   const recommendedLimit = 20;
@@ -152,9 +153,11 @@ export default function Dashboard() {
   }, [loadingAll, hasMoreAll, allSkip, allLimit]);
 
   useEffect(() => {
-    // Fetch all shifts on component mount
-    fetchAllShifts();
-  }, []);
+    if (isAuthenticated) {
+      // Fetch all shifts only after authentication tokens are available
+      fetchAllShifts();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     // When userSkills are available, fetch recommended shifts
@@ -235,6 +238,7 @@ export default function Dashboard() {
         if (response.status === 200 && response.data) {
           if (isMounted) {
             setUserSkills(response.data.skills || []);
+            setIsAuthenticated(true);
           }
           return true;
         }
