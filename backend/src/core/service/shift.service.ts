@@ -418,8 +418,13 @@ export class ShiftService {
 		// Map to DTOs and populate company names and applicant data
 		const shiftDtos: ShiftDto[] = [];
 
+		// Collect all user IDs from all applications across all shifts
+		const allUserIds: string[] = [];
+		const shiftApplicationsMap = new Map<string, any[]>();
+
 		for (const shift of shifts) {
 			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+			const shiftId = shift._id ? shift._id.toString() : "";
 
 			// Populate the company name
 			const company = await this.companyRepository.get(shift.company.toString());
@@ -433,24 +438,52 @@ export class ShiftService {
 				rejected: false,
 			});
 
-			// Add applicant data to the shift DTO
+			// Store applications for this shift
+			shiftApplicationsMap.set(shiftId, applications);
+
+			// Collect user IDs
+			applications.forEach((app) => {
+				allUserIds.push(app.user.toString());
+			});
+
+			// Initialize applicants array
 			shiftDto.applicants = [];
+			shiftDtos.push(shiftDto);
+		}
+
+		// Fetch all user data in a single batch query
+		const userDataMap = new Map<string, UserDto>();
+		if (allUserIds.length > 0) {
+			// Get unique user IDs
+			const uniqueUserIds = [...new Set(allUserIds)];
+
+			// Fetch all users in a single query
+			const users = await this.userRepository.getManyByQuery({
+				_id: { $in: uniqueUserIds.map((id) => new mongoose.Types.ObjectId(id)) },
+			});
+
+			// Create a map of user ID to user data
+			users.forEach((user) => {
+				const userDto = mapper.map(user, UserModel, UserDto);
+				userDataMap.set(user._id.toString(), userDto);
+			});
+		}
+
+		// Now populate the applicants with user data
+		for (const shiftDto of shiftDtos) {
+			const applications = shiftApplicationsMap.get(shiftDto._id) || [];
 
 			for (const application of applications) {
-				const applicantUser = await this.userRepository.get(application.user.toString());
-				if (applicantUser) {
-					const userDto = mapper.map(applicantUser, UserModel, UserDto);
-					// Use a type assertion to handle the _id property
-					const applicationId = (application as any)._id?.toString() || "";
-					shiftDto.applicants.push({
-						id: applicationId,
-						userId: application.user.toString(),
-						userData: userDto,
-					});
-				}
-			}
+				const applicationId = (application as any)._id?.toString() || "";
+				const userId = application.user.toString();
+				const userData = userDataMap.get(userId);
 
-			shiftDtos.push(shiftDto);
+				shiftDto.applicants?.push({
+					id: applicationId,
+					userId: userId,
+					userData: userData,
+				});
+			}
 		}
 
 		return shiftDtos;
