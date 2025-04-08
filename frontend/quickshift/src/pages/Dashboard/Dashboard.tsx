@@ -143,16 +143,13 @@ export default function Dashboard() {
   }, [loadingAll, hasMoreAll, allSkip, allLimit]);
 
   useEffect(() => {
-    // Reset job lists when user skills update
-    setRecommendedShifts([]);
-    setAllShifts([]);
-    setAllSkip(0);
-    setHasMoreAll(true);
+    // Fetch all shifts on component mount
+    fetchAllShifts();
+  }, []);
+
+    // When userSkills are available, fetch recommended shifts
     if (userSkills && userSkills.length > 0) {
       fetchRecommendedShifts();
-      fetchAllShifts();
-    } else {
-      fetchAllShifts();
     }
   }, [userSkills]);
 
