@@ -143,16 +143,14 @@ export default function Dashboard() {
   }, [loadingAll, hasMoreAll, allSkip, allLimit]);
 
   useEffect(() => {
-    // Reset job lists when user skills update
-    setRecommendedShifts([]);
-    setAllShifts([]);
-    setAllSkip(0);
-    setHasMoreAll(true);
+    // Fetch all shifts on component mount
+    fetchAllShifts();
+  }, []);
+
+  useEffect(() => {
+    // When userSkills are available, fetch recommended shifts
     if (userSkills && userSkills.length > 0) {
       fetchRecommendedShifts();
-      fetchAllShifts();
-    } else {
-      fetchAllShifts();
     }
   }, [userSkills]);
 
@@ -164,7 +162,7 @@ export default function Dashboard() {
           fetchAllShifts();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.1, rootMargin: "1000px" }
     );
     if (loaderRef.current) {
       observer.observe(loaderRef.current);
