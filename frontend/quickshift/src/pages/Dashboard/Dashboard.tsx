@@ -162,7 +162,7 @@ export default function Dashboard() {
           fetchAllShifts();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.1, rootMargin: "200px" }
     );
     if (loaderRef.current) {
       observer.observe(loaderRef.current);
