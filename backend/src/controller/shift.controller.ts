@@ -156,7 +156,7 @@ export class ShiftController extends BaseController {
 	}
 
 	@Get("PendingApplications")
-	@AuthenticateAny([UserRole.EMPLOYER, UserRole.COMPANYADMIN, UserRole.ADMIN])
+	@AuthenticateAny([UserRole.WORKER])
 	public async getPendingApplications(): Promise<ShiftApplicantDto[] | string> {
 		try {
 			const user = await this.getUser();
