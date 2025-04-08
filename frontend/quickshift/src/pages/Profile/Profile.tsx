@@ -18,20 +18,15 @@ import { Button } from "@/components/ui/button";
 import { BackendAPI } from "@/lib/backend/backend-api";
 import Swal from "sweetalert2";
 
-// Sample user and earnings data
-const earningsData = [
-  { week: "Week 1", earnings: 120 },
-  { week: "Week 2", earnings: 180 },
-  { week: "Week 3", earnings: 250 },
-  { week: "Week 4", earnings: 300 },
-];
-
 export default function Profile() {
   const [skills, setSkills] = useState("");
   const [userData, setUserData] = useState<{
     username: string;
     skills: string[];
   }>({ username: "", skills: [] });
+  const [earningsData, setEarningsData] = useState<
+    { week: string; earnings: number }[]
+  >([]);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -45,6 +40,18 @@ export default function Profile() {
       }
     }
     fetchUserData();
+    async function fetchEarningsData() {
+      try {
+        const response = await BackendAPI.shiftApi.getUserEarnings();
+        if (response.data) {
+          console.log(response.data);
+          setEarningsData(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch earnings data", error);
+      }
+    }
+    fetchEarningsData();
   }, []);
 
   const handleSkillsSubmit = async () => {
