@@ -544,17 +544,19 @@ export default function PostJobs() {
 
   const handleViewCompletedJobs = async (userId: string, userName: string) => {
     try {
-      const response = await BackendAPI.shiftApi.getUserCompletedShifts(userId);
+      const response = await BackendAPI.shiftApi.getUserShifts(false, userId);
       if (response.status === 200 && response.data) {
-        const completedJobs = response.data.map((shift: ShiftDto) => ({
-          id: shift._id,
-          name: shift.name,
-          company: shift.companyName,
-          pay: shift.pay,
-          location: `${shift.location.latitude}, ${shift.location.longitude}`,
-          rating: shift.rating,
-          completed: true,
-        }));
+        const completedJobs = response.data
+          .filter((shift: ShiftDto) => shift.isComplete)
+          .map((shift: ShiftDto) => ({
+            id: shift._id,
+            name: shift.name,
+            company: shift.companyName,
+            pay: shift.pay,
+            location: `${shift.location.latitude}, ${shift.location.longitude}`,
+            rating: shift.rating,
+            completed: true,
+          }));
         setSelectedUserCompletedJobs(completedJobs);
         setSelectedUserName(userName);
         setIsViewingCompletedJobs(true);
