@@ -133,16 +133,18 @@ export default function Profile() {
           <div className="mt-4">
             <h4 className="text-lg font-semibold">Your Skills</h4>
             {userData.skills && userData.skills.length > 0 ? (
-              <ul className="list-disc list-inside">
+              <ul className="flex flex-wrap gap-2">
                 {userData.skills.map((skill, index) => (
-                  <li key={index} className="flex items-center">
-                    <span>{skill}</span>
-                    <button
-                      onClick={() => handleRemoveSkill(skill)}
-                      className="ml-2 text-red-500"
-                    >
-                      X
-                    </button>
+                  <li key={index} className="relative group">
+                    <div className="px-3 py-1 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white">
+                      <span>{skill}</span>
+                      <button
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="ml-2 text-red-500 group-hover:text-white"
+                      >
+                        X
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
