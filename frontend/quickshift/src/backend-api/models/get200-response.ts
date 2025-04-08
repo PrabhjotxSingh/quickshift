@@ -15,6 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
+import type { Applicant } from './applicant';
+// May contain unused imports in some cases
+// @ts-ignore
 import type { Location } from './location';
 // May contain unused imports in some cases
 // @ts-ignore
@@ -110,5 +113,11 @@ export interface Get200Response {
      * @memberof Get200Response
      */
     'rating'?: number;
+    /**
+     * 
+     * @type {Array<Applicant>}
+     * @memberof Get200Response
+     */
+    'applicants'?: Array<Applicant>;
 }
 

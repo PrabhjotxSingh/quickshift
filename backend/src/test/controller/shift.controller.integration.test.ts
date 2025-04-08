@@ -143,7 +143,7 @@ describe("ShiftController Integration Tests", () => {
 		companyRepository = new CompanyRepository();
 		shiftRepository = new ShiftRepository();
 		shiftApplicantRepository = new ShiftApplicantRepository();
-		shiftService = new ShiftService(companyRepository, shiftRepository, shiftApplicantRepository);
+		shiftService = new ShiftService(companyRepository, shiftRepository, shiftApplicantRepository, userRepository);
 		companyService = new CompanyService(userRepository, companyRepository);
 		authService = new AuthService(userRepository, new RefreshTokenRepository());
 
@@ -664,7 +664,7 @@ describe("ShiftController Integration Tests", () => {
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(undefined);
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(undefined, mockUserId);
 		});
 
 		it("should get available shifts for worker with tags", async () => {
@@ -677,7 +677,7 @@ describe("ShiftController Integration Tests", () => {
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(tags);
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(tags, mockUserId);
 		});
 
 		it("should handle errors from shiftService", async () => {
