@@ -117,26 +117,35 @@ export default function Dashboard() {
   const fetchAllShifts = useCallback(async () => {
     if (loadingAll || !hasMoreAll) return;
     setLoadingAll(true);
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    try {
-      const response = await BackendAPI.shiftApi.getAvailableShifts(
-        undefined,
-        undefined,
-        allSkip,
-        allLimit
-      );
-      if (response.data && response.data.length > 0) {
-        setAllShifts((prev) => [...prev, ...response.data]);
-        setAllSkip((prev) => prev + response.data.length);
-        if (response.data.length < allLimit) {
+    const startTime = Date.now();
+    let success = false;
+    while (Date.now() - startTime < 20000 && !success) {
+      try {
+        const response = await BackendAPI.shiftApi.getAvailableShifts(
+          undefined,
+          undefined,
+          allSkip,
+          allLimit
+        );
+        if (response.data && response.data.length > 0) {
+          setAllShifts((prev) => [...prev, ...response.data]);
+          setAllSkip((prev) => prev + response.data.length);
+          if (response.data.length < allLimit) {
+            setHasMoreAll(false);
+          }
+          setError(null);
+        } else {
           setHasMoreAll(false);
         }
-        setError(null);
-      } else {
-        setHasMoreAll(false);
+        success = true;
+      } catch (err) {
+        console.error("Error fetching all shifts:", err);
+        if (Date.now() - startTime < 20000) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
       }
-    } catch (err) {
-      console.error("Error fetching all shifts:", err);
+    }
+    if (!success) {
       setError("Failed to load available shifts. Please try again later.");
     }
     setLoadingAll(false);
