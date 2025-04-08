@@ -358,17 +358,44 @@ export class ShiftService {
 		return shiftDto;
 	}
 
-	public async getPendingApplications(user: UserDocument): Promise<ShiftApplicantDto[]> {
+	public async getPendingApplications(
+		user: UserDocument,
+		skip: number,
+		limit: number,
+	): Promise<ShiftApplicantDto[]> {
 		// Get all applications where the user is the applicant
-		const applications = await this.shiftApplicantRepository.getManyByQuery({
-			user: user._id,
-		});
+		const applications = await this.shiftApplicantRepository.getManyByQuery({ user: user._id });
 
-		// Map to DTOs and populate user data
+		// Filter applications that have an associated shiftId
+		const applicationsWithShift = applications.filter((app) => app.shiftId);
+
+		// Populate the shift data for each application
+		const populatedApplications = await Promise.all(
+			applicationsWithShift.map(async (app) => {
+				const shift = await this.shiftRepository.get(app.shiftId.toString());
+				return { ...app.toObject(), shift };
+			}),
+		);
+
+		// Sort the applications by the shift's start time (most recent first)
+		populatedApplications.sort(
+			(a, b) => new Date(b.shift.startTime).getTime() - new Date(a.shift.startTime).getTime(),
+		);
+
+		// Apply pagination
+		const paginatedApplications = populatedApplications.slice(skip, skip + limit);
+
+		// Map to DTOs and populate user and shift data
 		const applicationDtos: ShiftApplicantDto[] = [];
 
-		for (const application of applications) {
-			const applicationDto = mapper.map(application, ShiftApplicantModel, ShiftApplicantDto);
+		for (const application of paginatedApplications) {
+			// Create DTO directly instead of using mapper
+			const applicationDto = new ShiftApplicantDto();
+			applicationDto._id = application._id.toString();
+			applicationDto.company = application.company.toString();
+			applicationDto.shiftId = application.shiftId.toString();
+			applicationDto.user = application.user.toString();
+			applicationDto.rejected = application.rejected || false;
 
 			// Populate user data
 			const applicantUser = await this.userRepository.get(application.user.toString());

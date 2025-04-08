@@ -157,10 +157,20 @@ export class ShiftController extends BaseController {
 
 	@Get("PendingApplications")
 	@AuthenticateAny([UserRole.WORKER])
-	public async getPendingApplications(): Promise<ShiftApplicantDto[] | string> {
+	public async getPendingApplications(
+		@Query() skip?: number,
+		@Query() limit?: number,
+	): Promise<ShiftApplicantDto[] | string> {
 		try {
 			const user = await this.getUser();
-			const pendingApplications = await this.shiftService.getPendingApplications(user);
+			// Use default values if skip/limit are not provided
+			const effectiveSkip = skip ?? 0;
+			const effectiveLimit = limit ?? 20;
+			const pendingApplications = await this.shiftService.getPendingApplications(
+				user,
+				effectiveSkip,
+				effectiveLimit,
+			);
 			return pendingApplications;
 		} catch (ex: any) {
 			return this.handleError(ex);

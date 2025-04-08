@@ -416,10 +416,12 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPendingApplications: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getPendingApplications: async (skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/Shift/PendingApplications`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -431,6 +433,14 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (skip !== undefined) {
+                localVarQueryParameter['skip'] = skip;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
 
 
     
@@ -732,11 +742,13 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPendingApplications(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPendingApplications200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingApplications(options);
+        async getPendingApplications(skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetPendingApplications200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingApplications(skip, limit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ShiftApi.getPendingApplications']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -897,11 +909,13 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {number} [skip] 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response> {
-            return localVarFp.getPendingApplications(options).then((request) => request(axios, basePath));
+        getPendingApplications(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response> {
+            return localVarFp.getPendingApplications(skip, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1046,11 +1060,13 @@ export interface ShiftApiInterface {
 
     /**
      * 
+     * @param {number} [skip] 
+     * @param {number} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApiInterface
      */
-    getPendingApplications(options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response>;
+    getPendingApplications(skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<GetPendingApplications200Response>;
 
     /**
      * 
@@ -1215,12 +1231,14 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
 
     /**
      * 
+     * @param {number} [skip] 
+     * @param {number} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApi
      */
-    public getPendingApplications(options?: RawAxiosRequestConfig) {
-        return ShiftApiFp(this.configuration).getPendingApplications(options).then((request) => request(this.axios, this.basePath));
+    public getPendingApplications(skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getPendingApplications(skip, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
