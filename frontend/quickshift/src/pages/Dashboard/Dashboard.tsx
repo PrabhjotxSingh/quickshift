@@ -259,7 +259,10 @@ export default function Dashboard() {
                       .map((shift, index) => (
                         <CarouselItem key={index}>
                           <div className="p-1">
-                            <Card>
+                            <Card
+                              className="cursor-pointer hover:shadow-lg transition-shadow"
+                              onClick={() => openShiftDetails(shift)}
+                            >
                               <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
                                 <span className="text-3xl font-semibold">
                                   {shift.name}
@@ -273,6 +276,9 @@ export default function Dashboard() {
                                 <span className="text-m">
                                   {shift.tags.join(", ")}
                                 </span>
+                                <button className="mt-4 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
+                                  View Details
+                                </button>
                               </CardContent>
                             </Card>
                           </div>
