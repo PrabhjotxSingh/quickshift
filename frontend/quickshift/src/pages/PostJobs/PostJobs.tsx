@@ -735,36 +735,19 @@ export default function PostJobs() {
                         }`
                       : job.acceptedApplicant}
                   </p>
-                  {!job.completed && (
-                    <div className="mt-4 space-y-4">
-                      <div className="flex items-center space-x-4">
-                        <label className="text-sm font-medium">
-                          Rating (0-100):
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={jobRatings[job.id] || 50}
-                          onChange={(e) =>
-                            setJobRatings((prev) => ({
-                              ...prev,
-                              [job.id]: parseInt(e.target.value),
-                            }))
-                          }
-                          className="flex-1"
-                        />
-                        <span className="text-sm font-medium">
-                          {jobRatings[job.id] || 50}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleCompleteJob(job.id)}
-                        className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded"
-                      >
-                        Complete Job
-                      </button>
-                    </div>
+
+                  {/* Add email for the accepted user */}
+                  {job.applicants.find(
+                    (app) => app.userId === job.acceptedApplicant
+                  )?.userData?.email && (
+                    <p className="text-sm text-gray-600">
+                      Email:{" "}
+                      {
+                        job.applicants.find(
+                          (app) => app.userId === job.acceptedApplicant
+                        )?.userData?.email
+                      }
+                    </p>
                   )}
                 </>
               ) : (
@@ -848,9 +831,30 @@ export default function PostJobs() {
             <h2 className="text-xl font-semibold mt-10">Upcoming Jobs</h2>
             <ul className="space-y-3 mt-4">
               {upcomingJobs.map((job) => (
-                <li key={job.id} className="bg-gray-100 p-4 rounded shadow-sm">
-                  <strong>{job.name}</strong> with{" "}
-                  <em>
+                <li key={job.id} className="border p-4 rounded">
+                  <h3 className="font-bold">{job.name}</h3>
+                  <p>{job.company}</p>
+                  <p>
+                    ${job.pay}/hr — {job.location}
+                  </p>
+                  {job.tags && job.tags.length > 0 && (
+                    <div className="mt-2">
+                      <p className="font-medium">Required Skills:</p>
+                      <ul className="flex flex-wrap gap-2 mt-1">
+                        {job.tags.map((tag, index) => (
+                          <li
+                            key={index}
+                            className="px-2 py-1 bg-gray-100 rounded-full text-sm"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-green-600 font-semibold">
+                    Accepted:{" "}
                     {job.applicants.find(
                       (app) => app.userId === job.acceptedApplicant
                     )?.userData
@@ -864,21 +868,51 @@ export default function PostJobs() {
                           )?.userData?.lastName
                         }`
                       : job.acceptedApplicant}
-                  </em>{" "}
-                  at {job.company}
-                  {job.tags && job.tags.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium">Required Skills:</p>
-                      <ul className="flex flex-wrap gap-2 mt-1">
-                        {job.tags.map((tag, index) => (
-                          <li
-                            key={index}
-                            className="px-2 py-1 bg-white rounded-full text-sm"
-                          >
-                            {tag}
-                          </li>
-                        ))}
-                      </ul>
+                  </p>
+
+                  {/* Add email for the accepted user */}
+                  {job.applicants.find(
+                    (app) => app.userId === job.acceptedApplicant
+                  )?.userData?.email && (
+                    <p className="text-sm text-gray-600">
+                      Email:{" "}
+                      {
+                        job.applicants.find(
+                          (app) => app.userId === job.acceptedApplicant
+                        )?.userData?.email
+                      }
+                    </p>
+                  )}
+
+                  {!job.completed && (
+                    <div className="mt-4 space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium">
+                          Rating (0-100):
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={jobRatings[job.id] || 50}
+                          onChange={(e) =>
+                            setJobRatings((prev) => ({
+                              ...prev,
+                              [job.id]: parseInt(e.target.value),
+                            }))
+                          }
+                          className="flex-1"
+                        />
+                        <span className="text-sm font-medium">
+                          {jobRatings[job.id] || 50}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCompleteJob(job.id)}
+                        className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded"
+                      >
+                        Complete Job
+                      </button>
                     </div>
                   )}
                 </li>
