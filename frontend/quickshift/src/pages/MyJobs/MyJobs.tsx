@@ -115,8 +115,14 @@ export default function MyJobs() {
       const applied: JobDisplay[] = [];
       const rejected: JobDisplay[] = [];
 
+      // Get all won job IDs to filter them out from applications
+      const wonJobIds = new Set(wonJobs.map((job) => job.id));
+
       applications.forEach((app) => {
         if (!app.shift) return;
+
+        // Skip if this job is already won
+        if (wonJobIds.has(app.shift._id)) return;
 
         const jobDisplay: JobDisplay = {
           id: app._id,
