@@ -15,7 +15,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { BackendAPI } from "../../lib/backend/backend-api";
 import { useEffect, useState, useRef } from "react";
 import { LoginRequest } from "../../backend-api";
-import { encryptPassword } from "../../lib/crypto";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -52,12 +51,9 @@ export default function Login() {
       // Ensure BackendAPI is initialized before attempting to log in
       BackendAPI.initialize();
 
-      // Encrypt the password before sending to the server
-      const encryptedPassword = await encryptPassword(password);
-
       const loginRequest: LoginRequest = {
         username: username,
-        password: encryptedPassword,
+        password: password,
       };
       const success = await BackendAPI.login(loginRequest);
       if (success) {

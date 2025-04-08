@@ -13,7 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { BackendAPI } from "@/lib/backend/backend-api";
 import { RegisterRequest } from "../../backend-api";
-import { encryptPassword } from "../../lib/crypto";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -51,13 +50,10 @@ export default function Signup() {
     try {
       setLoading(true);
 
-      // Encrypt the password before sending to the server
-      const encryptedPassword = await encryptPassword(password);
-
       // Create register request object
       const registerRequest: RegisterRequest = {
         email,
-        password: encryptedPassword,
+        password,
         username,
         firstName,
         lastName,
