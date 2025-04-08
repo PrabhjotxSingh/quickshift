@@ -137,9 +137,17 @@ export default function MyJobs() {
             : undefined,
         };
 
+        // If the application was rejected, add to rejected list
         if (app.rejected) {
           rejected.push(jobDisplay);
-        } else {
+        }
+        // If the shift is complete and not rejected, it should be in past jobs
+        else if (app.shift.isComplete) {
+          // Skip - this will be handled by processUserShifts
+          return;
+        }
+        // Otherwise, it's an active application
+        else {
           applied.push(jobDisplay);
         }
       });
