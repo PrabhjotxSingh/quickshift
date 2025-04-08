@@ -29,6 +29,16 @@ type Applicant = {
   userData?: UserDto;
 };
 
+// New type for completed jobs
+type CompletedJob = {
+  id: string;
+  name: string;
+  company: string;
+  pay: number;
+  completedDate: string;
+  rating?: number;
+};
+
 export default function PostJobs() {
   const [postedJobs, setPostedJobs] = useState<Job[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
@@ -46,6 +56,10 @@ export default function PostJobs() {
     latitude: 0,
     longitude: 0,
   });
+  // State for tracking user completed jobs and modal visibility
+  const [selectedUserCompletedJobs, setSelectedUserCompletedJobs] = useState<CompletedJob[]>([]);
+  const [isViewingCompletedJobs, setIsViewingCompletedJobs] = useState(false);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
 
   useEffect(() => {
     const fetchCompanyName = async () => {
@@ -280,6 +294,48 @@ export default function PostJobs() {
     console.log("Updated locationCoords:", { latitude, longitude });
   };
 
+  // New function to view an applicant's completed jobs
+  const handleViewCompletedJobs = async (userId: string, userName: string) => {
+    try {
+      // Set getUpcoming to false to get past shifts
+      const response = await BackendAPI.shiftApi.getUserShifts(false, userId);
+      
+      if (response.status === 200 && response.data) {
+        // Filter to only include completed shifts
+        const completedShifts = response.data.filter((shift: any) => 
+          shift.isComplete === true
+        );
+        
+        // Transform the data to fit our CompletedJob type
+        const formattedJobs = completedShifts.map((shift: any) => ({
+          id: shift._id,
+          name: shift.name,
+          company: shift.companyName,
+          pay: shift.pay,
+          completedDate: new Date(shift.completedDate).toLocaleDateString(),
+          rating: shift.rating
+        }));
+        
+        setSelectedUserCompletedJobs(formattedJobs);
+        setSelectedUserName(userName);
+        setIsViewingCompletedJobs(true);
+      } else {
+        throw new Error("Failed to fetch user's completed jobs");
+      }
+    } catch (error) {
+      console.error("Error fetching completed jobs:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to fetch completed jobs. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
+    }
+  };
+
   const handlePostJob = async () => {
     if (!companyId) {
       Swal.fire({
@@ -463,6 +519,13 @@ export default function PostJobs() {
 
   const upcomingJobs = postedJobs.filter((job) => job.acceptedApplicant);
 
+  // Close completed jobs modal
+  const closeCompletedJobsModal = () => {
+    setIsViewingCompletedJobs(false);
+    setSelectedUserCompletedJobs([]);
+    setSelectedUserName("");
+  };
+
   return (
     <>
       <Navbar1 />
@@ -557,11 +620,21 @@ export default function PostJobs() {
                         className="flex items-center justify-between border-b pb-2"
                       >
                         <div className="flex-1">
-                          <p className="font-medium">
-                            {applicant.userData
-                              ? `${applicant.userData.firstName} ${applicant.userData.lastName}`
-                              : "User information not available"}
-                          </p>
+                          {applicant.userData ? (
+                            <p 
+                              className="font-medium cursor-pointer hover:text-blue-600"
+                              onClick={() => 
+                                handleViewCompletedJobs(
+                                  applicant.userId, 
+                                  `${applicant.userData?.firstName || ''} ${applicant.userData?.lastName || ''}`
+                                )
+                              }
+                            >
+                              {applicant.userData?.firstName || ''} {applicant.userData?.lastName || ''}
+                            </p>
+                          ) : (
+                            <p className="font-medium">User information not available</p>
+                          )}
                           {applicant.userData && (
                             <div className="text-sm text-gray-600">
                               <p>
@@ -625,6 +698,67 @@ export default function PostJobs() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        
+        {/* Modal for viewing completed jobs */}
+        {isViewingCompletedJobs && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">
+                  {selectedUserName}'s Completed Jobs
+                </h2>
+                <button
+                  onClick={closeCompletedJobsModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              
+              {selectedUserCompletedJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedUserCompletedJobs.map((job) => (
+                    <div key={job.id} className="border p-3 rounded">
+                      <h3 className="font-semibold">{job.name}</h3>
+                      <p>Company: {job.company}</p>
+                      <p>Pay: ${job.pay}/hr</p>
+                      <p>Completed: {job.completedDate}</p>
+                      {job.rating !== undefined && (
+                        <p>Rating: {job.rating} / 5</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center italic text-gray-500">
+                  This user has no completed jobs.
+                </p>
+              )}
+              
+              <div className="mt-4 text-center">
+                <button
+                  onClick={closeCompletedJobsModal}
+                  className="bg-black text-white px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
