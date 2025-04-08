@@ -588,7 +588,20 @@ export default function PostJobs() {
               {job.acceptedApplicant ? (
                 <>
                   <p className="mt-2 text-green-600 font-semibold">
-                    Accepted: {job.acceptedApplicant}
+                    Accepted:{" "}
+                    {job.applicants.find(
+                      (app) => app.userId === job.acceptedApplicant
+                    )?.userData
+                      ? `${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.firstName
+                        } ${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.lastName
+                        }`
+                      : job.acceptedApplicant}
                   </p>
                   {!job.completed && (
                     <div className="mt-4 space-y-4">
@@ -692,7 +705,22 @@ export default function PostJobs() {
               {upcomingJobs.map((job) => (
                 <li key={job.id} className="bg-gray-100 p-4 rounded shadow-sm">
                   <strong>{job.name}</strong> with{" "}
-                  <em>{job.acceptedApplicant}</em> at {job.company}
+                  <em>
+                    {job.applicants.find(
+                      (app) => app.userId === job.acceptedApplicant
+                    )?.userData
+                      ? `${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.firstName
+                        } ${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.lastName
+                        }`
+                      : job.acceptedApplicant}
+                  </em>{" "}
+                  at {job.company}
                 </li>
               ))}
             </ul>
