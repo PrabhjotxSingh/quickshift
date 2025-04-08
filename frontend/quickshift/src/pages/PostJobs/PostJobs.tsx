@@ -294,6 +294,20 @@ export default function PostJobs() {
       return;
     }
 
+    // Ensure a valid location is selected from AddressAutocomplete
+    if (locationCoords.latitude === 0 && locationCoords.longitude === 0) {
+      Swal.fire({
+        title: "Error",
+        text: "Please select a valid job location from the suggestions.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
+      return;
+    }
+
     try {
       console.log("Submitting job with location coords:", locationCoords);
 
