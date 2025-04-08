@@ -25,6 +25,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { BackendAPI } from "@/lib/backend/backend-api";
 
 interface MenuItem {
   title: string;
@@ -216,6 +217,13 @@ const ProfileDropdown = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleLogout = () => {
+    console.log("Logging out...");
+    BackendAPI.logout();
+    console.log("Redirecting to login page...");
+    window.location.href = "/login";
+  };
+
   return (
     <div className="relative">
       <Button variant="outline" size="sm" onClick={toggleDropdown}>
@@ -230,7 +238,8 @@ const ProfileDropdown = () => {
             View Profile
           </a>
           <a
-            href="/logout"
+            href="#"
+            onClick={handleLogout}
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             <LogOut className="mr-2" /> Logout
