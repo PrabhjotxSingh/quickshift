@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./Dashboard.css";
 import markerIcon from "@/assets/marker.png";
@@ -78,16 +78,131 @@ function matchesUserSkills(shift: ShiftDto, skills: string[]) {
 
 export default function Dashboard() {
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null);
-  const [shifts, setShifts] = useState<ShiftWithId[]>([]);
-  const [filteredShifts, setFilteredShifts] = useState<ShiftWithId[]>([]);
+  const [recommendedShifts, setRecommendedShifts] = useState<ShiftWithId[]>([]);
+  const [allShifts, setAllShifts] = useState<ShiftWithId[]>([]);
+  const [allSkip, setAllSkip] = useState(0);
+  const [loadingAll, setLoadingAll] = useState(false);
+  const [hasMoreAll, setHasMoreAll] = useState(true);
+  const [filteredMapShifts, setFilteredMapShifts] = useState<ShiftWithId[]>([]);
   const [radius, setRadius] = useState(50);
   const [includeRemote, setIncludeRemote] = useState(false);
   const [hoveredShiftId, setHoveredShiftId] = useState<string | null>(null);
   const [selectedShift, setSelectedShift] = useState<ShiftWithId | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userSkills, setUserSkills] = useState<string[]>([]);
+
+  // Dynamic loading with pagination and infinite scroll
+  const recommendedLimit = 20;
+  const allLimit = 10;
+
+  const fetchRecommendedShifts = useCallback(async () => {
+    if (!userSkills || userSkills.length === 0) return;
+    try {
+      const response = await BackendAPI.shiftApi.getAvailableShifts(
+        userSkills,
+        true,
+        0,
+        recommendedLimit
+      );
+      if (response.data && response.data.length > 0) {
+        setRecommendedShifts(response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching recommended shifts:", err);
+    }
+  }, [userSkills]);
+
+  const fetchAllShifts = useCallback(async () => {
+    if (loadingAll || !hasMoreAll) return;
+    setLoadingAll(true);
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      const response = await BackendAPI.shiftApi.getAvailableShifts(
+        undefined,
+        undefined,
+        allSkip,
+        allLimit
+      );
+      if (response.data && response.data.length > 0) {
+        setAllShifts((prev) => [...prev, ...response.data]);
+        setAllSkip((prev) => prev + response.data.length);
+        if (response.data.length < allLimit) {
+          setHasMoreAll(false);
+        }
+        setError(null);
+      } else {
+        setHasMoreAll(false);
+      }
+    } catch (err) {
+      console.error("Error fetching all shifts:", err);
+      setError("Failed to load available shifts. Please try again later.");
+    }
+    setLoadingAll(false);
+  }, [loadingAll, hasMoreAll, allSkip, allLimit]);
+
+  useEffect(() => {
+    // Reset job lists when user skills update
+    setRecommendedShifts([]);
+    setAllShifts([]);
+    setAllSkip(0);
+    setHasMoreAll(true);
+    if (userSkills && userSkills.length > 0) {
+      fetchRecommendedShifts();
+      fetchAllShifts();
+    } else {
+      fetchAllShifts();
+    }
+  }, [userSkills]);
+
+  const loaderRef = useRef(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreAll && !loadingAll) {
+          fetchAllShifts();
+        }
+      },
+      { threshold: 1.0 }
+    );
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [fetchAllShifts, hasMoreAll, loadingAll]);
+
+  useEffect(() => {
+    // Get user location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserCoords([position.coords.latitude, position.coords.longitude]);
+      },
+      (err) => console.error("Failed to get user location:", err)
+    );
+  }, []);
+
+  useEffect(() => {
+    if (userCoords) {
+      const combined = [...recommendedShifts, ...allShifts];
+      const nearby = combined.filter((shift) =>
+        shift.location
+          ? getDistanceFromLatLonInMiles(
+              userCoords[0],
+              userCoords[1],
+              shift.location.latitude,
+              shift.location.longitude
+            ) <= radius
+          : false
+      );
+      setFilteredMapShifts(nearby);
+    } else {
+      setFilteredMapShifts([]);
+    }
+  }, [userCoords, radius, recommendedShifts, allShifts]);
 
   const openShiftDetails = (shift: ShiftWithId) => {
     setSelectedShift(shift);
@@ -117,61 +232,32 @@ export default function Dashboard() {
     fetchCurrentUser();
   }, []);
 
-  // Fetch available shifts from the API
-  useEffect(() => {
-    const fetchAvailableShifts = async () => {
-      try {
-        setLoading(true);
-        // Use BackendAPI's shiftApi instead of directly instantiating ShiftApi
-        console.log(`Authenticated is ${BackendAPI.isAuthenticated}`);
-        const response = await BackendAPI.shiftApi.getAvailableShifts();
-        console.log("Shift data:", response.data);
-        // Log the first shift to see its structure
-        if (response.data && response.data.length > 0) {
-          console.log("First shift structure:", response.data[0]);
-        }
-        // The API response should match the ShiftDto interface
-        setShifts(response.data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching available shifts:", err);
-        setError("Failed to load available shifts. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Compute filtered arrays for rendering
+  const filteredRecommended = userCoords
+    ? recommendedShifts.filter((shift) =>
+        shift.location
+          ? getDistanceFromLatLonInMiles(
+              userCoords[0],
+              userCoords[1],
+              shift.location.latitude,
+              shift.location.longitude
+            ) <= radius
+          : false
+      )
+    : recommendedShifts;
 
-    fetchAvailableShifts();
-  }, []);
-
-  useEffect(() => {
-    // Get user location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserCoords([position.coords.latitude, position.coords.longitude]);
-      },
-      (err) => console.error("Failed to get user location:", err)
-    );
-  }, []);
-
-  useEffect(() => {
-    if (userCoords) {
-      const nearbyShifts = shifts.filter(
-        (shift) =>
-          shift.location
-            ? getDistanceFromLatLonInMiles(
-                userCoords[0],
-                userCoords[1],
-                shift.location.latitude,
-                shift.location.longitude
-              ) <= radius
-            : false // We don't have remote jobs in this implementation
-      );
-      setFilteredShifts(nearbyShifts);
-    } else {
-      setFilteredShifts([]);
-    }
-  }, [userCoords, radius, includeRemote, shifts]);
+  const filteredAll = userCoords
+    ? allShifts.filter((shift) =>
+        shift.location
+          ? getDistanceFromLatLonInMiles(
+              userCoords[0],
+              userCoords[1],
+              shift.location.latitude,
+              shift.location.longitude
+            ) <= radius
+          : false
+      )
+    : allShifts;
 
   return (
     <div className="flex flex-col h-screen">
@@ -204,7 +290,7 @@ export default function Dashboard() {
             )}
 
             {/* Shift markers */}
-            {filteredShifts
+            {filteredMapShifts
               .filter((shift) => shift.location)
               .map((shift) => (
                 <Marker
@@ -245,45 +331,41 @@ export default function Dashboard() {
               </h1>
               <p>These jobs are found based on your location and skills.</p>
               <br />
-              {loading ? (
-                <p className="text-gray-600">Loading available shifts...</p>
+              {loadingAll && recommendedShifts.length === 0 ? (
+                <p className="text-gray-600">Loading recommended shifts...</p>
               ) : error ? (
                 <p className="text-red-600">{error}</p>
-              ) : filteredShifts.filter((shift) =>
-                  matchesUserSkills(shift, userSkills)
-                ).length > 0 ? (
+              ) : filteredRecommended.length > 0 ? (
                 <Carousel className="w-full max-w-xs">
                   <CarouselContent>
-                    {filteredShifts
-                      .filter((shift) => matchesUserSkills(shift, userSkills))
-                      .map((shift, index) => (
-                        <CarouselItem key={index}>
-                          <div className="p-1">
-                            <Card
-                              className="cursor-pointer hover:shadow-lg transition-shadow"
-                              onClick={() => openShiftDetails(shift)}
-                            >
-                              <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
-                                <span className="text-3xl font-semibold">
-                                  {shift.name}
-                                </span>
-                                <span className="text-xl">
-                                  {shift.location.latitude},{" "}
-                                  {shift.location.longitude}
-                                </span>
-                                <span className="text-xl">${shift.pay}/hr</span>
-                                <br />
-                                <span className="text-m">
-                                  {shift.tags.join(", ")}
-                                </span>
-                                <button className="mt-4 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
-                                  View Details
-                                </button>
-                              </CardContent>
-                            </Card>
-                          </div>
-                        </CarouselItem>
-                      ))}
+                    {filteredRecommended.map((shift, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1">
+                          <Card
+                            className="cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => openShiftDetails(shift)}
+                          >
+                            <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
+                              <span className="text-3xl font-semibold">
+                                {shift.name}
+                              </span>
+                              <span className="text-xl">
+                                {shift.location.latitude},{" "}
+                                {shift.location.longitude}
+                              </span>
+                              <span className="text-xl">${shift.pay}/hr</span>
+                              <br />
+                              <span className="text-m">
+                                {shift.tags.join(", ")}
+                              </span>
+                              <button className="mt-4 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
+                                View Details
+                              </button>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))}
                   </CarouselContent>
                   <CarouselPrevious />
                   <CarouselNext />
@@ -291,7 +373,7 @@ export default function Dashboard() {
               ) : (
                 <p className="text-gray-600">
                   {userCoords
-                    ? "No jobs found within set miles or skill type."
+                    ? "No recommended jobs found within set miles."
                     : "Getting your location..."}
                 </p>
               )}
@@ -337,7 +419,7 @@ export default function Dashboard() {
                   All Available Jobs
                 </h1>
               </center>
-              {loading ? (
+              {allShifts.length === 0 && loadingAll ? (
                 <p className="text-center py-4">Loading available shifts...</p>
               ) : error ? (
                 <p className="text-center py-4 text-red-600">{error}</p>
@@ -354,7 +436,7 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredShifts.map((shift) => (
+                    {filteredAll.map((shift) => (
                       <TableRow
                         key={shift._id}
                         className={`cursor-pointer transition ${
@@ -387,6 +469,28 @@ export default function Dashboard() {
                   </TableBody>
                 </Table>
               )}
+              <div
+                ref={loaderRef}
+                style={{
+                  height: "30px",
+                  textAlign: "center",
+                  marginTop: "10px",
+                }}
+              >
+                {loadingAll && (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                    <p className="text-sm text-gray-500">
+                      Loading more jobs...
+                    </p>
+                  </div>
+                )}
+                {!hasMoreAll && (
+                  <p className="text-sm text-gray-500">
+                    No more jobs available
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

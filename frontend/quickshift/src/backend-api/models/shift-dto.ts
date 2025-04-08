@@ -116,5 +116,11 @@ export interface ShiftDto {
      * @memberof ShiftDto
      */
     'applicants'?: Array<Applicant>;
+    /**
+     * 
+     * @type {number}
+     * @memberof ShiftDto
+     */
+    'distance'?: number;
 }
 
