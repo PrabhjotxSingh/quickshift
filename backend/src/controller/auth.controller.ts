@@ -13,6 +13,7 @@ import { DebugUtil } from "../core/utility/misc/debug.util";
 import { Service } from "typedi";
 import { UserRepository } from "../core/repository/user.repository";
 import { UserDocument } from "../core/model/user.model";
+import { EncryptionUtility } from "../core/utility/auth/encryption.utility";
 
 @Route("Auth")
 @Tags("Auth")
@@ -25,7 +26,13 @@ export class AuthController extends BaseController {
 	@Post("Login")
 	public async login(@Body() request: LoginRequest): Promise<LoginResponse | String> {
 		try {
-			const result = await this.authService.Login(request, this.getDeviceName());
+			// Decrypt the password from the request
+			const decryptedRequest: LoginRequest = {
+				username: request.username,
+				password: EncryptionUtility.decrypt(request.password),
+			};
+
+			const result = await this.authService.Login(decryptedRequest, this.getDeviceName());
 
 			this.setTokenResponse(result);
 
@@ -48,7 +55,13 @@ export class AuthController extends BaseController {
 	@Post("Register")
 	public async register(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
-			const result = await this.authService.register(request, false);
+			// Decrypt the password from the request
+			const decryptedRequest: RegisterRequest = {
+				...request,
+				password: EncryptionUtility.decrypt(request.password),
+			};
+
+			const result = await this.authService.register(decryptedRequest, false);
 
 			return this.ok(result);
 		} catch (ex: any) {
@@ -60,7 +73,13 @@ export class AuthController extends BaseController {
 	@Authenticate(UserRole.ADMIN)
 	public async registerAdmin(@Body() request: RegisterRequest): Promise<UserDto | string> {
 		try {
-			const result = await this.authService.register(request, true);
+			// Decrypt the password from the request
+			const decryptedRequest: RegisterRequest = {
+				...request,
+				password: EncryptionUtility.decrypt(request.password),
+			};
+
+			const result = await this.authService.register(decryptedRequest, true);
 			return this.ok(result);
 		} catch (ex: any) {
 			return this.handleError(ex);
