@@ -12,12 +12,13 @@ import {
 
 import { Input } from "@/components/ui/input";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BackendAPI } from "@/lib/backend/backend-api";
+import Swal from "sweetalert2";
 
 // Sample user and earnings data
-const username = "username HERE";
 const earningsData = [
   { week: "Week 1", earnings: 120 },
   { week: "Week 2", earnings: 180 },
@@ -27,13 +28,59 @@ const earningsData = [
 
 export default function Profile() {
   const [skills, setSkills] = useState("");
+  const [userData, setUserData] = useState<{
+    username: string;
+    skills: string[];
+  }>({ username: "", skills: [] });
 
-  const handleSkillsSubmit = () => {
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await BackendAPI.authApi.getCurrentUser();
+        if (response.data) {
+          setUserData(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      }
+    }
+    fetchUserData();
+  }, []);
+
+  const handleSkillsSubmit = async () => {
     const skillsArray = skills
       .split(",")
       .map((skill) => skill.trim())
       .filter((skill) => skill !== "");
-    console.log(skillsArray);
+
+    try {
+      const response = await BackendAPI.authApi.addSkills(skillsArray);
+      if (response.data) {
+        setUserData(response.data);
+        Swal.fire("Success", "Skills updated successfully", "success");
+        setSkills("");
+      } else {
+        Swal.fire("Error", "Failed to update skills", "error");
+      }
+    } catch (error) {
+      console.error("Error updating skills", error);
+      Swal.fire("Error", "Failed to update skills", "error");
+    }
+  };
+
+  const handleRemoveSkill = async (skillToRemove: string) => {
+    try {
+      const response = await BackendAPI.authApi.deleteSkills([skillToRemove]);
+      if (response.data) {
+        setUserData(response.data);
+        Swal.fire("Success", "Skill removed successfully", "success");
+      } else {
+        Swal.fire("Error", "Failed to remove skill", "error");
+      }
+    } catch (error) {
+      console.error("Error removing skill", error);
+      Swal.fire("Error", "Failed to remove skill", "error");
+    }
   };
 
   return (
@@ -43,10 +90,12 @@ export default function Profile() {
         {/* Profile Section */}
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center text-2xl font-bold">
-            {username.charAt(0).toUpperCase()}
+            {userData.username ? userData.username.charAt(0).toUpperCase() : ""}
           </div>
           <div>
-            <h2 className="text-2xl font-semibold">{username}</h2>
+            <h2 className="text-2xl font-semibold">
+              {userData.username || "User"}
+            </h2>
             <p className="text-gray-500">User Profile</p>
           </div>
         </div>
@@ -81,6 +130,26 @@ export default function Profile() {
             placeholder="e.g., driving, cleaning, software"
           />
           <Button onClick={handleSkillsSubmit}>Submit</Button>
+          <div className="mt-4">
+            <h4 className="text-lg font-semibold">Your Skills</h4>
+            {userData.skills && userData.skills.length > 0 ? (
+              <ul className="list-disc list-inside">
+                {userData.skills.map((skill, index) => (
+                  <li key={index} className="flex items-center">
+                    <span>{skill}</span>
+                    <button
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="ml-2 text-red-500"
+                    >
+                      X
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No skills added.</p>
+            )}
+          </div>
         </div>
       </div>
     </>
