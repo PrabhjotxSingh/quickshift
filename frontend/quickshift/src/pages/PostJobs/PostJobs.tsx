@@ -737,7 +737,6 @@ export default function PostJobs() {
                       <h3 className="font-semibold">{job.name}</h3>
                       <p>Company: {job.company}</p>
                       <p>Pay: ${job.pay}/hr</p>
-                      <p>Completed: {job.completedDate}</p>
                       {job.rating !== undefined && (
                         <p>Rating: {job.rating} / 5</p>
                       )}
