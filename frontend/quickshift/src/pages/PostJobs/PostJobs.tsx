@@ -33,6 +33,7 @@ type Applicant = {
 export default function PostJobs() {
   const [postedJobs, setPostedJobs] = useState<Job[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
+  const [jobRatings, setJobRatings] = useState<{ [key: string]: number }>({});
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -466,10 +467,8 @@ export default function PostJobs() {
 
   const handleCompleteJob = async (jobId: string) => {
     try {
-      const response = await BackendAPI.shiftApi.completeShift(
-        jobId,
-        Date.now()
-      );
+      const rating = jobRatings[jobId] || 50; // Default to 50 if no rating set
+      const response = await BackendAPI.shiftApi.completeShift(jobId, rating);
       if (response.status === 200) {
         setPostedJobs((prevJobs) =>
           prevJobs.map((job) =>
@@ -592,12 +591,35 @@ export default function PostJobs() {
                     Accepted: {job.acceptedApplicant}
                   </p>
                   {!job.completed && (
-                    <button
-                      onClick={() => handleCompleteJob(job.id)}
-                      className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                    >
-                      Complete Job
-                    </button>
+                    <div className="mt-4 space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium">
+                          Rating (0-100):
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={jobRatings[job.id] || 50}
+                          onChange={(e) =>
+                            setJobRatings((prev) => ({
+                              ...prev,
+                              [job.id]: parseInt(e.target.value),
+                            }))
+                          }
+                          className="flex-1"
+                        />
+                        <span className="text-sm font-medium">
+                          {jobRatings[job.id] || 50}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCompleteJob(job.id)}
+                        className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded"
+                      >
+                        Complete Job
+                      </button>
+                    </div>
                   )}
                 </>
               ) : (
