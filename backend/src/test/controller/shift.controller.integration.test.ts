@@ -664,7 +664,7 @@ describe("ShiftController Integration Tests", () => {
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(undefined, mockUserId);
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(undefined, mockUserId, 0, 20, 0);
 		});
 
 		it("should get available shifts for worker with tags", async () => {
@@ -677,7 +677,7 @@ describe("ShiftController Integration Tests", () => {
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(tags, mockUserId);
+			expect(shiftService.getAvailableShifts).toHaveBeenCalledWith(tags, mockUserId, 0, 20, 0);
 		});
 
 		it("should handle errors from shiftService", async () => {
@@ -1090,40 +1090,44 @@ describe("ShiftController Integration Tests", () => {
 	});
 
 	describe("getUserEarnings", () => {
-		it("should return total earnings for worker", async () => {
+		it("should return earnings by week for worker", async () => {
 			// Setup
 			(shiftController as any).getUser = jest.fn().mockResolvedValue({
 				...mockUser,
 				id: mockUserId,
 				roles: [UserRole.WORKER],
 			});
-			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(150);
+			const mockEarnings = [
+				{ week: "Week 1", earnings: 150 },
+				{ week: "Week 2", earnings: 200 },
+			];
+			shiftService.getUserEarningsByWeek = jest.fn().mockResolvedValue(mockEarnings);
 
 			// Execute
 			const result = await shiftController.getUserEarnings();
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
-			expect(result).toEqual({ totalEarnings: 150 });
+			expect(shiftService.getUserEarningsByWeek).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual(mockEarnings);
 		});
 
-		it("should return zero earnings when no completed shifts", async () => {
+		it("should return empty array when no completed shifts", async () => {
 			// Setup
 			(shiftController as any).getUser = jest.fn().mockResolvedValue({
 				...mockUser,
 				id: mockUserId,
 				roles: [UserRole.WORKER],
 			});
-			shiftService.getUserTotalEarnings = jest.fn().mockResolvedValue(0);
+			shiftService.getUserEarningsByWeek = jest.fn().mockResolvedValue([]);
 
 			// Execute
 			const result = await shiftController.getUserEarnings();
 
 			// Assert
 			expect(result).toBeDefined();
-			expect(shiftService.getUserTotalEarnings).toHaveBeenCalledWith(mockUserId);
-			expect(result).toEqual({ totalEarnings: 0 });
+			expect(shiftService.getUserEarningsByWeek).toHaveBeenCalledWith(mockUserId);
+			expect(result).toEqual([]);
 		});
 
 		it("should handle errors from shiftService", async () => {
@@ -1133,8 +1137,8 @@ describe("ShiftController Integration Tests", () => {
 				id: mockUserId,
 				roles: [UserRole.WORKER],
 			});
-			const error = new Error("Failed to get user earnings");
-			shiftService.getUserTotalEarnings = jest.fn().mockRejectedValue(error);
+			const error = new Error("Failed to get earnings");
+			shiftService.getUserEarningsByWeek = jest.fn().mockRejectedValue(error);
 
 			// Execute & Assert
 			await expect(shiftController.getUserEarnings()).rejects.toThrow(error);
