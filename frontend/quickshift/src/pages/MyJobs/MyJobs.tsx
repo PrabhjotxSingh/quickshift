@@ -57,6 +57,7 @@ interface Shift {
   tags: string[];
   isComplete: boolean;
   userHired: string;
+  companyName?: string;
 }
 
 // Convert API responses to our display format
@@ -171,7 +172,7 @@ export default function MyJobs() {
         const jobDisplay: JobDisplay = {
           id: shift._id,
           name: shift.name,
-          company: shift.company?.name || "Unknown Company",
+          company: shift.companyName || "Unknown Company",
           pay: shift.pay,
           location:
             shift.address ||
