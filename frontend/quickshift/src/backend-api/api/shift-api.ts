@@ -296,12 +296,13 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
         /**
          * 
          * @param {Array<string>} [tags] 
+         * @param {boolean} [recommended] 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAvailableShifts: async (tags?: Array<string>, skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getAvailableShifts: async (tags?: Array<string>, recommended?: boolean, skip?: number, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/Shift/Available`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -316,6 +317,10 @@ export const ShiftApiAxiosParamCreator = function (configuration?: Configuration
 
             if (tags) {
                 localVarQueryParameter['tags'] = tags;
+            }
+
+            if (recommended !== undefined) {
+                localVarQueryParameter['recommended'] = recommended;
             }
 
             if (skip !== undefined) {
@@ -653,13 +658,14 @@ export const ShiftApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {Array<string>} [tags] 
+         * @param {boolean} [recommended] 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAvailableShifts(tags?: Array<string>, skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getAvailableShifts(tags, skip, limit, options);
+        async getAvailableShifts(tags?: Array<string>, recommended?: boolean, skip?: number, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<any>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAvailableShifts(tags, recommended, skip, limit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ShiftApi.getAvailableShifts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -814,13 +820,14 @@ export const ShiftApiFactory = function (configuration?: Configuration, basePath
         /**
          * 
          * @param {Array<string>} [tags] 
+         * @param {boolean} [recommended] 
          * @param {number} [skip] 
          * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAvailableShifts(tags?: Array<string>, skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getAvailableShifts(tags, skip, limit, options).then((request) => request(axios, basePath));
+        getAvailableShifts(tags?: Array<string>, recommended?: boolean, skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getAvailableShifts(tags, recommended, skip, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -953,13 +960,14 @@ export interface ShiftApiInterface {
     /**
      * 
      * @param {Array<string>} [tags] 
+     * @param {boolean} [recommended] 
      * @param {number} [skip] 
      * @param {number} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApiInterface
      */
-    getAvailableShifts(tags?: Array<string>, skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<any>;
+    getAvailableShifts(tags?: Array<string>, recommended?: boolean, skip?: number, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<any>;
 
     /**
      * 
@@ -1106,14 +1114,15 @@ export class ShiftApi extends BaseAPI implements ShiftApiInterface {
     /**
      * 
      * @param {Array<string>} [tags] 
+     * @param {boolean} [recommended] 
      * @param {number} [skip] 
      * @param {number} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ShiftApi
      */
-    public getAvailableShifts(tags?: Array<string>, skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
-        return ShiftApiFp(this.configuration).getAvailableShifts(tags, skip, limit, options).then((request) => request(this.axios, this.basePath));
+    public getAvailableShifts(tags?: Array<string>, recommended?: boolean, skip?: number, limit?: number, options?: RawAxiosRequestConfig) {
+        return ShiftApiFp(this.configuration).getAvailableShifts(tags, recommended, skip, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

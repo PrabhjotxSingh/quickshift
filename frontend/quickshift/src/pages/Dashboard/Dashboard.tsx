@@ -101,9 +101,9 @@ export default function Dashboard() {
     try {
       const response = await BackendAPI.shiftApi.getAvailableShifts(
         userSkills,
+        true,
         0,
-        recommendedLimit,
-        { params: { recommended: true } }
+        recommendedLimit
       );
       if (response.data && response.data.length > 0) {
         setRecommendedShifts(response.data);
@@ -118,9 +118,12 @@ export default function Dashboard() {
     setLoadingAll(true);
     await new Promise((resolve) => setTimeout(resolve, 300));
     try {
-      const response = await BackendAPI.shiftApi.getAvailableShifts(undefined, {
-        params: { skip: allSkip, limit: allLimit },
-      });
+      const response = await BackendAPI.shiftApi.getAvailableShifts(
+        undefined,
+        undefined,
+        allSkip,
+        allLimit
+      );
       if (response.data && response.data.length > 0) {
         setAllShifts((prev) => [...prev, ...response.data]);
         setAllSkip((prev) => prev + response.data.length);
