@@ -738,7 +738,7 @@ export default function PostJobs() {
                       <p>Company: {job.company}</p>
                       <p>Pay: ${job.pay}/hr</p>
                       {job.rating !== undefined && (
-                        <p>Rating: {job.rating} / 5</p>
+                        <p>Rating: {job.rating} / 100</p>
                       )}
                     </div>
                   ))}
