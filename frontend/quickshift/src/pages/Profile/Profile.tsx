@@ -25,7 +25,7 @@ export default function Profile() {
     skills: string[];
   }>({ username: "", skills: [] });
   const [earningsData, setEarningsData] = useState<
-    { week: string; earnings: number }[]
+    { amount: number; date: string }[]
   >([]);
 
   useEffect(() => {
@@ -45,7 +45,40 @@ export default function Profile() {
         const response = await BackendAPI.shiftApi.getUserEarnings();
         if (response.data) {
           console.log(response.data);
-          setEarningsData(response.data);
+          const transformedData = response.data.map(
+            (item: { earnings: number; week?: string }) => {
+              let weekNumber = 1;
+              if (item.week && item.week.startsWith("Week ")) {
+                weekNumber = parseInt(item.week.split(" ")[1]);
+              }
+
+              const today = new Date();
+              const firstDayOfMonth = new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                1
+              );
+              const firstMonday = new Date(firstDayOfMonth);
+
+              while (firstMonday.getDay() !== 1) {
+                firstMonday.setDate(firstMonday.getDate() + 1);
+              }
+
+              firstMonday.setDate(firstMonday.getDate() + (weekNumber - 1) * 7);
+
+              const formattedDate = firstMonday.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              });
+
+              return {
+                amount: item.earnings,
+                date: formattedDate,
+              };
+            }
+          );
+          setEarningsData(transformedData);
         }
       } catch (error) {
         console.error("Failed to fetch earnings data", error);
@@ -113,12 +146,21 @@ export default function Profile() {
             <h3 className="text-xl font-semibold mb-4">Earnings Overview</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={earningsData}>
-                <XAxis dataKey="week" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(value) => `Week of ${value}`}
+                  angle={-45}
+                  textAnchor="end"
+                  height={70}
+                />
                 <YAxis />
-                <Tooltip />
+                <Tooltip
+                  formatter={(value) => `$${value}`}
+                  labelFormatter={(label) => `Week of ${label}`}
+                />
                 <Line
                   type="monotone"
-                  dataKey="earnings"
+                  dataKey="amount"
                   stroke="#000"
                   strokeWidth={2}
                 />
