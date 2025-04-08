@@ -25,7 +25,7 @@ export default function Profile() {
     skills: string[];
   }>({ username: "", skills: [] });
   const [earningsData, setEarningsData] = useState<
-    { amount: number; date: string }[]
+    { amountEarned: number; date: string }[]
   >([]);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function Profile() {
               });
 
               return {
-                amount: item.earnings,
+                amountEarned: item.earnings,
                 date: formattedDate,
               };
             }
@@ -160,7 +160,8 @@ export default function Profile() {
                 />
                 <Line
                   type="monotone"
-                  dataKey="amount"
+                  dataKey="amountEarned"
+                  name="Amount Earned"
                   stroke="#000"
                   strokeWidth={2}
                 />
