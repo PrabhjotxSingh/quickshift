@@ -123,57 +123,151 @@ export class ShiftService {
 		userId?: string,
 		skip: number = 0,
 		limit: number = 20,
+		userLat?: number,
+		userLng?: number,
+		maxDistanceMiles: number = 200,
 	): Promise<ShiftDto[]> {
-		// Get all open shifts
-		let query: FilterQuery<ShiftDocument> = { isOpen: true };
+		// Base query for open shifts
+		let query: FilterQuery<ShiftDocument> = {
+			isOpen: true,
+			// Only include shifts with valid location data
+			"location.latitude": { $exists: true, $ne: null },
+			"location.longitude": { $exists: true, $ne: null },
+		};
 
 		if (tags && tags.length > 0) {
 			query.tags = { $in: tags };
 		}
 
-		// Get all open shifts
-		const shifts = await this.shiftRepository.getManyByQuery(query);
+		// If user location is provided, filter by distance
+		if (userLat !== undefined && userLng !== undefined) {
+			// Use a geospatial query to find shifts within the specified distance
+			// This is much more efficient than fetching all shifts and filtering in memory
+			const shifts = await this.shiftRepository.getManyByQuery({
+				...query,
+				"location.latitude": {
+					$gte: userLat - maxDistanceMiles / 69, // Rough approximation: 1 degree lat ≈ 69 miles
+					$lte: userLat + maxDistanceMiles / 69,
+				},
+				"location.longitude": {
+					$gte: userLng - maxDistanceMiles / (69 * Math.cos((userLat * Math.PI) / 180)), // Adjust for longitude
+					$lte: userLng + maxDistanceMiles / (69 * Math.cos((userLat * Math.PI) / 180)),
+				},
+			});
 
-		// If userId is provided, filter out shifts the user has already applied to
-		let availableShifts = shifts;
+			// Calculate actual distances and filter
+			const shiftsWithDistance = shifts
+				.map((shift) => {
+					const distance = this.calculateDistance(
+						userLat,
+						userLng,
+						shift.location.latitude,
+						shift.location.longitude,
+					);
+					return { ...shift, distance };
+				})
+				.filter((shift) => shift.distance <= maxDistanceMiles);
 
-		if (userId) {
-			// Filter out shifts the user has already applied to
-			availableShifts = [];
+			// Apply pagination
+			const paginatedShifts = shiftsWithDistance.slice(skip, skip + limit);
 
-			for (const shift of shifts) {
-				// Check if user has already applied to this shift
-				const existingApplication = await this.shiftApplicantRepository.getByQuery({
-					user: new Types.ObjectId(userId),
-					shiftId: shift._id,
-				});
+			// If userId is provided, filter out shifts the user has already applied to
+			let availableShifts = paginatedShifts;
 
-				// If no application exists, add this shift to available shifts
-				if (!existingApplication) {
-					availableShifts.push(shift);
+			if (userId) {
+				// Filter out shifts the user has already applied to
+				availableShifts = [];
+
+				for (const shift of paginatedShifts) {
+					// Check if user has already applied to this shift
+					const existingApplication = await this.shiftApplicantRepository.getByQuery({
+						user: new Types.ObjectId(userId),
+						shiftId: shift._id,
+					});
+
+					// If no application exists, add this shift to available shifts
+					if (!existingApplication) {
+						availableShifts.push(shift);
+					}
 				}
 			}
-		}
 
-		// Apply pagination by slicing the array
-		availableShifts = availableShifts.slice(skip, skip + limit);
+			// Map to DTOs and populate company names
+			const shiftDtos: ShiftDto[] = [];
 
-		// Map to DTOs and populate company names
-		const shiftDtos: ShiftDto[] = [];
+			for (const shift of availableShifts) {
+				// Create DTO directly
+				const shiftDto = new ShiftDto();
+				shiftDto._id = (shift as any)._id.toString();
+				shiftDto.company = (shift as any).company.toString();
+				shiftDto.name = shift.name;
+				shiftDto.description = shift.description;
+				shiftDto.tags = shift.tags;
+				shiftDto.isOpen = shift.isOpen;
+				shiftDto.startTime = shift.startTime;
+				shiftDto.endTime = shift.endTime;
+				shiftDto.pay = shift.pay;
+				shiftDto.location = shift.location;
+				shiftDto.userHired = (shift as any).userHired?.toString();
+				shiftDto.isComplete = shift.isComplete;
+				shiftDto.rating = shift.rating;
+				shiftDto.distance = shift.distance;
 
-		for (const shift of availableShifts) {
-			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+				// Populate the company name
+				const company = await this.companyRepository.get(shift.company);
+				if (company) {
+					shiftDto.companyName = company.name;
+				}
 
-			// Populate the company name
-			const company = await this.companyRepository.get(shift.company);
-			if (company) {
-				shiftDto.companyName = company.name;
+				shiftDtos.push(shiftDto);
 			}
 
-			shiftDtos.push(shiftDto);
-		}
+			return shiftDtos;
+		} else {
+			// If no user location is provided, use the regular query approach
+			const shifts = await this.shiftRepository.getManyByQuery(query);
 
-		return shiftDtos;
+			// If userId is provided, filter out shifts the user has already applied to
+			let availableShifts = shifts;
+
+			if (userId) {
+				// Filter out shifts the user has already applied to
+				availableShifts = [];
+
+				for (const shift of shifts) {
+					// Check if user has already applied to this shift
+					const existingApplication = await this.shiftApplicantRepository.getByQuery({
+						user: new Types.ObjectId(userId),
+						shiftId: shift._id,
+					});
+
+					// If no application exists, add this shift to available shifts
+					if (!existingApplication) {
+						availableShifts.push(shift);
+					}
+				}
+			}
+
+			// Apply pagination by slicing the array
+			availableShifts = availableShifts.slice(skip, skip + limit);
+
+			// Map to DTOs and populate company names
+			const shiftDtos: ShiftDto[] = [];
+
+			for (const shift of availableShifts) {
+				const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+
+				// Populate the company name
+				const company = await this.companyRepository.get(shift.company);
+				if (company) {
+					shiftDto.companyName = company.name;
+				}
+
+				shiftDtos.push(shiftDto);
+			}
+
+			return shiftDtos;
+		}
 	}
 
 	// Gets users shifts.
@@ -553,5 +647,20 @@ export class ShiftService {
 		const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
 		const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
 		return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+	}
+
+	// Calculate distance between two points in miles using the Haversine formula
+	private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+		const R = 3958.8; // Earth's radius in miles
+		const dLat = ((lat2 - lat1) * Math.PI) / 180;
+		const dLon = ((lon2 - lon1) * Math.PI) / 180;
+		const a =
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			Math.cos((lat1 * Math.PI) / 180) *
+				Math.cos((lat2 * Math.PI) / 180) *
+				Math.sin(dLon / 2) *
+				Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return R * c;
 	}
 }

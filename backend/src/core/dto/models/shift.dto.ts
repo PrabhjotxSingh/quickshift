@@ -41,4 +41,7 @@ export class ShiftDto {
 
 	// Add applicants property
 	applicants?: Applicant[];
+
+	// Add distance property
+	distance?: number;
 }

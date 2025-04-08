@@ -119,5 +119,11 @@ export interface Get200Response {
      * @memberof Get200Response
      */
     'applicants'?: Array<Applicant>;
+    /**
+     * 
+     * @type {number}
+     * @memberof Get200Response
+     */
+    'distance'?: number;
 }
 
