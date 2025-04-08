@@ -12,6 +12,8 @@ import {
   UserDto,
 } from "../../backend-api/models";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type Job = {
   id: string;
@@ -22,6 +24,7 @@ type Job = {
   applicants: Applicant[];
   acceptedApplicant?: string;
   completed?: boolean;
+  tags?: string[];
 };
 
 type Applicant = {
@@ -34,6 +37,7 @@ export default function PostJobs() {
   const [postedJobs, setPostedJobs] = useState<Job[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   const [jobRatings, setJobRatings] = useState<{ [key: string]: number }>({});
+  const [skillsInput, setSkillsInput] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -238,6 +242,7 @@ export default function PostJobs() {
                     })),
                     acceptedApplicant: shift.userHired,
                     completed: shift.isComplete || false,
+                    tags: shift.tags || [],
                   };
                 } catch (error) {
                   console.error(
@@ -253,6 +258,7 @@ export default function PostJobs() {
                     applicants: [],
                     acceptedApplicant: shift.userHired,
                     completed: false,
+                    tags: [],
                   };
                 }
               })
@@ -282,6 +288,28 @@ export default function PostJobs() {
     setFormData({ ...formData, location: address });
     setLocationCoords({ latitude, longitude });
     console.log("Updated locationCoords:", { latitude, longitude });
+  };
+
+  const handleSkillsSubmit = () => {
+    const skillsArray = skillsInput
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter((skill) => skill !== "");
+
+    if (skillsArray.length > 0) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, ...skillsArray],
+      });
+      setSkillsInput("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((skill) => skill !== skillToRemove),
+    });
   };
 
   const handlePostJob = async () => {
@@ -342,6 +370,7 @@ export default function PostJobs() {
           pay: parseFloat(formData.pay),
           location: formData.location,
           applicants: [],
+          tags: formData.tags,
         };
 
         setPostedJobs([...postedJobs, newJob]);
@@ -567,6 +596,49 @@ export default function PostJobs() {
               type="datetime-local"
             />
           </div>
+
+          {/* Skills Input - Redesigned to be more integrated */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Required Skills</label>
+              <span className="text-xs text-gray-500">
+                Use commas to separate skills
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={skillsInput}
+                onChange={(e) => setSkillsInput(e.target.value)}
+                placeholder="e.g., driving, cleaning, software"
+                className="flex-1"
+              />
+              <Button onClick={handleSkillsSubmit} size="sm">
+                Add
+              </Button>
+            </div>
+            <div className="mt-2">
+              {formData.tags && formData.tags.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {formData.tags.map((skill, index) => (
+                    <li key={index} className="relative group">
+                      <button
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="px-2 py-0.5 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white cursor-pointer text-sm"
+                      >
+                        <span>{skill}</span>
+                        <span className="ml-1 text-red-500 group-hover:text-white">
+                          X
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-gray-500">No skills added.</p>
+              )}
+            </div>
+          </div>
+
           <button
             onClick={handlePostJob}
             className="bg-black text-white px-4 py-2 rounded"
@@ -584,6 +656,21 @@ export default function PostJobs() {
               <p>
                 ${job.pay}/hr — {job.location}
               </p>
+              {job.tags && job.tags.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium">Required Skills:</p>
+                  <ul className="flex flex-wrap gap-2 mt-1">
+                    {job.tags.map((tag, index) => (
+                      <li
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 rounded-full text-sm"
+                      >
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {job.acceptedApplicant ? (
                 <>
@@ -721,6 +808,21 @@ export default function PostJobs() {
                       : job.acceptedApplicant}
                   </em>{" "}
                   at {job.company}
+                  {job.tags && job.tags.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium">Required Skills:</p>
+                      <ul className="flex flex-wrap gap-2 mt-1">
+                        {job.tags.map((tag, index) => (
+                          <li
+                            key={index}
+                            className="px-2 py-1 bg-white rounded-full text-sm"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
