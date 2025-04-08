@@ -414,6 +414,7 @@ export class ShiftService {
 			throw new NotFoundError("Application not found");
 		}
 
+		// Delete the application instead of marking it as rejected
 		// This allows users to reapply if they want to
 		await this.shiftApplicantRepository.delete(applicationId);
 		return application as ShiftApplicantDocument;
