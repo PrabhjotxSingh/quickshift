@@ -12,6 +12,8 @@ import {
   UserDto,
 } from "../../backend-api/models";
 import AddressAutocomplete from "../../components/AddressAutocomplete";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type Job = {
   id: string;
@@ -21,6 +23,9 @@ type Job = {
   location: string;
   applicants: Applicant[];
   acceptedApplicant?: string;
+  completed?: boolean;
+  tags?: string[];
+  rating?: number;
 };
 
 type Applicant = {
@@ -29,19 +34,16 @@ type Applicant = {
   userData?: UserDto;
 };
 
-// New type for completed jobs
-type CompletedJob = {
-  id: string;
-  name: string;
-  company: string;
-  pay: number;
-  completedDate: string;
-  rating?: number;
-};
-
 export default function PostJobs() {
   const [postedJobs, setPostedJobs] = useState<Job[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
+  const [jobRatings, setJobRatings] = useState<{ [key: string]: number }>({});
+  const [skillsInput, setSkillsInput] = useState("");
+  const [isViewingCompletedJobs, setIsViewingCompletedJobs] = useState(false);
+  const [selectedUserName, setSelectedUserName] = useState("");
+  const [selectedUserCompletedJobs, setSelectedUserCompletedJobs] = useState<
+    Job[]
+  >([]);
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -56,10 +58,6 @@ export default function PostJobs() {
     latitude: 0,
     longitude: 0,
   });
-  // State for tracking user completed jobs and modal visibility
-  const [selectedUserCompletedJobs, setSelectedUserCompletedJobs] = useState<CompletedJob[]>([]);
-  const [isViewingCompletedJobs, setIsViewingCompletedJobs] = useState(false);
-  const [selectedUserName, setSelectedUserName] = useState<string>("");
 
   useEffect(() => {
     const fetchCompanyName = async () => {
@@ -249,6 +247,8 @@ export default function PostJobs() {
                       userData: app.userData,
                     })),
                     acceptedApplicant: shift.userHired,
+                    completed: shift.isComplete || false,
+                    tags: shift.tags || [],
                   };
                 } catch (error) {
                   console.error(
@@ -263,6 +263,8 @@ export default function PostJobs() {
                     location: `${shift.location.latitude}, ${shift.location.longitude}`,
                     applicants: [],
                     acceptedApplicant: shift.userHired,
+                    completed: false,
+                    tags: [],
                   };
                 }
               })
@@ -294,46 +296,26 @@ export default function PostJobs() {
     console.log("Updated locationCoords:", { latitude, longitude });
   };
 
-  // New function to view an applicant's completed jobs
-  const handleViewCompletedJobs = async (userId: string, userName: string) => {
-    try {
-      // Set getUpcoming to false to get past shifts
-      const response = await BackendAPI.shiftApi.getUserShifts(false, userId);
-      
-      if (response.status === 200 && response.data) {
-        // Filter to only include completed shifts
-        const completedShifts = response.data.filter((shift: any) => 
-          shift.isComplete === true
-        );
-        
-        // Transform the data to fit our CompletedJob type
-        const formattedJobs = completedShifts.map((shift: any) => ({
-          id: shift._id,
-          name: shift.name,
-          company: shift.companyName,
-          pay: shift.pay,
-          completedDate: new Date(shift.completedDate).toLocaleDateString(),
-          rating: shift.rating
-        }));
-        
-        setSelectedUserCompletedJobs(formattedJobs);
-        setSelectedUserName(userName);
-        setIsViewingCompletedJobs(true);
-      } else {
-        throw new Error("Failed to fetch user's completed jobs");
-      }
-    } catch (error) {
-      console.error("Error fetching completed jobs:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Failed to fetch completed jobs. Please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "swal2-black-button",
-        },
+  const handleSkillsSubmit = () => {
+    const skillsArray = skillsInput
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter((skill) => skill !== "");
+
+    if (skillsArray.length > 0) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, ...skillsArray],
       });
+      setSkillsInput("");
     }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((skill) => skill !== skillToRemove),
+    });
   };
 
   const handlePostJob = async () => {
@@ -394,6 +376,7 @@ export default function PostJobs() {
           pay: parseFloat(formData.pay),
           location: formData.location,
           applicants: [],
+          tags: formData.tags,
         };
 
         setPostedJobs([...postedJobs, newJob]);
@@ -517,13 +500,79 @@ export default function PostJobs() {
     }
   };
 
-  const upcomingJobs = postedJobs.filter((job) => job.acceptedApplicant);
+  const handleCompleteJob = async (jobId: string) => {
+    try {
+      const rating = jobRatings[jobId] || 50; // Default to 50 if no rating set
+      const response = await BackendAPI.shiftApi.completeShift(jobId, rating);
+      if (response.status === 200) {
+        setPostedJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job.id === jobId ? { ...job, completed: true } : job
+          )
+        );
+        Swal.fire({
+          title: "Job Completed!",
+          text: "The job has been marked as complete.",
+          icon: "success",
+          confirmButtonText: "Great!",
+          customClass: { confirmButton: "swal2-black-button" },
+        });
+      } else {
+        throw new Error("Failed to complete job");
+      }
+    } catch (error) {
+      console.error("Error completing job:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to complete job. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: { confirmButton: "swal2-black-button" },
+      });
+    }
+  };
 
-  // Close completed jobs modal
+  const upcomingJobs = postedJobs.filter(
+    (job) => job.acceptedApplicant && !job.completed
+  );
+
   const closeCompletedJobsModal = () => {
     setIsViewingCompletedJobs(false);
-    setSelectedUserCompletedJobs([]);
     setSelectedUserName("");
+    setSelectedUserCompletedJobs([]);
+  };
+
+  const handleViewCompletedJobs = async (userId: string, userName: string) => {
+    try {
+      const response = await BackendAPI.shiftApi.getUserShifts(false, userId);
+      if (response.status === 200 && response.data) {
+        const completedJobs = response.data
+          .filter((shift: ShiftDto) => shift.isComplete)
+          .map((shift: ShiftDto) => ({
+            id: shift._id,
+            name: shift.name,
+            company: shift.companyName,
+            pay: shift.pay,
+            location: `${shift.location.latitude}, ${shift.location.longitude}`,
+            rating: shift.rating,
+            completed: true,
+          }));
+        setSelectedUserCompletedJobs(completedJobs);
+        setSelectedUserName(userName);
+        setIsViewingCompletedJobs(true);
+      }
+    } catch (error) {
+      console.error("Error fetching completed jobs:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to fetch completed jobs. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "swal2-black-button",
+        },
+      });
+    }
   };
 
   return (
@@ -592,6 +641,49 @@ export default function PostJobs() {
               type="datetime-local"
             />
           </div>
+
+          {/* Skills Input - Redesigned to be more integrated */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Required Skills</label>
+              <span className="text-xs text-gray-500">
+                Use commas to separate skills
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={skillsInput}
+                onChange={(e) => setSkillsInput(e.target.value)}
+                placeholder="e.g., driving, cleaning, software"
+                className="flex-1"
+              />
+              <Button onClick={handleSkillsSubmit} size="sm">
+                Add
+              </Button>
+            </div>
+            <div className="mt-2">
+              {formData.tags && formData.tags.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {formData.tags.map((skill, index) => (
+                    <li key={index} className="relative group">
+                      <button
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="px-2 py-0.5 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white cursor-pointer text-sm"
+                      >
+                        <span>{skill}</span>
+                        <span className="ml-1 text-red-500 group-hover:text-white">
+                          X
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-gray-500">No skills added.</p>
+              )}
+            </div>
+          </div>
+
           <button
             onClick={handlePostJob}
             className="bg-black text-white px-4 py-2 rounded"
@@ -609,8 +701,73 @@ export default function PostJobs() {
               <p>
                 ${job.pay}/hr — {job.location}
               </p>
+              {job.tags && job.tags.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-medium">Required Skills:</p>
+                  <ul className="flex flex-wrap gap-2 mt-1">
+                    {job.tags.map((tag, index) => (
+                      <li
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 rounded-full text-sm"
+                      >
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              {!job.acceptedApplicant ? (
+              {job.acceptedApplicant ? (
+                <>
+                  <p className="mt-2 text-green-600 font-semibold">
+                    Accepted:{" "}
+                    {job.applicants.find(
+                      (app) => app.userId === job.acceptedApplicant
+                    )?.userData
+                      ? `${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.firstName
+                        } ${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.lastName
+                        }`
+                      : job.acceptedApplicant}
+                  </p>
+                  {!job.completed && (
+                    <div className="mt-4 space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="text-sm font-medium">
+                          Rating (0-100):
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={jobRatings[job.id] || 50}
+                          onChange={(e) =>
+                            setJobRatings((prev) => ({
+                              ...prev,
+                              [job.id]: parseInt(e.target.value),
+                            }))
+                          }
+                          className="flex-1"
+                        />
+                        <span className="text-sm font-medium">
+                          {jobRatings[job.id] || 50}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleCompleteJob(job.id)}
+                        className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded"
+                      >
+                        Complete Job
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
                 <>
                   <p className="mt-2 font-medium">Applicants:</p>
                   <ul className="space-y-1">
@@ -620,21 +777,11 @@ export default function PostJobs() {
                         className="flex items-center justify-between border-b pb-2"
                       >
                         <div className="flex-1">
-                          {applicant.userData ? (
-                            <p 
-                              className="font-medium cursor-pointer hover:text-blue-600"
-                              onClick={() => 
-                                handleViewCompletedJobs(
-                                  applicant.userId, 
-                                  `${applicant.userData?.firstName || ''} ${applicant.userData?.lastName || ''}`
-                                )
-                              }
-                            >
-                              {applicant.userData?.firstName || ''} {applicant.userData?.lastName || ''}
-                            </p>
-                          ) : (
-                            <p className="font-medium">User information not available</p>
-                          )}
+                          <p className="font-medium">
+                            {applicant.userData
+                              ? `${applicant.userData.firstName} ${applicant.userData.lastName}`
+                              : "User information not available"}
+                          </p>
                           {applicant.userData && (
                             <div className="text-sm text-gray-600">
                               <p>
@@ -650,6 +797,19 @@ export default function PostJobs() {
                                     {applicant.userData.skills.join(", ")}
                                   </p>
                                 )}
+                              <button
+                                onClick={() => {
+                                  if (applicant.userData) {
+                                    handleViewCompletedJobs(
+                                      applicant.userId,
+                                      `${applicant.userData.firstName} ${applicant.userData.lastName}`
+                                    );
+                                  }
+                                }}
+                                className="text-sm text-blue-500 hover:text-blue-700 mt-1"
+                              >
+                                View Completed Jobs
+                              </button>
                             </div>
                           )}
                         </div>
@@ -678,10 +838,6 @@ export default function PostJobs() {
                     )}
                   </ul>
                 </>
-              ) : (
-                <p className="mt-2 text-green-600 font-semibold">
-                  Accepted: {job.acceptedApplicant}
-                </p>
               )}
             </div>
           ))}
@@ -694,13 +850,43 @@ export default function PostJobs() {
               {upcomingJobs.map((job) => (
                 <li key={job.id} className="bg-gray-100 p-4 rounded shadow-sm">
                   <strong>{job.name}</strong> with{" "}
-                  <em>{job.acceptedApplicant}</em> at {job.company}
+                  <em>
+                    {job.applicants.find(
+                      (app) => app.userId === job.acceptedApplicant
+                    )?.userData
+                      ? `${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.firstName
+                        } ${
+                          job.applicants.find(
+                            (app) => app.userId === job.acceptedApplicant
+                          )?.userData?.lastName
+                        }`
+                      : job.acceptedApplicant}
+                  </em>{" "}
+                  at {job.company}
+                  {job.tags && job.tags.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium">Required Skills:</p>
+                      <ul className="flex flex-wrap gap-2 mt-1">
+                        {job.tags.map((tag, index) => (
+                          <li
+                            key={index}
+                            className="px-2 py-1 bg-white rounded-full text-sm"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
         )}
-        
+
         {/* Modal for viewing completed jobs */}
         {isViewingCompletedJobs && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -729,7 +915,7 @@ export default function PostJobs() {
                   </svg>
                 </button>
               </div>
-              
+
               {selectedUserCompletedJobs.length > 0 ? (
                 <div className="space-y-3">
                   {selectedUserCompletedJobs.map((job) => (
@@ -748,7 +934,7 @@ export default function PostJobs() {
                   This user has no completed jobs.
                 </p>
               )}
-              
+
               <div className="mt-4 text-center">
                 <button
                   onClick={closeCompletedJobsModal}

@@ -12,28 +12,115 @@ import {
 
 import { Input } from "@/components/ui/input";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-
-// Sample user and earnings data
-const username = "username HERE";
-const earningsData = [
-  { week: "Week 1", earnings: 120 },
-  { week: "Week 2", earnings: 180 },
-  { week: "Week 3", earnings: 250 },
-  { week: "Week 4", earnings: 300 },
-];
+import { BackendAPI } from "@/lib/backend/backend-api";
+import Swal from "sweetalert2";
 
 export default function Profile() {
   const [skills, setSkills] = useState("");
+  const [userData, setUserData] = useState<{
+    username: string;
+    skills: string[];
+  }>({ username: "", skills: [] });
+  const [earningsData, setEarningsData] = useState<
+    { amountEarned: number; date: string }[]
+  >([]);
 
-  const handleSkillsSubmit = () => {
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await BackendAPI.authApi.getCurrentUser();
+        if (response.data) {
+          setUserData(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      }
+    }
+    fetchUserData();
+    async function fetchEarningsData() {
+      try {
+        const response = await BackendAPI.shiftApi.getUserEarnings();
+        if (response.data) {
+          console.log(response.data);
+          const transformedData = response.data.map(
+            (item: { earnings: number; week?: string }) => {
+              let weekNumber = 1;
+              if (item.week && item.week.startsWith("Week ")) {
+                weekNumber = parseInt(item.week.split(" ")[1]);
+              }
+
+              const today = new Date();
+              const firstDayOfMonth = new Date(
+                today.getFullYear(),
+                today.getMonth(),
+                1
+              );
+              const firstMonday = new Date(firstDayOfMonth);
+
+              while (firstMonday.getDay() !== 1) {
+                firstMonday.setDate(firstMonday.getDate() + 1);
+              }
+
+              firstMonday.setDate(firstMonday.getDate() + (weekNumber - 1) * 7);
+
+              const formattedDate = firstMonday.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              });
+
+              return {
+                amountEarned: item.earnings,
+                date: formattedDate,
+              };
+            }
+          );
+          setEarningsData(transformedData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch earnings data", error);
+      }
+    }
+    fetchEarningsData();
+  }, []);
+
+  const handleSkillsSubmit = async () => {
     const skillsArray = skills
       .split(",")
       .map((skill) => skill.trim())
       .filter((skill) => skill !== "");
-    console.log(skillsArray);
+
+    try {
+      const response = await BackendAPI.authApi.addSkills(skillsArray);
+      if (response.data) {
+        setUserData(response.data);
+        Swal.fire("Success", "Skills updated successfully", "success");
+        setSkills("");
+      } else {
+        Swal.fire("Error", "Failed to update skills", "error");
+      }
+    } catch (error) {
+      console.error("Error updating skills", error);
+      Swal.fire("Error", "Failed to update skills", "error");
+    }
+  };
+
+  const handleRemoveSkill = async (skillToRemove: string) => {
+    try {
+      const response = await BackendAPI.authApi.deleteSkills([skillToRemove]);
+      if (response.data) {
+        setUserData(response.data);
+        Swal.fire("Success", "Skill removed successfully", "success");
+      } else {
+        Swal.fire("Error", "Failed to remove skill", "error");
+      }
+    } catch (error) {
+      console.error("Error removing skill", error);
+      Swal.fire("Error", "Failed to remove skill", "error");
+    }
   };
 
   return (
@@ -43,10 +130,12 @@ export default function Profile() {
         {/* Profile Section */}
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center text-2xl font-bold">
-            {username.charAt(0).toUpperCase()}
+            {userData.username ? userData.username.charAt(0).toUpperCase() : ""}
           </div>
           <div>
-            <h2 className="text-2xl font-semibold">{username}</h2>
+            <h2 className="text-2xl font-semibold">
+              {userData.username || "User"}
+            </h2>
             <p className="text-gray-500">User Profile</p>
           </div>
         </div>
@@ -57,12 +146,22 @@ export default function Profile() {
             <h3 className="text-xl font-semibold mb-4">Earnings Overview</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={earningsData}>
-                <XAxis dataKey="week" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(value) => `Week of ${value}`}
+                  angle={-45}
+                  textAnchor="end"
+                  height={70}
+                />
                 <YAxis />
-                <Tooltip />
+                <Tooltip
+                  formatter={(value) => `$${value}`}
+                  labelFormatter={(label) => `Week of ${label}`}
+                />
                 <Line
                   type="monotone"
-                  dataKey="earnings"
+                  dataKey="amountEarned"
+                  name="Amount Earned"
                   stroke="#000"
                   strokeWidth={2}
                 />
@@ -81,6 +180,28 @@ export default function Profile() {
             placeholder="e.g., driving, cleaning, software"
           />
           <Button onClick={handleSkillsSubmit}>Submit</Button>
+          <div className="mt-4">
+            <h4 className="text-lg font-semibold">Your Skills</h4>
+            {userData.skills && userData.skills.length > 0 ? (
+              <ul className="flex flex-wrap gap-2">
+                {userData.skills.map((skill, index) => (
+                  <li key={index} className="relative group">
+                    <button
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="px-3 py-1 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white cursor-pointer"
+                    >
+                      <span>{skill}</span>
+                      <span className="ml-2 text-red-500 group-hover:text-white">
+                        X
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No skills added.</p>
+            )}
+          </div>
         </div>
       </div>
     </>

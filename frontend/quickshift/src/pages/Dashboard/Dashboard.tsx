@@ -51,8 +51,6 @@ const customIconLarge = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-const userSkills = ["driving"];
-
 function getDistanceFromLatLonInMiles(
   lat1: number,
   lon1: number,
@@ -89,6 +87,7 @@ export default function Dashboard() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userSkills, setUserSkills] = useState<string[]>([]);
 
   const openShiftDetails = (shift: ShiftWithId) => {
     setSelectedShift(shift);
@@ -99,6 +98,24 @@ export default function Dashboard() {
     setSelectedShift(null);
     setShowModal(false);
   };
+
+  // Fetch current user and their skills
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        if (BackendAPI.isAuthenticated) {
+          const response = await BackendAPI.authApi.getCurrentUser();
+          if (response.status === 200 && response.data) {
+            setUserSkills(response.data.skills || []);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   // Fetch available shifts from the API
   useEffect(() => {
@@ -242,7 +259,10 @@ export default function Dashboard() {
                       .map((shift, index) => (
                         <CarouselItem key={index}>
                           <div className="p-1">
-                            <Card>
+                            <Card
+                              className="cursor-pointer hover:shadow-lg transition-shadow"
+                              onClick={() => openShiftDetails(shift)}
+                            >
                               <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
                                 <span className="text-3xl font-semibold">
                                   {shift.name}
@@ -256,6 +276,9 @@ export default function Dashboard() {
                                 <span className="text-m">
                                   {shift.tags.join(", ")}
                                 </span>
+                                <button className="mt-4 px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
+                                  View Details
+                                </button>
                               </CardContent>
                             </Card>
                           </div>
@@ -327,6 +350,7 @@ export default function Dashboard() {
                       <TableHead>Pay</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Skills Match</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -348,6 +372,15 @@ export default function Dashboard() {
                         </TableCell>
                         <TableCell>
                           {new Date(shift.startTime).toDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {matchesUserSkills(shift, userSkills) ? (
+                            <span className="text-green-600 font-medium">
+                              ✓
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -375,6 +408,11 @@ export default function Dashboard() {
             <p className="text-gray-700 mb-3">
               <strong>Required Skills:</strong> {selectedShift.tags.join(", ")}
             </p>
+            {matchesUserSkills(selectedShift, userSkills) && (
+              <p className="text-green-600 mb-3">
+                <strong>✓ This job matches your skills!</strong>
+              </p>
+            )}
 
             <div className="flex justify-end gap-2">
               <button

@@ -392,7 +392,7 @@ export class ShiftService {
 	public async getUserTotalEarnings(userId: string): Promise<number> {
 		// Get all completed shifts where the user was hired
 		const completedShifts = await this.shiftRepository.getManyByQuery({
-			userHired: userId,
+			userHired: new Types.ObjectId(userId),
 			isComplete: true,
 		});
 
@@ -408,11 +408,11 @@ export class ShiftService {
 		return totalEarnings;
 	}
 
-	public async getCompanyOpenShifts(companyId: string): Promise<ShiftDto[]> {
-		// Get all open shifts for the company
+	public async getCompanyIncompleteShifts(companyId: string): Promise<ShiftDto[]> {
+		// Get all open shifts for the company and shifts that are not complete
 		const shifts = await this.shiftRepository.getManyByQuery({
 			company: companyId,
-			isOpen: true,
+			$or: [{ isOpen: true }, { isOpen: false, isComplete: false }],
 		});
 
 		// Map to DTOs and populate company names and applicant data
@@ -487,5 +487,62 @@ export class ShiftService {
 		}
 
 		return shiftDtos;
+	}
+
+	async getUserEarningsByWeek(userId: string): Promise<{ week: string; earnings: number }[]> {
+		try {
+			// Get all completed shifts for the user
+			const shifts = await this.shiftRepository.getManyByQuery({
+				userHired: userId,
+				isComplete: true,
+			});
+
+			if (!shifts || shifts.length === 0) {
+				return [];
+			}
+
+			// Group earnings by week
+			const earningsByWeek: { [key: string]: number } = {};
+
+			shifts.forEach((shift: any) => {
+				if (!shift.startTime || !shift.endTime) {
+					console.warn("Skipping shift due to missing time data", shift);
+					return;
+				}
+				const hoursWorked = this.calculateHoursWorked(shift.startTime, shift.endTime);
+				// Use shift.pay if present; otherwise compute earnings
+				const earnings =
+					shift.pay !== undefined && shift.pay !== null ? shift.pay : hoursWorked * shift.rate;
+				const week = this.getWeekNumber(shift.startTime);
+				const weekKey = `Week ${week}`;
+				earningsByWeek[weekKey] = (earningsByWeek[weekKey] || 0) + earnings;
+			});
+
+			// Convert to array format for the frontend
+			return Object.entries(earningsByWeek)
+				.map(([week, earnings]) => ({ week, earnings }))
+				.sort((a, b) => {
+					// Sort by week number
+					const weekA = parseInt(a.week.split(" ")[1]);
+					const weekB = parseInt(b.week.split(" ")[1]);
+					return weekA - weekB;
+				});
+		} catch (error) {
+			console.error("Error calculating earnings by week:", error);
+			throw error;
+		}
+	}
+
+	private calculateHoursWorked(startTime: Date, endTime: Date): number {
+		const start = new Date(startTime);
+		const end = new Date(endTime);
+		const diffMs = end.getTime() - start.getTime();
+		return diffMs / (1000 * 60 * 60); // Convert to hours
+	}
+
+	private getWeekNumber(date: Date): number {
+		const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+		const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+		return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 	}
 }

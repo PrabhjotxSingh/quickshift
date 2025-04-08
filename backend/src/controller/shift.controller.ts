@@ -162,7 +162,7 @@ export class ShiftController extends BaseController {
 		try {
 			const user = await this.getUser();
 			await this.validateCompanyAccess(companyId, user);
-			return await this.shiftService.getCompanyOpenShifts(companyId);
+			return await this.shiftService.getCompanyIncompleteShifts(companyId);
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
@@ -173,8 +173,8 @@ export class ShiftController extends BaseController {
 	public async getUserEarnings() {
 		try {
 			const user = await this.getUser();
-			const totalEarnings = await this.shiftService.getUserTotalEarnings(user.id);
-			return { totalEarnings };
+			const earningsData = await this.shiftService.getUserEarningsByWeek(user.id);
+			return earningsData;
 		} catch (ex: any) {
 			return this.handleError(ex);
 		}
