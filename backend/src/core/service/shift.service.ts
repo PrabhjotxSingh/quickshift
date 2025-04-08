@@ -13,7 +13,7 @@ import * as bcrypt from "bcryptjs";
 import * as crypto from "crypto";
 import * as jwt from "jsonwebtoken";
 import { NotFoundError } from "../error/NotFoundError";
-import mongoose, { FilterQuery, ObjectId, Types, Schema } from "mongoose";
+import mongoose, { FilterQuery, ObjectId, Types, Schema, Document } from "mongoose";
 import { ShiftDocument, ShiftModel } from "../model/shift.model";
 import { Service } from "typedi";
 import { CreateShiftRequest } from "../dto/request/shift/create-shift-request";
@@ -24,7 +24,7 @@ import { ShiftRepository } from "../repository/shift.repository";
 import { CompanyRepository } from "../repository/company.repository";
 import { ShiftApplicantRepository } from "../repository/shift-applicant.repository";
 import { ShiftApplicantDocument } from "../model/shift-applicant.model";
-import { UserDocument } from "../model/user.model";
+import { UserDocument, UserModel } from "../model/user.model";
 import { ShiftUnavailableError } from "../error/ShiftUnavailableError";
 import { ShiftApplicantDto } from "../dto/models/shift-applicant.dto";
 import { ShiftApplicantModel } from "../model/shift-applicant.model";
@@ -35,6 +35,7 @@ export class ShiftService {
 		private companyRepository: CompanyRepository,
 		private shiftRepository: ShiftRepository,
 		private shiftApplicantRepository: ShiftApplicantRepository,
+		private userRepository: UserRepository,
 	) {}
 
 	public async createShift(request: CreateShiftRequest): Promise<ShiftDto> {
@@ -198,13 +199,31 @@ export class ShiftService {
 		return shiftDtos;
 	}
 
-	public async getShiftApplications(shiftId: string): Promise<ShiftApplicantDocument[]> {
-		const shifts = await this.shiftApplicantRepository.getManyByQuery({ shiftId: shiftId });
-		if (shifts == null) {
+	public async getShiftApplications(shiftId: string): Promise<ShiftApplicantDto[]> {
+		const applications = await this.shiftApplicantRepository.getManyByQuery({
+			shiftId: shiftId,
+			rejected: { $ne: true }, // Exclude rejected applications
+		});
+		if (applications == null) {
 			throw new NotFoundError("Shift not found");
 		}
 
-		return shifts;
+		// Map to DTOs and populate user data
+		const applicationDtos: ShiftApplicantDto[] = [];
+
+		for (const application of applications) {
+			const applicationDto = mapper.map(application, ShiftApplicantModel, ShiftApplicantDto);
+
+			// Populate user data
+			const user = await this.userRepository.get(application.user.toString());
+			if (user) {
+				applicationDto.userData = mapper.map(user, UserModel, UserDto);
+			}
+
+			applicationDtos.push(applicationDto);
+		}
+
+		return applicationDtos;
 	}
 
 	public async getShiftApplicantById(id: string): Promise<ShiftApplicantDocument> {
@@ -312,11 +331,17 @@ export class ShiftService {
 			user: user._id,
 		});
 
+		// Map to DTOs and populate user data
 		const applicationDtos: ShiftApplicantDto[] = [];
 
-		// Map each application to DTO and include shift data
 		for (const application of applications) {
 			const applicationDto = mapper.map(application, ShiftApplicantModel, ShiftApplicantDto);
+
+			// Populate user data
+			const applicantUser = await this.userRepository.get(application.user.toString());
+			if (applicantUser) {
+				applicationDto.userData = mapper.map(applicantUser, UserModel, UserDto);
+			}
 
 			// Get and include shift data
 			const shift = await this.shiftRepository.get(application.shiftId.toString());
@@ -385,26 +410,80 @@ export class ShiftService {
 
 	public async getCompanyOpenShifts(companyId: string): Promise<ShiftDto[]> {
 		// Get all open shifts for the company
-		const query: FilterQuery<ShiftDocument> = {
+		const shifts = await this.shiftRepository.getManyByQuery({
+			company: companyId,
 			isOpen: true,
-			company: new Types.ObjectId(companyId),
-		};
+		});
 
-		const shifts = await this.shiftRepository.getManyByQuery(query);
-
-		// Map to DTOs and populate company names
+		// Map to DTOs and populate company names and applicant data
 		const shiftDtos: ShiftDto[] = [];
-		const company = await this.companyRepository.get(companyId);
+
+		// Collect all user IDs from all applications across all shifts
+		const allUserIds: string[] = [];
+		const shiftApplicationsMap = new Map<string, any[]>();
 
 		for (const shift of shifts) {
 			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+			const shiftId = shift._id ? shift._id.toString() : "";
 
 			// Populate the company name
+			const company = await this.companyRepository.get(shift.company.toString());
 			if (company) {
 				shiftDto.companyName = company.name;
 			}
 
+			// Get applicants for this shift
+			const applications = await this.shiftApplicantRepository.getManyByQuery({
+				shiftId: shift._id,
+				rejected: false,
+			});
+
+			// Store applications for this shift
+			shiftApplicationsMap.set(shiftId, applications);
+
+			// Collect user IDs
+			applications.forEach((app) => {
+				allUserIds.push(app.user.toString());
+			});
+
+			// Initialize applicants array
+			shiftDto.applicants = [];
 			shiftDtos.push(shiftDto);
+		}
+
+		// Fetch all user data in a single batch query
+		const userDataMap = new Map<string, UserDto>();
+		if (allUserIds.length > 0) {
+			// Get unique user IDs
+			const uniqueUserIds = [...new Set(allUserIds)];
+
+			// Fetch all users in a single query
+			const users = await this.userRepository.getManyByQuery({
+				_id: { $in: uniqueUserIds.map((id) => new mongoose.Types.ObjectId(id)) },
+			});
+
+			// Create a map of user ID to user data
+			users.forEach((user) => {
+				const userDto = mapper.map(user, UserModel, UserDto);
+				userDataMap.set(user._id.toString(), userDto);
+			});
+		}
+
+		// Now populate the applicants with user data
+		for (const shiftDto of shiftDtos) {
+			const applications = shiftApplicationsMap.get(shiftDto._id) || [];
+
+			for (const application of applications) {
+				const applicationId = (application as any)._id?.toString() || "";
+				const userId = application.user.toString();
+				const userData = userDataMap.get(userId);
+
+				shiftDto.applicants?.push({
+					id: applicationId,
+					userId: userId,
+					userData: userData,
+				});
+			}
 		}
 
 		return shiftDtos;

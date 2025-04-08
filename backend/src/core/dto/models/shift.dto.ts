@@ -1,5 +1,13 @@
 import { AutoMap } from "@automapper/classes";
 import { Location } from "./location";
+import { UserDto } from "./user.dto";
+
+// Define the Applicant type
+export interface Applicant {
+	id: string;
+	userId: string;
+	userData?: UserDto;
+}
 
 export class ShiftDto {
 	@AutoMap()
@@ -30,4 +38,7 @@ export class ShiftDto {
 	isComplete!: boolean;
 	@AutoMap()
 	rating?: number;
+
+	// Add applicants property
+	applicants?: Applicant[];
 }
