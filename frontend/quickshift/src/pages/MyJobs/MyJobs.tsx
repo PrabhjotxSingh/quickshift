@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Swal from "sweetalert2";
 import { BackendAPI } from "@/lib/backend/backend-api";
 import { AxiosResponse } from "axios";
@@ -80,35 +80,93 @@ export default function MyJobs() {
   const [hoveredJobId, setHoveredJobId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Add pagination state
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(0);
+  const PAGE_SIZE = 10;
+
+  // Add ref for intersection observer
+  const observer = useRef<IntersectionObserver>();
+  const loadingRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMore();
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore]
+  );
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch pending applications
-        const pendingApplicationsResponse =
-          await BackendAPI.shiftApi.getPendingApplications();
-        processApplications(
-          pendingApplicationsResponse as unknown as AxiosResponse<
-            ShiftApplicant[]
-          >
-        );
-
-        // Fetch user shifts (not upcoming = all shifts)
-        const userShiftsResponse = await BackendAPI.shiftApi.getUserShifts(
-          false
-        );
-        processUserShifts(userShiftsResponse);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
+    fetchInitialData();
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
       }
     };
-
-    fetchData();
   }, []);
 
-  const processApplications = (response: AxiosResponse<ShiftApplicant[]>) => {
+  const fetchInitialData = async () => {
+    try {
+      await Promise.all([fetchPendingApplications(0), fetchUserShifts()]);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      setLoading(false);
+    }
+  };
+
+  const fetchPendingApplications = async (pageNum: number) => {
+    try {
+      const pendingApplicationsResponse =
+        await BackendAPI.shiftApi.getPendingApplications(
+          pageNum * PAGE_SIZE,
+          PAGE_SIZE
+        );
+
+      const applications = pendingApplicationsResponse.data as ShiftApplicant[];
+      if (!applications || applications.length < PAGE_SIZE) {
+        setHasMore(false);
+      }
+
+      processApplications(
+        { data: applications } as AxiosResponse<ShiftApplicant[]>,
+        pageNum === 0
+      );
+    } catch (error) {
+      console.error("Error fetching pending applications:", error);
+    }
+  };
+
+  const fetchUserShifts = async () => {
+    try {
+      const userShiftsResponse = await BackendAPI.shiftApi.getUserShifts(false);
+      processUserShifts(userShiftsResponse);
+    } catch (error) {
+      console.error("Error fetching user shifts:", error);
+    }
+  };
+
+  const loadMore = async () => {
+    if (!hasMore || loading) return;
+
+    setLoading(true);
+    const nextPage = page + 1;
+    await fetchPendingApplications(nextPage);
+    setPage(nextPage);
+    setLoading(false);
+  };
+
+  const processApplications = (
+    response: AxiosResponse<ShiftApplicant[]>,
+    isFirstPage: boolean
+  ) => {
     if (response.data && Array.isArray(response.data)) {
       const applications = response.data;
 
@@ -138,23 +196,20 @@ export default function MyJobs() {
             : undefined,
         };
 
-        // If the application was rejected, add to rejected list
         if (app.rejected) {
           rejected.push(jobDisplay);
-        }
-        // If the shift is complete and not rejected, it should be in past jobs
-        else if (app.shift.isComplete) {
-          // Skip - this will be handled by processUserShifts
+        } else if (app.shift.isComplete) {
           return;
-        }
-        // Otherwise, it's an active application
-        else {
+        } else {
           applied.push(jobDisplay);
         }
       });
 
-      setAppliedJobs(applied);
-      setRejectedJobs(rejected);
+      // Update state based on whether this is the first page or not
+      setAppliedJobs((prev) => (isFirstPage ? applied : [...prev, ...applied]));
+      setRejectedJobs((prev) =>
+        isFirstPage ? rejected : [...prev, ...rejected]
+      );
     }
   };
 
@@ -258,66 +313,81 @@ export default function MyJobs() {
       <center>
         <h1 className="text-2xl font-bold text-gray-900 mb-4">{title}</h1>
       </center>
-      {loading ? (
-        <div className="text-center py-4">Loading...</div>
+      {loading && jobs.length === 0 ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mr-2"></div>
+          <span className="text-gray-600">Loading jobs...</span>
+        </div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-4">No jobs found</div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Pay</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Date</TableHead>
-              {actionType && <TableHead>Action</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jobs.map((job) => (
-              <TableRow
-                key={job.id}
-                className={`cursor-pointer transition ${
-                  hoveredJobId === job.id ? "bg-gray-100" : ""
-                }`}
-                onMouseEnter={() => setHoveredJobId(job.id)}
-                onMouseLeave={() => setHoveredJobId(null)}
-              >
-                <TableCell>{job.name}</TableCell>
-                <TableCell>{job.company}</TableCell>
-                <TableCell>${job.pay}/hr</TableCell>
-                <TableCell>{job.location}</TableCell>
-                <TableCell>{job.date.toDateString()}</TableCell>
-                {actionType && (
-                  <TableCell>
-                    {actionType === "cancel" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCancel(job.id);
-                        }}
-                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-                      >
-                        Cancel
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContact();
-                        }}
-                        className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
-                      >
-                        Contact
-                      </button>
-                    )}
-                  </TableCell>
-                )}
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Pay</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Date</TableHead>
+                {actionType && <TableHead>Action</TableHead>}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {jobs.map((job) => (
+                <TableRow
+                  key={job.id}
+                  className={`cursor-pointer transition ${
+                    hoveredJobId === job.id ? "bg-gray-100" : ""
+                  }`}
+                  onMouseEnter={() => setHoveredJobId(job.id)}
+                  onMouseLeave={() => setHoveredJobId(null)}
+                >
+                  <TableCell>{job.name}</TableCell>
+                  <TableCell>{job.company}</TableCell>
+                  <TableCell>${job.pay}/hr</TableCell>
+                  <TableCell>{job.location}</TableCell>
+                  <TableCell>{job.date.toDateString()}</TableCell>
+                  {actionType && (
+                    <TableCell>
+                      {actionType === "cancel" ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancel(job.id);
+                          }}
+                          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContact();
+                          }}
+                          className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+                        >
+                          Contact
+                        </button>
+                      )}
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {title === "Applied Jobs" && (
+            <div ref={loadingRef} className="text-center py-4">
+              {loading && (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                  <span className="text-sm text-gray-500">Loading more...</span>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

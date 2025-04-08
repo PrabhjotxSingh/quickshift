@@ -3,6 +3,7 @@ import { Navbar1 } from "../Parts/Topbar/Topbar";
 import "./Dashboard.css";
 import markerIcon from "@/assets/marker.png";
 import { Circle } from "react-leaflet";
+import Swal from "sweetalert2";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -533,14 +534,22 @@ export default function Dashboard() {
                   BackendAPI.shiftApi
                     .applyToShift(selectedShift._id)
                     .then(() => {
-                      alert(
-                        `You have applied for the job: ${selectedShift.name}`
-                      );
+                      Swal.fire({
+                        title: "Success!",
+                        text: `You have applied for the job: ${selectedShift.name}`,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                      });
                       closeModal();
                     })
                     .catch((err) => {
                       console.error("Error applying for job:", err);
-                      alert("Failed to apply for the job. Please try again.");
+                      Swal.fire({
+                        title: "Error",
+                        text: "Failed to apply for the job. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                      });
                     });
                 }}
                 className="px-4 py-2 rounded bg-black text-white hover:bg-gray-700"
