@@ -57,6 +57,7 @@ interface Shift {
   tags: string[];
   isComplete: boolean;
   userHired: string;
+  companyName?: string;
 }
 
 // Convert API responses to our display format
@@ -115,8 +116,14 @@ export default function MyJobs() {
       const applied: JobDisplay[] = [];
       const rejected: JobDisplay[] = [];
 
+      // Get all won job IDs to filter them out from applications
+      const wonJobIds = new Set(wonJobs.map((job) => job.id));
+
       applications.forEach((app) => {
         if (!app.shift) return;
+
+        // Skip if this job is already won
+        if (wonJobIds.has(app.shift._id)) return;
 
         const jobDisplay: JobDisplay = {
           id: app._id,
@@ -131,9 +138,17 @@ export default function MyJobs() {
             : undefined,
         };
 
+        // If the application was rejected, add to rejected list
         if (app.rejected) {
           rejected.push(jobDisplay);
-        } else {
+        }
+        // If the shift is complete and not rejected, it should be in past jobs
+        else if (app.shift.isComplete) {
+          // Skip - this will be handled by processUserShifts
+          return;
+        }
+        // Otherwise, it's an active application
+        else {
           applied.push(jobDisplay);
         }
       });
@@ -157,7 +172,7 @@ export default function MyJobs() {
         const jobDisplay: JobDisplay = {
           id: shift._id,
           name: shift.name,
-          company: shift.company?.name || "Unknown Company",
+          company: shift.companyName || "Unknown Company",
           pay: shift.pay,
           location:
             shift.address ||
@@ -194,18 +209,31 @@ export default function MyJobs() {
         confirmButton: "swal2-black-button",
         cancelButton: "swal2-black-button",
       },
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        // Remove from applied jobs (would normally call an API here)
-        setAppliedJobs((prev) => prev.filter((job) => job.id !== jobId));
-        Swal.fire({
-          title: "Application Cancelled",
-          text: "Your application has been cancelled successfully.",
-          confirmButtonText: "OK",
-          customClass: {
-            confirmButton: "swal2-black-button",
-          },
-        });
+        try {
+          await BackendAPI.shiftApi.cancelApplication(jobId);
+          // Remove from applied jobs
+          setAppliedJobs((prev) => prev.filter((job) => job.id !== jobId));
+          Swal.fire({
+            title: "Application Cancelled",
+            text: "Your application has been cancelled successfully.",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        } catch (error) {
+          console.error("Error cancelling application:", error);
+          Swal.fire({
+            title: "Error",
+            text: "Failed to cancel application. Please try again.",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        }
       }
     });
   };
@@ -298,10 +326,10 @@ export default function MyJobs() {
     <>
       <Navbar1 />
       <div className="px-6 py-10 max-w-6xl mx-auto">
-        {renderTable("Won Jobs", wonJobs, "contact")}
+        {renderTable("Hired Jobs", wonJobs)}
         {renderTable("Applied Jobs", appliedJobs, "cancel")}
         {renderTable("Rejected Jobs", rejectedJobs)}
-        {renderTable("Past Jobs", pastJobs)}
+        {renderTable("Complete Jobs", pastJobs)}
       </div>
     </>
   );
