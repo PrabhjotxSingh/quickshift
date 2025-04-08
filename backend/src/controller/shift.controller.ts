@@ -247,4 +247,22 @@ export class ShiftController extends BaseController {
 			return this.handleError(ex);
 		}
 	}
+
+	@Post("CancelApplication")
+	@Authenticate(UserRole.WORKER)
+	public async cancelApplication(@Query() applicationId: string) {
+		try {
+			const user = await this.getUser();
+			const application = await this.shiftService.getShiftApplicantById(applicationId);
+
+			// Ensure the user is cancelling their own application
+			if (application.user.toString() !== user.id) {
+				throw new ForbiddenError("You can only cancel your own applications");
+			}
+
+			return await this.shiftService.cancelApplication(applicationId);
+		} catch (ex: any) {
+			return this.handleError(ex);
+		}
+	}
 }

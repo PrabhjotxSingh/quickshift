@@ -208,18 +208,31 @@ export default function MyJobs() {
         confirmButton: "swal2-black-button",
         cancelButton: "swal2-black-button",
       },
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        // Remove from applied jobs (would normally call an API here)
-        setAppliedJobs((prev) => prev.filter((job) => job.id !== jobId));
-        Swal.fire({
-          title: "Application Cancelled",
-          text: "Your application has been cancelled successfully.",
-          confirmButtonText: "OK",
-          customClass: {
-            confirmButton: "swal2-black-button",
-          },
-        });
+        try {
+          await BackendAPI.shiftApi.cancelApplication(jobId);
+          // Remove from applied jobs
+          setAppliedJobs((prev) => prev.filter((job) => job.id !== jobId));
+          Swal.fire({
+            title: "Application Cancelled",
+            text: "Your application has been cancelled successfully.",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        } catch (error) {
+          console.error("Error cancelling application:", error);
+          Swal.fire({
+            title: "Error",
+            text: "Failed to cancel application. Please try again.",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "swal2-black-button",
+            },
+          });
+        }
       }
     });
   };
