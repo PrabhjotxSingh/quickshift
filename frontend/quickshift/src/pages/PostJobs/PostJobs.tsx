@@ -11,6 +11,7 @@ import {
   ShiftApplicantDto,
   UserDto,
 } from "../../backend-api/models";
+import AddressAutocomplete from "../../components/AddressAutocomplete";
 
 type Job = {
   id: string;
@@ -40,6 +41,10 @@ export default function PostJobs() {
     startTime: "",
     endTime: "",
     tags: [] as string[],
+  });
+  const [locationCoords, setLocationCoords] = useState<Location>({
+    latitude: 0,
+    longitude: 0,
   });
 
   useEffect(() => {
@@ -264,6 +269,15 @@ export default function PostJobs() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleAddressSelect = (
+    address: string,
+    latitude: number,
+    longitude: number
+  ) => {
+    setFormData({ ...formData, location: address });
+    setLocationCoords({ latitude, longitude });
+  };
+
   const handlePostJob = async () => {
     if (!companyId) {
       Swal.fire({
@@ -279,13 +293,7 @@ export default function PostJobs() {
     }
 
     try {
-      // Create a location object (using dummy coordinates for now)
-      const location: Location = {
-        latitude: 0,
-        longitude: 0,
-      };
-
-      // Create the shift request
+      // Create the shift request with the coordinates from the selected address
       const createShiftRequest: CreateShiftRequest = {
         name: formData.name,
         description: formData.description || "No description provided",
@@ -295,7 +303,7 @@ export default function PostJobs() {
         endTime:
           formData.endTime || new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
         pay: parseFloat(formData.pay),
-        location: location,
+        location: locationCoords,
       };
 
       // Call the API to create the shift
@@ -464,11 +472,9 @@ export default function PostJobs() {
             className="border px-3 py-2 w-full"
             type="number"
           />
-          <input
-            name="location"
-            value={formData.location}
-            onChange={handleInput}
-            placeholder="Location"
+          <AddressAutocomplete
+            onAddressSelect={handleAddressSelect}
+            placeholder="Enter job location"
             className="border px-3 py-2 w-full"
           />
           <textarea
