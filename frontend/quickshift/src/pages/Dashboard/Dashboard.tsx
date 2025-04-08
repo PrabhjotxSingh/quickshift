@@ -266,7 +266,7 @@ export default function Dashboard() {
 
   // Add the following useEffect after the existing useEffect for fetching current user
   useEffect(() => {
-    if (!BackendAPI.isAuthenticated) {
+    if (!BackendAPI.checkAuth()) {
       console.log("BackendAPI is not authenticated, refreshing page...");
       setTimeout(() => {
         window.location.reload();
