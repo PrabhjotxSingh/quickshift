@@ -136,8 +136,8 @@ export default function Profile() {
               <ul className="flex flex-wrap gap-2">
                 {userData.skills.map((skill, index) => (
                   <li key={index} className="relative group">
-                    <div className="px-3 py-1 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white">
-                      <span>{skill}</span>
+                    <div className="px-3 py-1 bg-gray-200 rounded-full transition-colors duration-300 group-hover:bg-red-500 group-hover:text-white cursor-pointer">
+                      <button className="text-left">{skill}</button>
                       <button
                         onClick={() => handleRemoveSkill(skill)}
                         className="ml-2 text-red-500 group-hover:text-white"
