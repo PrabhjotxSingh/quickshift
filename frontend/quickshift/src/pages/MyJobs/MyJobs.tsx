@@ -325,10 +325,10 @@ export default function MyJobs() {
     <>
       <Navbar1 />
       <div className="px-6 py-10 max-w-6xl mx-auto">
-        {renderTable("Won Jobs", wonJobs, "contact")}
+        {renderTable("Hired Jobs", wonJobs)}
         {renderTable("Applied Jobs", appliedJobs, "cancel")}
         {renderTable("Rejected Jobs", rejectedJobs)}
-        {renderTable("Past Jobs", pastJobs)}
+        {renderTable("Complete Jobs", pastJobs)}
       </div>
     </>
   );
