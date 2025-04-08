@@ -127,10 +127,9 @@ export class ShiftService {
 		userLng?: number,
 		maxDistanceMiles: number = 200,
 	): Promise<ShiftDto[]> {
-		// Base query for open shifts
+		// Build base query
 		let query: FilterQuery<ShiftDocument> = {
 			isOpen: true,
-			// Only include shifts with valid location data
 			"location.latitude": { $exists: true, $ne: null },
 			"location.longitude": { $exists: true, $ne: null },
 		};
@@ -139,25 +138,21 @@ export class ShiftService {
 			query.tags = { $in: tags };
 		}
 
-		// If user location is provided, filter by distance
+		// Retrieve candidate shifts
+		let candidateShifts: any[] = [];
 		if (userLat !== undefined && userLng !== undefined) {
-			// Use a geospatial query to find shifts within the specified distance
-			// This is much more efficient than fetching all shifts and filtering in memory
-			const shifts = await this.shiftRepository.getManyByQuery({
-				...query,
-				"location.latitude": {
-					$gte: userLat - maxDistanceMiles / 69, // Rough approximation: 1 degree lat ≈ 69 miles
-					$lte: userLat + maxDistanceMiles / 69,
-				},
-				"location.longitude": {
-					$gte: userLng - maxDistanceMiles / (69 * Math.cos((userLat * Math.PI) / 180)), // Adjust for longitude
-					$lte: userLng + maxDistanceMiles / (69 * Math.cos((userLat * Math.PI) / 180)),
-				},
-			});
+			// Extend query with approximate geo boundaries
+			const latDiff = maxDistanceMiles / 69;
+			const lngDiff = maxDistanceMiles / (69 * Math.cos((userLat * Math.PI) / 180));
+			const geoQuery = {
+				"location.latitude": { $gte: userLat - latDiff, $lte: userLat + latDiff },
+				"location.longitude": { $gte: userLng - lngDiff, $lte: userLng + lngDiff },
+			};
+			candidateShifts = await this.shiftRepository.getManyByQuery({ ...query, ...geoQuery });
 
-			// Calculate actual distances and filter
-			const shiftsWithDistance = shifts
-				.map((shift) => {
+			// Compute actual distances and filter by maxDistanceMiles
+			candidateShifts = candidateShifts
+				.map((shift: any) => {
 					const distance = this.calculateDistance(
 						userLat,
 						userLng,
@@ -167,107 +162,42 @@ export class ShiftService {
 					return { ...shift, distance };
 				})
 				.filter((shift) => shift.distance <= maxDistanceMiles);
-
-			// Apply pagination
-			const paginatedShifts = shiftsWithDistance.slice(skip, skip + limit);
-
-			// If userId is provided, filter out shifts the user has already applied to
-			let availableShifts = paginatedShifts;
-
-			if (userId) {
-				// Filter out shifts the user has already applied to
-				availableShifts = [];
-
-				for (const shift of paginatedShifts) {
-					// Check if user has already applied to this shift
-					const existingApplication = await this.shiftApplicantRepository.getByQuery({
-						user: new Types.ObjectId(userId),
-						shiftId: shift._id,
-					});
-
-					// If no application exists, add this shift to available shifts
-					if (!existingApplication) {
-						availableShifts.push(shift);
-					}
-				}
-			}
-
-			// Map to DTOs and populate company names
-			const shiftDtos: ShiftDto[] = [];
-
-			for (const shift of availableShifts) {
-				// Create DTO directly
-				const shiftDto = new ShiftDto();
-				shiftDto._id = (shift as any)._id.toString();
-				shiftDto.company = (shift as any).company.toString();
-				shiftDto.name = shift.name;
-				shiftDto.description = shift.description;
-				shiftDto.tags = shift.tags;
-				shiftDto.isOpen = shift.isOpen;
-				shiftDto.startTime = shift.startTime;
-				shiftDto.endTime = shift.endTime;
-				shiftDto.pay = shift.pay;
-				shiftDto.location = shift.location;
-				shiftDto.userHired = (shift as any).userHired?.toString();
-				shiftDto.isComplete = shift.isComplete;
-				shiftDto.rating = shift.rating;
-				shiftDto.distance = shift.distance;
-
-				// Populate the company name
-				const company = await this.companyRepository.get(shift.company);
-				if (company) {
-					shiftDto.companyName = company.name;
-				}
-
-				shiftDtos.push(shiftDto);
-			}
-
-			return shiftDtos;
 		} else {
-			// If no user location is provided, use the regular query approach
-			const shifts = await this.shiftRepository.getManyByQuery(query);
-
-			// If userId is provided, filter out shifts the user has already applied to
-			let availableShifts = shifts;
-
-			if (userId) {
-				// Filter out shifts the user has already applied to
-				availableShifts = [];
-
-				for (const shift of shifts) {
-					// Check if user has already applied to this shift
-					const existingApplication = await this.shiftApplicantRepository.getByQuery({
-						user: new Types.ObjectId(userId),
-						shiftId: shift._id,
-					});
-
-					// If no application exists, add this shift to available shifts
-					if (!existingApplication) {
-						availableShifts.push(shift);
-					}
-				}
-			}
-
-			// Apply pagination by slicing the array
-			availableShifts = availableShifts.slice(skip, skip + limit);
-
-			// Map to DTOs and populate company names
-			const shiftDtos: ShiftDto[] = [];
-
-			for (const shift of availableShifts) {
-				const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
-
-				// Populate the company name
-				const company = await this.companyRepository.get(shift.company);
-				if (company) {
-					shiftDto.companyName = company.name;
-				}
-
-				shiftDtos.push(shiftDto);
-			}
-
-			return shiftDtos;
+			candidateShifts = await this.shiftRepository.getManyByQuery(query);
 		}
+
+		// Optimize filtering for user applications if userId exists by batching the query
+		if (userId && candidateShifts.length > 0) {
+			const shiftIds = candidateShifts.map((shift) => shift._id);
+			const applications = await this.shiftApplicantRepository.getManyByQuery({
+				user: new Types.ObjectId(userId),
+				shiftId: { $in: shiftIds },
+			});
+			const appliedShiftIds = new Set(applications.map((app) => app.shiftId.toString()));
+			candidateShifts = candidateShifts.filter((shift) => !appliedShiftIds.has(shift._id.toString()));
+		}
+
+		// Apply pagination after filtering
+		candidateShifts = candidateShifts.slice(skip, skip + limit);
+
+		// Map candidate shifts to DTOs with cached company names
+		const companyCache: Record<string, string> = {};
+		const shiftDtos: ShiftDto[] = [];
+		for (const shift of candidateShifts) {
+			const shiftDto = mapper.map(shift, ShiftModel, ShiftDto);
+			const companyId = shift.company.toString();
+			if (!companyCache[companyId]) {
+				const company = await this.companyRepository.get(companyId);
+				companyCache[companyId] = company ? company.name : "";
+			}
+			shiftDto.companyName = companyCache[companyId];
+			if (shift.distance !== undefined) {
+				shiftDto.distance = shift.distance;
+			}
+			shiftDtos.push(shiftDto);
+		}
+
+		return shiftDtos;
 	}
 
 	// Gets users shifts.
