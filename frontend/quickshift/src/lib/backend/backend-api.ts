@@ -59,7 +59,7 @@ export class BackendAPI {
     const config = new Configuration({
       basePath: API_BASE_URL,
       baseOptions: {
-        withCredentials: true, // Enable sending cookies with requests
+        withCredentials: true, // Enables sending cookies with requests
         headers: token
           ? {
               Authorization: `Bearer ${token}`,
@@ -292,6 +292,12 @@ export class BackendAPI {
       (hasMemoryToken && hasMemoryRefresh)
     ) {
       console.log("Auth tokens present, user is authenticated");
+      this.isAuthenticated = true;
+      if (hasAccessTokenCookie) {
+        this.initialize(this.getCookie(ACCESS_TOKEN_COOKIE) || undefined);
+      } else if (hasMemoryToken && this._memoryToken) {
+        this.initialize(this._memoryToken);
+      }
 
       // If we have a memory token but no cookie, try re-setting the cookie
       if (
@@ -305,15 +311,6 @@ export class BackendAPI {
         if (this._memoryRefreshToken) {
           document.cookie = `${REFRESH_TOKEN_COOKIE}=${this._memoryRefreshToken}; ${cookieSettings.refreshToken}`;
         }
-      }
-
-      this.isAuthenticated = true;
-
-      // Make sure API is initialized with the token
-      if (hasMemoryToken && this._memoryToken) {
-        this.initialize(this._memoryToken);
-      } else if (hasAccessTokenCookie) {
-        this.initialize(this.getCookie(ACCESS_TOKEN_COOKIE) || undefined);
       }
 
       // Only attempt refresh if requested
