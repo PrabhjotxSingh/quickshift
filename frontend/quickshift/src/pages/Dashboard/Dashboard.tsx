@@ -184,13 +184,17 @@ export default function Dashboard() {
   }, [fetchAllShifts, hasMoreAll, loadingAll]);
 
   useEffect(() => {
-    // Get user location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserCoords([position.coords.latitude, position.coords.longitude]);
-      },
-      (err) => console.error("Failed to get user location:", err)
-    );
+    if (navigator.geolocation) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setUserCoords([position.coords.latitude, position.coords.longitude]);
+        },
+        (err) => console.error("Error watching position", err)
+      );
+      return () => navigator.geolocation.clearWatch(watchId);
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   }, []);
 
   useEffect(() => {
@@ -222,22 +226,38 @@ export default function Dashboard() {
     setShowModal(false);
   };
 
-  // Fetch current user and their skills
+  // Fetch current user and their skills by polling until successful
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    let isMounted = true;
+    const getUser = async () => {
       try {
-        if (BackendAPI.isAuthenticated) {
-          const response = await BackendAPI.authApi.getCurrentUser();
-          if (response.status === 200 && response.data) {
+        const response = await BackendAPI.authApi.getCurrentUser();
+        if (response.status === 200 && response.data) {
+          if (isMounted) {
             setUserSkills(response.data.skills || []);
           }
+          return true;
         }
       } catch (err) {
         console.error("Error fetching current user:", err);
       }
+      return false;
     };
 
-    fetchCurrentUser();
+    // Immediately try fetching the user
+    getUser();
+
+    const intervalId = setInterval(async () => {
+      const success = await getUser();
+      if (success) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   }, []);
 
   // Compute filtered arrays for rendering
