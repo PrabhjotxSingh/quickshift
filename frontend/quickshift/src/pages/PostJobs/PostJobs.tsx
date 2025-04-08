@@ -274,8 +274,10 @@ export default function PostJobs() {
     latitude: number,
     longitude: number
   ) => {
+    console.log("Address selected:", { address, latitude, longitude });
     setFormData({ ...formData, location: address });
     setLocationCoords({ latitude, longitude });
+    console.log("Updated locationCoords:", { latitude, longitude });
   };
 
   const handlePostJob = async () => {
@@ -293,6 +295,8 @@ export default function PostJobs() {
     }
 
     try {
+      console.log("Submitting job with location coords:", locationCoords);
+
       // Create the shift request with the coordinates from the selected address
       const createShiftRequest: CreateShiftRequest = {
         name: formData.name,
@@ -305,6 +309,8 @@ export default function PostJobs() {
         pay: parseFloat(formData.pay),
         location: locationCoords,
       };
+
+      console.log("Create shift request:", createShiftRequest);
 
       // Call the API to create the shift
       const response = await BackendAPI.shiftApi.create(createShiftRequest);

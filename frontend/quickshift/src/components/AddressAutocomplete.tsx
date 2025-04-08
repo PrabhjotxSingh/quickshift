@@ -21,12 +21,14 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   placeholder = "Enter address",
   className = "",
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [address, setAddress] = useState("");
   const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const latestQueryRef = useRef("");
 
   // Function to fetch address suggestions from Nominatim API
   const fetchSuggestions = async (query: string) => {
@@ -50,8 +52,24 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       }
 
       const data = await response.json();
-      setSuggestions(data);
-      setShowSuggestions(true);
+      console.log("Nominatim API response:", data); // Debug log to see the response format
+
+      // Ensure we have valid data with lat/lon properties
+      const validResults = data.filter(
+        (item: NominatimResult) =>
+          item && typeof item.lat === "string" && typeof item.lon === "string"
+      );
+
+      // Only update suggestions if the query hasn't changed
+      if (query === latestQueryRef.current) {
+        setSuggestions(validResults);
+        setShowSuggestions(true);
+
+        // If there's exactly one suggestion, automatically select it
+        if (validResults.length === 1) {
+          handleSuggestionClick(validResults[0]);
+        }
+      }
     } catch (error) {
       console.error("Error fetching address suggestions:", error);
       setSuggestions([]);
@@ -64,6 +82,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddress(value);
+    latestQueryRef.current = value; // update the latest query
 
     // Clear previous timer
     if (debounceTimer.current) {
@@ -78,21 +97,34 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
   // Handle suggestion selection
   const handleSuggestionClick = (suggestion: NominatimResult) => {
+    // Clear any pending debounce timer to prevent outdated API calls
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
+
+    // Update the input field with the selected address
     setAddress(suggestion.display_name);
+    // Update latestQueryRef to the selected suggestion to block stale queries
+    latestQueryRef.current = suggestion.display_name;
     setShowSuggestions(false);
-    onAddressSelect(
-      suggestion.display_name,
-      parseFloat(suggestion.lat),
-      parseFloat(suggestion.lon)
-    );
+
+    // Extract latitude and longitude from the suggestion
+    const latitude = parseFloat(suggestion.lat);
+    const longitude = parseFloat(suggestion.lon);
+
+    console.log("Selected coordinates:", { latitude, longitude });
+
+    // Call the callback with the address and coordinates
+    onAddressSelect(suggestion.display_name, latitude, longitude);
   };
 
-  // Close suggestions when clicking outside
+  // Close suggestions when clicking outside of the component container
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
       ) {
         setShowSuggestions(false);
       }
@@ -105,7 +137,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   }, []);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <input
         ref={inputRef}
         type="text"
@@ -128,7 +160,10 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             <li
               key={index}
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleSuggestionClick(suggestion)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleSuggestionClick(suggestion);
+              }}
             >
               {suggestion.display_name}
             </li>
