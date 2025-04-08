@@ -314,7 +314,10 @@ export default function MyJobs() {
         <h1 className="text-2xl font-bold text-gray-900 mb-4">{title}</h1>
       </center>
       {loading && jobs.length === 0 ? (
-        <div className="text-center py-4">Loading...</div>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mr-2"></div>
+          <span className="text-gray-600">Loading jobs...</span>
+        </div>
       ) : jobs.length === 0 ? (
         <div className="text-center py-4">No jobs found</div>
       ) : (
@@ -376,7 +379,12 @@ export default function MyJobs() {
           </Table>
           {title === "Applied Jobs" && (
             <div ref={loadingRef} className="text-center py-4">
-              {loading && <div>Loading more...</div>}
+              {loading && (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                  <span className="text-sm text-gray-500">Loading more...</span>
+                </div>
+              )}
             </div>
           )}
         </>
