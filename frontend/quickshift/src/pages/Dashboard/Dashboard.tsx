@@ -89,7 +89,7 @@ export default function Dashboard() {
   const [userSkills, setUserSkills] = useState<string[]>([]);
 
   // Dynamic loading with pagination and infinite scroll
-  const limit = 20;
+  const limit = 1;
   const [skip, setSkip] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -97,16 +97,19 @@ export default function Dashboard() {
   const fetchShifts = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
+
+    // Add a small delay to prevent rapid-fire requests
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     try {
       // Pass undefined for tags to fetch all available shifts
       const response = await BackendAPI.shiftApi.getAvailableShifts(undefined, {
-        skip: skip,
-        limit: limit,
-      } as any);
+        params: { skip: skip, limit: limit },
+      });
       if (response.data && response.data.length > 0) {
         setShifts((prev) => [...prev, ...response.data]);
         setSkip((prev) => prev + response.data.length);
-        if (response.data.length < limit) {
+        if (response.data.length < 1) {
           setHasMore(false);
         }
         setError(null);
@@ -417,10 +420,25 @@ export default function Dashboard() {
               )}
               <div
                 ref={loaderRef}
-                style={{ height: "20px", textAlign: "center" }}
+                style={{
+                  height: "30px",
+                  textAlign: "center",
+                  marginTop: "10px",
+                }}
               >
-                {loadingMore && <p>Loading more jobs...</p>}
-                {!hasMore && <p>No more jobs available</p>}
+                {loadingMore && (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                    <p className="text-sm text-gray-500">
+                      Loading more jobs...
+                    </p>
+                  </div>
+                )}
+                {!hasMore && (
+                  <p className="text-sm text-gray-500">
+                    No more jobs available
+                  </p>
+                )}
               </div>
             </div>
           </div>

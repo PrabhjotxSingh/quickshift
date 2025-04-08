@@ -131,6 +131,7 @@ export class ShiftService {
 			query.tags = { $in: tags };
 		}
 
+		// Get all open shifts
 		const shifts = await this.shiftRepository.getManyByQuery(query);
 
 		// If userId is provided, filter out shifts the user has already applied to
